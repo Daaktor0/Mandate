@@ -1,5 +1,5 @@
-"""Mandate worker package.
+"""Mandate worker package."""
 
-Runtime behaviour is introduced incrementally by the Phase 0 checklist. This package
-exists now so later slices can add typed modules without changing repository layout.
-"""
+__version__ = "0.0.0"
+
+__all__ = ["__version__"]
