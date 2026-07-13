@@ -48,7 +48,7 @@ export const EntityCandidateSchema = z
   status: z.string().max(100).nullable().optional(),
   registeredOfficeState: z.string().max(100).nullable().optional(),
   registeredOfficeSummary: z.string().max(500).nullable().optional(),
-  primaryDomain: z.string().regex(new RegExp("^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\\\.)*[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$")).max(253).nullable().optional(),
+  primaryDomain: z.string().regex(new RegExp("^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)*[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$")).max(253).nullable().optional(),
   brandNames: z.array(z.string().min(1).max(200)).max(20).default([]),
   confidenceScore: z.number().int().min(0).max(100),
   confidenceLabel: z.enum(["strong_match", "probable_match", "ambiguous", "insufficient_evidence"]),

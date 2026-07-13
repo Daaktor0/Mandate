@@ -108,7 +108,7 @@ class EntityCandidate(BaseModel):
     status: str | None = Field(default=None, max_length=100)
     registered_office_state: str | None = Field(default=None, alias="registeredOfficeState", max_length=100)
     registered_office_summary: str | None = Field(default=None, alias="registeredOfficeSummary", max_length=500)
-    primary_domain: str | None = Field(default=None, alias="primaryDomain", pattern="^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\\\.)*[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$", max_length=253)
+    primary_domain: str | None = Field(default=None, alias="primaryDomain", pattern="^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)*[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$", max_length=253)
     brand_names: list[str] | None = Field(default_factory=list, alias="brandNames", max_length=20)
     confidence_score: int = Field(..., alias="confidenceScore", ge=0, le=100)
     confidence_label: EntityCandidateConfidenceLabel = Field(..., alias="confidenceLabel")
