@@ -141,3 +141,23 @@ export const JobMessageSchema = z
   })
   .strict();
 export type JobMessage = z.infer<typeof JobMessageSchema>;
+
+export const LightTaskMessageSchema = z
+  .object({
+  schemaVersion: z.literal(1),
+  taskId: z.string().uuid(),
+  taskType: z.enum(["resolve_entity", "preliminary_research", "render_pdf"]),
+  reportRequestId: z.string().uuid(),
+  userId: z.string().uuid(),
+  attempt: z.number().int().min(1).max(100),
+  traceId: z.string().min(8).max(128).regex(new RegExp("^[A-Za-z0-9._:-]+$")),
+  })
+  .strict();
+export type LightTaskMessage = z.infer<typeof LightTaskMessageSchema>;
+
+export const ResolveEntityResponseSchema = z
+  .object({
+  state: z.literal("resolving_entity"),
+  })
+  .strict();
+export type ResolveEntityResponse = z.infer<typeof ResolveEntityResponseSchema>;

@@ -1,6 +1,6 @@
 # REQUIREMENTS-TRACEABILITY — Mandate MVP
 
-**Status:** Phase 1 in progress (5/9 tasks complete); `NFR-03` is `Verified`; `INTAKE-01`, `INTAKE-03`, `INTAKE-05` and `ENTITY-02` are `Implemented`; `NFR-01`, `NFR-02`, `NFR-04`, `NFR-05`, `INTAKE-02`, `INTAKE-04`, `INTAKE-06`, `ENTITY-01`, `ENTITY-03`, `ENTITY-04`, `ENTITY-05` and `RUN-06` are `In progress`; all other requirements remain `Specified`
+**Status:** Phase 1 in progress (6/9 tasks complete); `NFR-03` is `Verified`; `INTAKE-01`, `INTAKE-03`, `INTAKE-05`, `ENTITY-02` and `ENTITY-05` are `Implemented`; `NFR-01`, `NFR-02`, `NFR-04`, `NFR-05`, `INTAKE-02`, `INTAKE-04`, `INTAKE-06`, `ENTITY-01`, `ENTITY-03`, `ENTITY-04` and `RUN-06` are `In progress`; all other requirements remain `Specified`
 **Sources:** product-specification doc 02 (requirement IDs are normative and must be preserved in tickets, tests and PRs)
 **Related:** [TEST-PLAN.md](TEST-PLAN.md) (test IDs), [SYSTEM-SPEC.md](SYSTEM-SPEC.md) (component codes C1–C15), [BUILD-CHECKLIST.md](BUILD-CHECKLIST.md) (phases)
 
@@ -33,10 +33,10 @@ Columns: **Component** uses SYSTEM-SPEC §2 codes; **DB / API surface** cites ER
 | Req | Summary | Component | DB / API surface | Acceptance tests | Phase | Status |
 |---|---|---|---|---|---|---|
 | ENTITY-01 | Inspect website legal pages and disclosures | C6 (resolve stage), C9 | typed `LegalPageCrawler`/`PageInspection`; Evidence persistence and sandboxed PDF inspection pending | AT-ENTITY-01 (priority/robots/extraction), ER-02/10/11 foundations; full ER suite pending | 1 | In progress |
-| ENTITY-02 | Candidates with supporting evidence | C6 | typed `EntityCandidateGenerator`; generated `EntityCandidate` output; persistence/API pending next slices | AT-ENTITY-02 (verbatim scoring/evidence/dedupe); ER-01/02/05/06/07/09/10 foundations | 1 | Implemented |
-| ENTITY-03 | User confirmation mandatory | C1, C2 | generator result has literal `requiresUserConfirmation=true` and no auto-selection field; confirmation API/state/UI pending | AT-ENTITY-03 (structural generator assertion), E2E-01 pending | 1 | In progress |
-| ENTITY-04 | Ask for legal name/CIN when uncertain | C1, C2 | typed `legal_name_or_cin_required` no-match result; `none_of_these`/`refine` API/UI pending | AT-ENTITY-04 (no-match outcome), ER-09 foundation | 1 | In progress |
-| ENTITY-05 | CIN as exact identifier; compatible master-data sources | C8 (CompanyDataProvider), C4 | typed `CompanyDataProvider`; deterministic fixture; flagged Attestr adapter; `entities.cin` unique migration pending | AT-ENTITY-05 (provider contract/CIN validation); ER-01 and live B5 gate pending | 1 | In progress |
+| ENTITY-02 | Candidates with supporting evidence | C6, C4 | typed `EntityCandidateGenerator`; generated `EntityCandidate`; atomic `entities`/`entity_candidates` persistence with evidence ids + factor audit | AT-ENTITY-02 (verbatim scoring/evidence/dedupe/persistence); ER-01/02/05/06/07/09/10 foundations | 1 | Implemented |
+| ENTITY-03 | User confirmation mandatory | C1, C2, C4, C5 | literal `requiresUserConfirmation=true`; guarded request-state trigger; identifier-only resolve endpoint/outbox/light loop; no auto-selection; confirmation UI/API pending | AT-ENTITY-03 (generator, route, DB state/outbox), E2E-01 pending | 1 | In progress |
+| ENTITY-04 | Ask for legal name/CIN when uncertain | C1, C2, C4 | typed `legal_name_or_cin_required`; no-match/exhausted light task → `failed_no_charge`; `none_of_these`/`refine` API/UI pending | AT-ENTITY-04 (no-match + no-charge outcome), ER-09 foundation | 1 | In progress |
+| ENTITY-05 | CIN as exact identifier; compatible master-data sources | C8 (CompanyDataProvider), C4 | typed provider + deterministic fixture + flagged Attestr adapter; `entities.cin` unique and CIN-first identity key | AT-ENTITY-05 (provider/CIN/database identity); ER-01 foundation; live B5 gate is phase exit evidence | 1 | Implemented |
 | ENTITY-06 | Brand never replaces legal entity in brief identity | C6 (composer), C4 | `entities.brand_names`; header rules (AGENT-PROMPT §7) | AT-ENTITY-06, ER-03, GC-09 | 4 | Specified |
 | ENTITY-07 | Explain and confirm multi-entity scope | C1, C6 | `related_entity_ids` (≤2); confirm-entity payload | AT-ENTITY-07, GC-14 | 1 | Specified |
 | ENTITY-08 | Label primary and related entities separately | C6 (composer) | BriefDocument related-entity subsections (AS-10) | AT-ENTITY-08, GC-14 | 4 | Specified |
@@ -135,10 +135,10 @@ Columns: **Component** uses SYSTEM-SPEC §2 codes; **DB / API surface** cites ER
 
 | Req | Summary | Component | DB / API surface | Acceptance tests | Phase | Status |
 |---|---|---|---|---|---|---|
-| NFR-01 | Jobs retryable and idempotent | C5, C6 | checkpoints + idempotency keys (QUEUE §2/6) | AT-NFR-01, E2E-05 | 2/5 | In progress |
-| NFR-02 | Tenant isolation at database layer | C4 | RLS on all tables (ERD §4) | AT-NFR-02, SEC-01 (real local database in CI stage 5; expands with each table) | 0+ | In progress |
+| NFR-01 | Jobs retryable and idempotent | C5, C6 | request-scoped deterministic candidate ids; transactional outbox; idempotent completion/failure RPCs; visibility retry/DLQ; later checkpoints (QUEUE §2/6) | AT-NFR-01 (light-task foundations), E2E-05 | 2/5 | In progress |
+| NFR-02 | Tenant isolation at database layer | C4 | forced RLS on every current table; owner-join candidate policy; service-only outbox and worker mutations (ERD §4) | AT-NFR-02, SEC-01 (database matrix expands with each table) | 0+ | In progress |
 | NFR-03 | Containerised, Hostinger-independent worker | C6, C8 | `services/worker/Dockerfile`; `infra/compose/local.yml`; `mandate_worker.runtime`; `fixtures/demo`; `.github/workflows/ci.yml`; `scripts/generate_traceability_report.py`; no host coupling | AT-NFR-03 (structural + live portability/sandbox + complete zero-spend catalog check in CI stage 5; passing JUnit evidence enforced in CI stage 7) | 0 | Verified |
-| NFR-04 | Trace ID across API/queue/model/search/payment/PDF | C15 | `trace_id` propagation and sink redaction in `mandate_worker.observability` (DEPLOYMENT §6) | AT-NFR-04; SEC-09 (logger-boundary unit coverage) | 0+ | In progress |
+| NFR-04 | Trace ID across API/queue/model/search/payment/PDF | C15 | web-minted trace → validated outbox/light message → worker trace context; sink redaction (DEPLOYMENT §6); later provider/model/payment/PDF propagation pending | AT-NFR-04; SEC-09 (route/message/logger coverage) | 0+ | In progress |
 | NFR-05 | Every external cost attributable to a report | C7, C15 | bounded company-data call/query counts returned for later `provider_cost_events`; report attribution/admin view pending | AT-NFR-05 (provider and candidate-generation caps; persistence pending) | 2 | In progress |
 | NFR-06 | WCAG 2.1 AA target | C1 | axe checks in E2E; manual audit | AT-NFR-06 | 5/7 | Specified |
 | NFR-07 | Interactive requests short; research async | C2, C5 | route-handler budget; queue offload | AT-NFR-07 (latency assertion) | 5 | Specified |

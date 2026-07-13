@@ -335,6 +335,7 @@ class EntityCandidateGenerator:
     async def generate(
         self,
         *,
+        report_request_id: UUID,
         supplied_legal_name: str | None = None,
         supplied_cin: str | None = None,
         site_inspection: SiteInspection | None = None,
@@ -369,7 +370,12 @@ class EntityCandidateGenerator:
             self._ingest_response(aggregates, response)
 
         scored = [
-            self._score_aggregate(aggregate, site_inspection=site_inspection, signals=signals)
+            self._score_aggregate(
+                aggregate,
+                report_request_id=report_request_id,
+                site_inspection=site_inspection,
+                signals=signals,
+            )
             for aggregate in aggregates.values()
         ]
         scored.sort(
@@ -420,6 +426,7 @@ class EntityCandidateGenerator:
         self,
         aggregate: _CandidateAggregate,
         *,
+        report_request_id: UUID,
         site_inspection: SiteInspection | None,
         signals: Sequence[ResolutionSignal],
     ) -> tuple[EntityCandidate, CandidateScoreAudit]:
@@ -476,7 +483,7 @@ class EntityCandidateGenerator:
         evidence = _dedupe_evidence(
             (*site.evidence, *signal_evidence, *aggregate.provider_evidence.values())
         )[:MAX_EVIDENCE_PER_CANDIDATE]
-        candidate_id = _candidate_id(record)
+        candidate_id = _candidate_id(report_request_id, record)
         candidate = EntityCandidate(
             schemaVersion=1,
             candidateId=candidate_id,
@@ -608,9 +615,10 @@ def _normalised_name(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", " ", name).strip()
 
 
-def _candidate_id(record: CompanyDataRecord) -> UUID:
+def _candidate_id(report_request_id: UUID, record: CompanyDataRecord) -> UUID:
     key = (
-        f"{record.cin}|{_normalised_name(record.legal_name)}|{record.registered_office_state or ''}"
+        f"{report_request_id}|{record.cin}|{_normalised_name(record.legal_name)}|"
+        f"{record.registered_office_state or ''}"
     )
     return uuid5(CANDIDATE_NAMESPACE, key)
 
