@@ -54,5 +54,13 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
           uv sync --locked --all-groups
-      - name: Validate complete baseline
-        run: pnpm check
+      - name: Check schema drift
+        run: pnpm schemas:check
+      - name: Lint
+        run: pnpm lint
+      - name: Check formatting
+        run: pnpm format:check
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Test
+        run: pnpm test
