@@ -25,6 +25,39 @@ export const ClaimSchema = z
   .strict();
 export type Claim = z.infer<typeof ClaimSchema>;
 
+export const CreateReportRequestResponseReportRequestSchema = z
+  .object({
+  id: z.string().uuid(),
+  inputKind: z.enum(["website", "legal_name"]),
+  url: z.string().url().max(2048).nullable(),
+  legalName: z.string().max(300).nullable(),
+  cin: z.string().regex(new RegExp("^[UL][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$")).nullable(),
+  confidentialAckAt: z.string().datetime({ offset: true }),
+  state: z.literal("draft"),
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
+  })
+  .strict();
+export type CreateReportRequestResponseReportRequest = z.infer<typeof CreateReportRequestResponseReportRequestSchema>;
+
+export const CreateReportRequestResponseSchema = z
+  .object({
+  reportRequest: CreateReportRequestResponseReportRequestSchema,
+  })
+  .strict();
+export type CreateReportRequestResponse = z.infer<typeof CreateReportRequestResponseSchema>;
+
+export const CreateReportRequestSchema = z
+  .object({
+  inputKind: z.enum(["website", "legal_name"]),
+  url: z.string().url().min(1).max(2048).optional(),
+  legalName: z.string().min(1).max(300).optional(),
+  cin: z.string().regex(new RegExp("^[UL][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$")).optional(),
+  confidentialAck: z.literal(true),
+  })
+  .strict();
+export type CreateReportRequest = z.infer<typeof CreateReportRequestSchema>;
+
 export const EntityCandidateEvidenceSnippetsItemSchema = z
   .object({
   evidenceId: z.string().uuid(),

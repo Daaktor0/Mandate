@@ -2,7 +2,12 @@ import { randomUUID } from "node:crypto";
 
 import { describe, expect, it } from "vitest";
 
-import { EvidenceSchema, JobMessageSchema } from "../typescript";
+import {
+  CreateReportRequestResponseSchema,
+  CreateReportRequestSchema,
+  EvidenceSchema,
+  JobMessageSchema,
+} from "../typescript";
 
 describe("RUN-05 shared-schema validation", () => {
   it("accepts an identifier-only JobMessage", () => {
@@ -61,5 +66,40 @@ describe("RUN-05 shared-schema validation", () => {
         retentionClass: "with_report",
       }),
     ).toThrow();
+  });
+
+  it("INTAKE-01/04 keeps the unversioned intake transport strict", () => {
+    expect(
+      CreateReportRequestSchema.parse({
+        inputKind: "legal_name",
+        legalName: "Example Private Limited",
+        confidentialAck: true,
+      }).inputKind,
+    ).toBe("legal_name");
+
+    expect(() =>
+      CreateReportRequestSchema.parse({
+        inputKind: "legal_name",
+        legalName: "Example Private Limited",
+        confidentialAck: true,
+        description: "Confidential narrative must never enter intake.",
+      }),
+    ).toThrow();
+
+    expect(
+      CreateReportRequestResponseSchema.parse({
+        reportRequest: {
+          id: randomUUID(),
+          inputKind: "legal_name",
+          url: null,
+          legalName: "Example Private Limited",
+          cin: null,
+          confidentialAckAt: "2026-07-13T20:30:00+00:00",
+          state: "draft",
+          createdAt: "2026-07-13T20:30:00+00:00",
+          updatedAt: "2026-07-13T20:30:00+00:00",
+        },
+      }).reportRequest.state,
+    ).toBe("draft");
   });
 });

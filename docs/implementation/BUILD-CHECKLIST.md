@@ -2,7 +2,7 @@
 
 **Status header (update after every tested phase):**
 
-> **Current phase:** 0 — Engineering foundation (11/11 tasks complete) · **Last gate passed:** G0 · **Updated:** 2026-07-13
+> **Current phase:** 1 — Entity-resolution proof of concept (1/9 tasks complete) · **Last gate passed:** G0 · **Updated:** 2026-07-13
 
 **Sources:** product-specification doc 13 (authoritative phase order and gates); master prompt ("follow the build roadmap exactly; use vertical slices; update the checklist after every tested phase")
 **Related:** [REQUIREMENTS-TRACEABILITY.md](REQUIREMENTS-TRACEABILITY.md), [TEST-PLAN.md](TEST-PLAN.md), [ARCHITECTURE-DECISIONS.md](ARCHITECTURE-DECISIONS.md) (blockers B1–B14)
@@ -29,7 +29,7 @@ Ordering principle (doc 13): **correct entity → reliable evidence → useful q
 
 ## Phase 1 — Entity-resolution proof of concept
 
-- [ ] Intake API + validation (INTAKE-01..06): URL safety (SafeFetcher policy, ADR-011), confidential ack, CIN optional
+- [x] Intake API + validation (INTAKE-01..06): URL safety (SafeFetcher policy, ADR-011), confidential ack, CIN optional
 - [ ] SafeFetcher module + full SSRF unit table (SEC-03 foundations)
 - [ ] Legal-page crawler (discovery order, AGENT-PROMPT §3 step 1) + extraction (CIN/GSTIN/legal-suffix/office patterns)
 - [ ] `CompanyDataProvider` interface + fixture impl; real name-to-CIN adapter behind flag (Blocker B5)

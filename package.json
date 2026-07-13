@@ -27,5 +27,10 @@
   },
   "optionalDependencies": {
     "@esbuild/linux-x64": "0.28.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": "8.5.10"
+    }
   }
 }
