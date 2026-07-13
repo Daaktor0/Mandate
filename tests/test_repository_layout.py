@@ -10,7 +10,7 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 class RepositoryLayoutTests(unittest.TestCase):
     """Structural acceptance tests for the Phase 0 monorepo scaffold."""
 
-    def test_AT_NFR_03_monorepo_scaffold_matches_system_spec(self) -> None:
+    def test_NFR_03_monorepo_scaffold_matches_system_spec(self) -> None:
         required_directories = {
             "apps/web/app",
             "apps/web/components",
@@ -43,7 +43,7 @@ class RepositoryLayoutTests(unittest.TestCase):
         )
         self.assertEqual([], missing, f"Missing SYSTEM-SPEC directories: {missing}")
 
-    def test_AT_INTAKE_04_scaffold_has_no_confidential_upload_surface(self) -> None:
+    def test_INTAKE_04_scaffold_has_no_confidential_upload_surface(self) -> None:
         forbidden_scaffold_paths = {
             "uploads",
             "data-room",
