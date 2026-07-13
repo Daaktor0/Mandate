@@ -8,10 +8,8 @@ from uuid import uuid4
 
 import pytest
 from jsonschema import Draft202012Validator
-from pydantic import ValidationError
-
 from mandate_schemas import EntityCandidate, Evidence, JobMessage
-
+from pydantic import ValidationError
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_DIRECTORY = REPOSITORY_ROOT / "packages" / "shared-schemas" / "schemas"
