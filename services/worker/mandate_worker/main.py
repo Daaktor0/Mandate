@@ -25,12 +25,12 @@ class HealthResponse(BaseModel):
     version: str
 
 
-def create_app() -> FastAPI:
-    """Create the internal worker API without starting external providers."""
+def create_app(service_name: str = "mandate-worker") -> FastAPI:
+    """Create an internal service API without starting external providers."""
 
     configure_logging()
     application = FastAPI(
-        title="Mandate worker",
+        title=service_name,
         version=__version__,
         docs_url=None,
         redoc_url=None,
@@ -51,7 +51,7 @@ def create_app() -> FastAPI:
         logger.info("health_check", status="ok")
         return HealthResponse(
             status="ok",
-            service="mandate-worker",
+            service=service_name,
             version=__version__,
         )
 

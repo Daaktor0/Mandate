@@ -1,0 +1,37 @@
+.git
+.github
+.agents
+.codex
+.venv
+**/.venv
+node_modules
+**/node_modules
+**/.next
+**/coverage
+**/__pycache__
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+**/*.pyc
+**/*.tsbuildinfo
+
+# Credentials and local configuration must never enter the build context.
+.env
+.env.*
+**/.env
+**/.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+**/secrets/
+
+# The worker image copies only its locked runtime inputs explicitly.
+apps/
+docs/
+fixtures/
+infra/
+product-specification/
+supabase/
+tests/

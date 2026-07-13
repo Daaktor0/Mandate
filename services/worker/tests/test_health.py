@@ -27,6 +27,18 @@ def test_NFR_04_health_replaces_an_untrusted_trace_header() -> None:
     assert trace_id.isalnum()
 
 
+def test_SEC_05_renderer_health_surface_is_distinct() -> None:
+    with TestClient(create_app(service_name="mandate-renderer")) as client:
+        response = client.get("/health")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "status": "ok",
+        "service": "mandate-renderer",
+        "version": "0.0.0",
+    }
+
+
 def test_NFR_04_log_processor_always_supplies_trace_id() -> None:
     event = ensure_trace_id(None, "info", {"event": "worker_ready"})
 
