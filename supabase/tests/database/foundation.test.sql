@@ -194,10 +194,10 @@ select throws_ok(
     )
   $$,
   '23514',
+  null,
   'NFR-02 request input kinds cannot be combined'
 );
 
 select * from finish();
 
 rollback;
-
