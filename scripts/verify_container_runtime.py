@@ -40,7 +40,7 @@ def assert_demo_fixture_runtime() -> None:
         "from mandate_worker.main import app; "
         "plan = app.state.runtime_adapter_plan; "
         "assert plan.zero_spend; "
-        "assert plan.fixture_revision == '2026-07-13.1'; "
+        "assert plan.fixture_revision == '2026-07-13.2'; "
         "assert set(plan.bindings) == set(AdapterCapability)"
     )
     subprocess.check_call([*COMPOSE, "exec", "--no-TTY", "worker", "python", "-c", probe])
