@@ -22,6 +22,10 @@ def test_NFR_02_entity_tables_and_outbox_are_force_rls_default_deny() -> None:
     assert "grant select on table public.entities to authenticated;" in sql
     assert "grant select on table public.entity_candidates to authenticated;" in sql
     assert "grant select on table public.outbox to authenticated" not in sql
+    assert (
+        "grant execute on function private.light_task_payload_is_valid(jsonb)\n  to service_role;"
+        in sql
+    )
 
 
 def test_ENTITY_03_resolution_state_changes_are_database_guarded() -> None:

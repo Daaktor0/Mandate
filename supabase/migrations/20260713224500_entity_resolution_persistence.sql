@@ -196,6 +196,8 @@ $$;
 
 revoke all on function private.light_task_payload_is_valid(jsonb)
   from public, anon, authenticated;
+grant execute on function private.light_task_payload_is_valid(jsonb)
+  to service_role;
 
 alter table public.outbox
   add constraint outbox_light_task_payload_valid check (
