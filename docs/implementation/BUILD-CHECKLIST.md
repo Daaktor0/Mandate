@@ -2,7 +2,7 @@
 
 **Status header (update after every tested phase):**
 
-> **Current phase:** 1 — Entity-resolution proof of concept (4/9 tasks complete) · **Last gate passed:** G0 · **Updated:** 2026-07-13
+> **Current phase:** 1 — Entity-resolution proof of concept (5/9 tasks complete) · **Last gate passed:** G0 · **Updated:** 2026-07-13
 
 **Sources:** product-specification doc 13 (authoritative phase order and gates); master prompt ("follow the build roadmap exactly; use vertical slices; update the checklist after every tested phase")
 **Related:** [REQUIREMENTS-TRACEABILITY.md](REQUIREMENTS-TRACEABILITY.md), [TEST-PLAN.md](TEST-PLAN.md), [ARCHITECTURE-DECISIONS.md](ARCHITECTURE-DECISIONS.md) (blockers B1–B14)
@@ -33,7 +33,7 @@ Ordering principle (doc 13): **correct entity → reliable evidence → useful q
 - [x] SafeFetcher module + full SSRF unit table (SEC-03 foundations; [review](security-reviews/phase-1-safe-fetcher.md))
 - [x] Legal-page crawler (discovery order, AGENT-PROMPT §3 step 1) + extraction (CIN/GSTIN/legal-suffix/office patterns; [review](security-reviews/phase-1-legal-page-crawler.md))
 - [x] `CompanyDataProvider` interface + fixture impl; real name-to-CIN adapter behind flag (Blocker B5; [review](security-reviews/phase-1-company-data-provider.md))
-- [ ] Candidate generation + deterministic confidence scoring (doc 05 weights) + labels
+- [x] Candidate generation + deterministic confidence scoring (doc 05 weights) + labels ([review](security-reviews/phase-1-candidate-scoring.md))
 - [ ] `entities`, `entity_candidates` migrations; light-queue resolution task; states `draft → resolving_entity → awaiting_entity_confirmation`
 - [ ] Minimal confirmation UI: candidate cards (evidence snippets, confidence labels), confirm / none-of-these / refine / related-entity scope (ENTITY-03/04/07)
 - [ ] ER-01..11 fixture suite green
