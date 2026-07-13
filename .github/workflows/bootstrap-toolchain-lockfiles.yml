@@ -62,8 +62,30 @@ jobs:
       - name: Lint web
         run: pnpm --filter @mandate/web lint
 
-      - name: Lint worker
-        run: uv run ruff check services/worker tests
+      - name: Capture worker lint result
+        id: worker-lint
+        shell: bash
+        run: |
+          set +e
+          uv run ruff check services/worker tests > worker-lint.log 2>&1
+          status=$?
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Commit worker lint diagnostic
+        if: steps.worker-lint.outputs.status != '0'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add worker-lint.log
+          git commit -m "test(NFR-03): capture worker lint failure"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+
+      - name: Enforce worker lint
+        if: steps.worker-lint.outputs.status != '0'
+        run: |
+          cat worker-lint.log
+          exit 1
 
       - name: Check formatting
         run: pnpm format:check
