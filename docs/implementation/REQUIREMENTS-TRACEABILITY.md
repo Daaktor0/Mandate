@@ -1,6 +1,6 @@
 # REQUIREMENTS-TRACEABILITY — Mandate MVP
 
-**Status:** Phase 1 in progress (0/9 tasks complete); `NFR-03` is `Verified`; `NFR-01`, `NFR-02`, `NFR-04` and `INTAKE-01..06` are `In progress`; all other requirements remain `Specified`
+**Status:** Phase 1 in progress (1/9 tasks complete); `NFR-03` is `Verified`; `INTAKE-01` and `INTAKE-05` are `Implemented`; `NFR-01`, `NFR-02`, `NFR-04`, `INTAKE-02`, `INTAKE-03`, `INTAKE-04` and `INTAKE-06` are `In progress`; all other requirements remain `Specified`
 **Sources:** product-specification doc 02 (requirement IDs are normative and must be preserved in tickets, tests and PRs)
 **Related:** [TEST-PLAN.md](TEST-PLAN.md) (test IDs), [SYSTEM-SPEC.md](SYSTEM-SPEC.md) (component codes C1–C15), [BUILD-CHECKLIST.md](BUILD-CHECKLIST.md) (phases)
 
@@ -21,11 +21,11 @@ Columns: **Component** uses SYSTEM-SPEC §2 codes; **DB / API surface** cites ER
 
 | Req | Summary | Component | DB / API surface | Acceptance tests | Phase | Status |
 |---|---|---|---|---|---|---|
-| INTAKE-01 | Require only website URL or legal name | C1, C2 | generated create-request schemas; `POST /api/report-requests`; tenant-scoped `create_report_request` RPC | AT-INTAKE-01 (route + database idempotency), E2E-01 | 1 | In progress |
+| INTAKE-01 | Require only website URL or legal name | C1, C2 | generated create-request schemas; `POST /api/report-requests`; tenant-scoped `create_report_request` RPC | AT-INTAKE-01 (route + database idempotency), E2E-01 | 1 | Implemented |
 | INTAKE-02 | Website helper text (entity-confirmation promise) | C1 | authoritative `WEBSITE_ENTITY_CONFIRMATION_COPY`; new-brief UI pending | AT-INTAKE-02 (copy assertion; UI assertion pending) | 5 | In progress |
 | INTAKE-03 | Reject localhost/private/malformed/unsupported URLs | C2, C9 | `intake/url-policy.ts`; full DNS/IP-pinned SafeFetcher policy pending | AT-INTAKE-03 (preflight table), SEC-03 (full fetch/redirect table pending) | 1 | In progress |
 | INTAKE-04 | No confidential free-form descriptions or documents | C1, C2 | strict generated intake schema; body cap; mandatory ack in route/RPC; answer screening pending | AT-INTAKE-04 (route + DB ack), E2E-03 (pending) | 1/3 | In progress |
-| INTAKE-05 | CIN optional | C1, C2 | generated contract; `report_requests.input_cin`; route/RPC | AT-INTAKE-05 (route + DB), ER-01 (pending) | 1 | In progress |
+| INTAKE-05 | CIN optional | C1, C2 | generated contract; `report_requests.input_cin`; route/RPC | AT-INTAKE-05 (route + DB), ER-01 (pending) | 1 | Implemented |
 | INTAKE-06 | No entitlement reserved before entity confirmation | C2, C4 | identifier-only intake command/RPC; reserve only in future `/generate` tx (QUEUE §4) | AT-INTAKE-06 (structural intake), E2E-01 and ledger invariant pending | 1/6 | In progress |
 
 ## Entity resolution
