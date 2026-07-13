@@ -60,6 +60,7 @@ Confirmed/known legal entities (shared reference data, not user-owned).
 | Column | Type | Notes |
 |---|---|---|
 | `id` | uuid PK | auditable entity key |
+| `identity_key` | text unique | CIN-first dedupe key; normalised legal-name+state fallback **[implementation addition]** |
 | `legal_name` | text not null | |
 | `former_names` | text[] | renamed-company handling |
 | `cin` | text null, unique when not null | exact identifier (ENTITY-05) |
@@ -79,12 +80,13 @@ Confirmed/known legal entities (shared reference data, not user-owned).
 |---|---|---|
 | `id` | uuid PK | |
 | `report_request_id` | uuid FK → report_requests | |
-| `entity_id` | uuid FK → entities null | linked once normalised |
+| `entity_id` | uuid FK → entities not null | every persisted candidate is linked to its normalised entity |
 | `candidate_payload` | jsonb | full `EntityCandidate` schema (shared-schemas) |
 | `confidence_score` | int | 0–100, doc 05 weights |
 | `confidence_label` | enum (`strong_match`,`probable_match`,`ambiguous`,`insufficient_evidence`) | |
 | `evidence_ids` | uuid[] | ENTITY-02 |
 | `conflicts` | jsonb | negative factors |
+| `score_audit` | jsonb | versioned factor decisions + concise rationale codes; no hidden reasoning **[implementation addition]** |
 | `is_selected` | boolean default false | set on confirmation |
 | `rank` | int | display order |
 
@@ -286,7 +288,7 @@ Append-only (ADR-010). No UPDATE/DELETE grants to any role; enforced also by tri
 
 | Table | Purpose |
 |---|---|
-| `outbox` | transactional enqueue: `id`, `topic`, `payload` jsonb, `created_at`, `dispatched_at` null, `dispatch_attempts`; drained by relay (QUEUE §4) |
+| `outbox` | transactional enqueue: `id`, `topic`, identifier-only `payload` jsonb, unique `idempotency_key`, `created_at`, `dispatched_at` null, `dispatch_attempts`, stable `last_error_code`; drained by relay (QUEUE §4) |
 | `webhook_events` | raw verified Razorpay events: `razorpay_event_id` unique, `type`, `payload`, `processed_at`, `signature_valid` — replay-safe (PAY-09) |
 | `admin_audit_log` | admin actions (restore, refund, block, correction publish): actor, action, subject ids, reason — auditability (PAY-10, ISSUE-03) |
 | `notification_log` | completion/failure emails: `user_id`, `job_id`, `kind`, `sent_at`, `provider_message_id`, idempotency key `email:{job_id}:{kind}` (RUN-10) |
@@ -319,6 +321,13 @@ only from `auth.uid()`, serialises creates per user, replays an existing
 idempotency key before rate-limit evaluation and atomically enforces the API
 limit of ten successful intake requests per rolling hour. It does not reference
 an entitlement table or queue.
+
+Entity resolution is likewise mutation-RPC-only. `enqueue_entity_resolution` derives
+ownership from `auth.uid()`, locks per user/request, applies replay before the 10/hour
+limit and atomically changes `draft → resolving_entity` with an identifier-only outbox
+row. Worker-only completion/failure functions persist normalised entities, ranked
+candidates and factor audits before changing state. A trigger rejects every state edge
+outside the authoritative state machine even for direct service-role updates.
 
 ## 5. Entitlement-ledger invariants
 

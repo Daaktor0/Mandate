@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.mandate.local/light-task-message.schema.json",
+  "title": "LightTaskMessage",
+  "description": "Identifier-only queue payload for an unpaid Mandate light task.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "taskId",
+    "taskType",
+    "reportRequestId",
+    "userId",
+    "attempt",
+    "traceId"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "taskId": { "type": "string", "format": "uuid" },
+    "taskType": {
+      "type": "string",
+      "enum": ["resolve_entity", "preliminary_research", "render_pdf"]
+    },
+    "reportRequestId": { "type": "string", "format": "uuid" },
+    "userId": { "type": "string", "format": "uuid" },
+    "attempt": { "type": "integer", "minimum": 1, "maximum": 100 },
+    "traceId": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9._:-]+$"
+    }
+  }
+}

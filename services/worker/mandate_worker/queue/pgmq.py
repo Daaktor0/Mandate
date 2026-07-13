@@ -7,7 +7,7 @@ from collections.abc import Mapping
 from datetime import UTC, datetime
 from typing import Protocol, cast
 
-from mandate_schemas import JobMessage
+from mandate_schemas import JobMessage, LightTaskMessage
 
 from mandate_worker.queue.base import (
     LeasedMessage,
@@ -43,7 +43,7 @@ class PgmqQueueAdapter:
     async def send(
         self,
         queue_name: QueueName,
-        message: JobMessage,
+        message: JobMessage | LightTaskMessage,
         *,
         delay_seconds: int = 0,
     ) -> int:

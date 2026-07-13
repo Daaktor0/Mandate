@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
 import pytest
-from mandate_schemas import JobMessage
+from mandate_schemas import JobMessage, LightTaskMessage
 from mandate_worker.job_loop import JobLoop, JobLoopConfig
 from mandate_worker.queue import LeasedMessage, MemoryQueueAdapter, QueueName
 
@@ -122,7 +122,8 @@ async def test_NFR_03_job_loop_rejects_invalid_message_without_handling(
     await queue.send(QueueName.JOBS, job_message)
     leased = await queue.lease(QueueName.JOBS, visibility_timeout_seconds=1)
     assert leased is not None
-    leased.payload["schemaVersion"] = 99
+    invalid_message = leased
+    invalid_message.payload["schemaVersion"] = 99
 
     # Reinsert the deliberately invalid fixture through the test-only snapshot path.
     # The adapter returns defensive payload copies, so use a tiny transport facade.
@@ -130,7 +131,7 @@ async def test_NFR_03_job_loop_rejects_invalid_message_without_handling(
         async def send(
             self,
             queue_name: QueueName,
-            message: JobMessage,
+            message: JobMessage | LightTaskMessage,
             *,
             delay_seconds: int = 0,
         ) -> int:
@@ -142,7 +143,7 @@ async def test_NFR_03_job_loop_rejects_invalid_message_without_handling(
             *,
             visibility_timeout_seconds: int,
         ) -> LeasedMessage | None:
-            return leased
+            return invalid_message
 
         async def extend_lease(
             self,
@@ -167,7 +168,7 @@ async def test_NFR_03_job_loop_rejects_invalid_message_without_handling(
             await queue.dead_letter(
                 source_queue,
                 dead_letter_queue,
-                leased,
+                invalid_message,
                 error_code=error_code,
             )
 

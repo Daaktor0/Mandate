@@ -44,6 +44,7 @@ from pydantic import AnyHttpUrl, ValidationError
 ROOT = "https://company.example/"
 PRIVATE_CIN = "U62099MH2024PTC123456"
 PUBLIC_CIN = "U64200DL2020PLC654321"
+REQUEST_ID = UUID("11111111-1111-4111-8111-111111111111")
 
 
 def company_record(
@@ -271,6 +272,7 @@ async def test_ER_01_exact_site_cin_name_address_and_official_link_is_strong() -
     generator = EntityCandidateGenerator(provider)
 
     result = await generator.generate(
+        report_request_id=REQUEST_ID,
         site_inspection=inspection,
         signals=(signal(CandidateSignalKind.OFFICIAL_DOMAIN_LINK, record.cin, source_tier=1),),
     )
@@ -300,7 +302,10 @@ async def test_ER_02_privacy_policy_name_generates_company_controlled_candidate(
         """
     )
 
-    result = await EntityCandidateGenerator(provider).generate(site_inspection=inspection)
+    result = await EntityCandidateGenerator(provider).generate(
+        report_request_id=REQUEST_ID,
+        site_inspection=inspection,
+    )
 
     candidate = result.candidates[0]
     assert candidate.confidence_label is EntityCandidateConfidenceLabel.INSUFFICIENT_EVIDENCE
@@ -322,7 +327,10 @@ async def test_ER_05_former_name_links_to_current_legal_name() -> None:
         """
     )
 
-    result = await EntityCandidateGenerator(provider).generate(site_inspection=inspection)
+    result = await EntityCandidateGenerator(provider).generate(
+        report_request_id=REQUEST_ID,
+        site_inspection=inspection,
+    )
 
     candidate = result.candidates[0]
     assert candidate.legal_name == "MANDATE DEMO COMPANY PRIVATE LIMITED"
@@ -358,6 +366,7 @@ async def test_ER_06_similar_names_remain_ambiguous_and_never_auto_selected() ->
     )
 
     result = await EntityCandidateGenerator(provider).generate(
+        report_request_id=REQUEST_ID,
         supplied_legal_name="Common Industries Limited",
         signals=signals,
     )
@@ -390,6 +399,7 @@ async def test_ER_07_inactive_company_is_penalised_and_warned() -> None:
     )
 
     result = await EntityCandidateGenerator(provider).generate(
+        report_request_id=REQUEST_ID,
         site_inspection=inspection,
         signals=(signal(CandidateSignalKind.OFFICIAL_DOMAIN_LINK, record.cin, source_tier=1),),
     )
@@ -405,7 +415,7 @@ async def test_ER_09_no_match_asks_for_legal_name_or_cin_without_selection() -> 
     provider = FixtureProvider()
 
     result = await EntityCandidateGenerator(provider).generate(
-        supplied_legal_name="Unknown Company Private Limited"
+        report_request_id=REQUEST_ID, supplied_legal_name="Unknown Company Private Limited"
     )
 
     assert result.candidates == ()
@@ -442,13 +452,13 @@ async def test_ER_10_prompt_injection_flag_does_not_change_candidates_or_score()
             searches={name_key(record.legal_name): (record,)},
             lookups={record.cin: record},
         )
-    ).generate(site_inspection=clean)
+    ).generate(report_request_id=REQUEST_ID, site_inspection=clean)
     hostile_result = await EntityCandidateGenerator(
         FixtureProvider(
             searches={name_key(record.legal_name): (record,)},
             lookups={record.cin: record},
         )
-    ).generate(site_inspection=hostile)
+    ).generate(report_request_id=REQUEST_ID, site_inspection=hostile)
 
     assert clean_result.candidates[0].candidate_id == hostile_result.candidates[0].candidate_id
     assert (
@@ -473,6 +483,7 @@ async def test_ENTITY_05_generation_dedupes_cin_and_normalised_legal_name_querie
     )
 
     result = await EntityCandidateGenerator(provider).generate(
+        report_request_id=REQUEST_ID,
         supplied_legal_name="MANDATE DEMO COMPANY PVT. LTD.",
         supplied_cin=record.cin.lower(),
         site_inspection=inspection,
@@ -484,6 +495,25 @@ async def test_ENTITY_05_generation_dedupes_cin_and_normalised_legal_name_querie
         (CompanyDataOperation.LOOKUP_BY_CIN, record.cin),
         (CompanyDataOperation.SEARCH_BY_NAME, "MANDATE DEMO COMPANY PVT. LTD."),
     ]
+
+
+@pytest.mark.asyncio
+async def test_ENTITY_02_candidate_id_is_stable_per_request_without_cross_request_collision() -> (
+    None
+):
+    record = company_record()
+
+    async def generate(request_id: UUID) -> UUID:
+        provider = FixtureProvider(searches={name_key(record.legal_name): (record,)})
+        result = await EntityCandidateGenerator(provider).generate(
+            report_request_id=request_id,
+            supplied_legal_name=record.legal_name,
+        )
+        return result.candidates[0].candidate_id
+
+    first_id = await generate(REQUEST_ID)
+    assert await generate(REQUEST_ID) == first_id
+    assert await generate(UUID("22222222-2222-4222-8222-222222222222")) != first_id
 
 
 @pytest.mark.asyncio
@@ -511,7 +541,7 @@ async def test_NFR_05_candidate_generation_hard_caps_provider_query_and_call_cos
     provider = FixtureProvider(provider_calls_per_query=2)
 
     result = await EntityCandidateGenerator(provider).generate(
-        site_inspection=inspection_from_disclosures(disclosures)
+        report_request_id=REQUEST_ID, site_inspection=inspection_from_disclosures(disclosures)
     )
 
     assert result.provider_queries == 20
@@ -552,6 +582,9 @@ async def test_ENTITY_02_unsupported_provider_company_type_has_stable_failure_co
     provider = FixtureProvider(searches={name_key(record.legal_name): (record,)})
 
     with pytest.raises(CandidateGenerationError) as captured:
-        await EntityCandidateGenerator(provider).generate(supplied_legal_name=record.legal_name)
+        await EntityCandidateGenerator(provider).generate(
+            report_request_id=REQUEST_ID,
+            supplied_legal_name=record.legal_name,
+        )
 
     assert captured.value.code == "candidate_company_type_unsupported"

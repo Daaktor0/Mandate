@@ -90,8 +90,9 @@ data-use review and the 30-company staging accuracy gate are complete.
 inspection, the `CompanyDataProvider` and pre-classified public-source signals. It looks
 up supplied/extracted CINs before exact legal names, normalises duplicate names, dedupes
 records by CIN and ranks at most 20 generated `EntityCandidate` contracts. Candidate and
-evidence IDs are deterministic UUIDv5 values so job retries cannot create a new logical
-candidate merely because the task was replayed.
+evidence IDs are deterministic UUIDv5 values; candidate IDs include the report-request
+id so retries remain stable without colliding when the same company is a candidate for
+different requests.
 
 The scorer applies the doc 05 table verbatim: positive weights 35/20/15/15/10/5 and
 negative adjustments −15/−10/−15/−20/−10, floored at zero. Labels are derived only from
@@ -108,6 +109,21 @@ Indian states; other address uncertainty remains unscored unless a verified sour
 marks a conflict. Candidate generation is sequential and capped at 10 CIN queries, 10
 name queries, 20 provider operations (40 network calls including the provider's two-call
 retry cap), 20 candidates and 20 evidence snippets per candidate.
+
+## Entity-resolution persistence and light tasks
+
+`LightTaskMessage` is a generated, identifier-only contract for unpaid short work. The
+web commits `draft → resolving_entity` and an outbox row in one RPC; `OutboxRelay` invokes
+the worker-only atomic dispatch helper, and `LightTaskLoop` validates the payload again,
+applies a five-minute timeout and leaves transient failures for visibility retry.
+
+`EntityResolutionTaskHandler` loads only the request identifiers/public input needed by
+the provider/crawler, generates request-scoped deterministic candidates and calls one
+database completion function that upserts shared entities, stores ranked candidates and
+factor audits, then changes the state to `awaiting_entity_confirmation`. Empty results,
+non-retryable failures and exhausted delivery retries become `failed_no_charge`; the
+terminal failure is persisted before dead-lettering. Replays are state-idempotent. No
+path references entitlements, confirms a candidate or starts paid research.
 
 Run the worker unit suite:
 

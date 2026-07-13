@@ -43,6 +43,26 @@ Doc 09 verbatim; validated against shared-schemas before send and after receive:
 
 Rules: messages carry identifiers only — never payment, profile or letterhead data (doc 09). Unknown `schemaVersion` → dead-letter with alert. `attempt` is informational; the DB row is authoritative.
 
+Light tasks use a separate generated `LightTaskMessage` **[implementation addition]**
+because pre-confirmation resolution cannot truthfully supply `jobId` or
+`confirmedEntityId` from the paid `JobMessage`:
+
+```json
+{
+  "schemaVersion": 1,
+  "taskId": "uuid",
+  "taskType": "resolve_entity|preliminary_research|render_pdf",
+  "reportRequestId": "uuid",
+  "userId": "uuid",
+  "attempt": 1,
+  "traceId": "trace-id"
+}
+```
+
+The same identifier-only/unknown-version rules apply. The outbox row id equals
+`taskId`; the database validates the exact key allowlist, and task effects are
+idempotent against authoritative request state.
+
 ## 4. Enqueue: the reserve+enqueue transaction and outbox
 
 `POST /api/report-requests/{id}/generate` runs one **serializable** transaction (doc 09, ADR-010):

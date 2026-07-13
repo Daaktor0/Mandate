@@ -10,7 +10,7 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Protocol
 
-from mandate_schemas import JobMessage
+from mandate_schemas import JobMessage, LightTaskMessage
 
 ERROR_CODE_PATTERN = re.compile(r"^[a-z0-9_:-]{1,100}$")
 
@@ -102,7 +102,7 @@ class QueueAdapter(Protocol):
     async def send(
         self,
         queue_name: QueueName,
-        message: JobMessage,
+        message: JobMessage | LightTaskMessage,
         *,
         delay_seconds: int = 0,
     ) -> int: ...

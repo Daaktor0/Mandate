@@ -66,6 +66,11 @@ class EvidenceRetentionClass(StrEnum):
     WITH_REPORT = "with_report"
     RAW_30D = "raw_30d"
 
+class LightTaskMessageTaskType(StrEnum):
+    RESOLVE_ENTITY = "resolve_entity"
+    PRELIMINARY_RESEARCH = "preliminary_research"
+    RENDER_PDF = "render_pdf"
+
 class Claim(BaseModel):
     """Generated from the canonical Mandate JSON Schema."""
 
@@ -207,6 +212,26 @@ class JobMessage(BaseModel):
     trace_id: str = Field(..., alias="traceId", min_length=8, max_length=128, pattern="^[A-Za-z0-9._:-]+$")
     budget_profile: str = Field(..., alias="budgetProfile", min_length=1, max_length=100)
 
+class LightTaskMessage(BaseModel):
+    """Generated from the canonical Mandate JSON Schema."""
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    schema_version: Literal[1] = Field(..., alias="schemaVersion")
+    task_id: UUID = Field(..., alias="taskId")
+    task_type: LightTaskMessageTaskType = Field(..., alias="taskType")
+    report_request_id: UUID = Field(..., alias="reportRequestId")
+    user_id: UUID = Field(..., alias="userId")
+    attempt: int = Field(..., ge=1, le=100)
+    trace_id: str = Field(..., alias="traceId", min_length=8, max_length=128, pattern="^[A-Za-z0-9._:-]+$")
+
+class ResolveEntityResponse(BaseModel):
+    """Generated from the canonical Mandate JSON Schema."""
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    state: Literal['resolving_entity'] = Field(...)
+
 __all__ = [
     "Claim",
     "ClaimClaimType",
@@ -228,4 +253,7 @@ __all__ = [
     "EvidenceExtractionMethod",
     "EvidenceRetentionClass",
     "JobMessage",
+    "LightTaskMessage",
+    "LightTaskMessageTaskType",
+    "ResolveEntityResponse",
 ]

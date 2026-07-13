@@ -24,6 +24,15 @@ ADR statuses: **Accepted** (binding for MVP), **Proposed** (needs founder/empiri
 **Decision:** One logical job queue on pgmq. All queue operations go through `QueueAdapter` (`send`, `lease`, `extend_lease`, `archive`, `dead_letter`) with three implementations: `PgmqQueueAdapter` (MVP), `SqsQueueAdapter` (migration), `MemoryQueueAdapter` (tests/demo). Enqueue is performed via a transactional **outbox** table drained by a relay, never directly inside a web request transaction that could partially fail (see ADR-010, QUEUE-AND-JOB-SPEC §4).
 **Consequences:** Exactly-once *effects* are achieved by idempotent consumers + ledger idempotency keys, not by the queue; SQS migration touches one module.
 
+**Amendment (2026-07-13, Phase 1 resolution persistence):** Pre-confirmation light
+tasks use a generated `LightTaskMessage` rather than weakening the paid `JobMessage`'s
+required `jobId`/`confirmedEntityId` fields. Its exact identifier-only allowlist is
+validated in JSON Schema, Pydantic/zod and an outbox CHECK. The web RPC commits the state
+edge and outbox row together. A worker-invoked, argument-free security-definer helper
+atomically sends one locked row to pgmq and marks it dispatched; execution is revoked
+from `PUBLIC`/`anon`/`authenticated` and granted only to `service_role`. This preserves
+the worker-side relay and avoids giving the web role pgmq access.
+
 ### ADR-003 — Explicit typed orchestration in the worker; no LangGraph in MVP
 
 **Status:** Accepted.

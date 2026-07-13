@@ -7,7 +7,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
-from mandate_schemas import JobMessage
+from mandate_schemas import JobMessage, LightTaskMessage
 
 from mandate_worker.queue.base import (
     LeasedMessage,
@@ -52,7 +52,7 @@ class MemoryQueueAdapter:
     async def send(
         self,
         queue_name: QueueName,
-        message: JobMessage,
+        message: JobMessage | LightTaskMessage,
         *,
         delay_seconds: int = 0,
     ) -> int:
