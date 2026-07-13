@@ -2,7 +2,7 @@
 
 **Status header (update after every tested phase):**
 
-> **Current phase:** 0 — Engineering foundation (4/11 tasks complete) · **Last gate passed:** — · **Updated:** 2026-07-13
+> **Current phase:** 0 — Engineering foundation (5/11 tasks complete) · **Last gate passed:** — · **Updated:** 2026-07-13
 
 **Sources:** product-specification doc 13 (authoritative phase order and gates); master prompt ("follow the build roadmap exactly; use vertical slices; update the checklist after every tested phase")
 **Related:** [REQUIREMENTS-TRACEABILITY.md](REQUIREMENTS-TRACEABILITY.md), [TEST-PLAN.md](TEST-PLAN.md), [ARCHITECTURE-DECISIONS.md](ARCHITECTURE-DECISIONS.md) (blockers B1–B14)
@@ -17,7 +17,7 @@ Ordering principle (doc 13): **correct entity → reliable evidence → useful q
 - [x] Toolchain pinned (SYSTEM-SPEC §4); lockfiles committed; lint/format/typecheck configured (web + worker)
 - [x] Shared-schemas package: first schemas (EntityCandidate, Evidence, Claim, JobMessage) + codegen (Pydantic + zod) + drift check in CI
 - [x] Supabase local stack + first migration: `users_profile`, `report_requests`, RLS default-deny pattern, `is_admin()` helper
-- [ ] Worker skeleton: FastAPI `/health`, job-loop shell, `QueueAdapter` (pgmq + memory), structured logs with `trace_id`
+- [x] Worker skeleton: FastAPI `/health`, job-loop shell, `QueueAdapter` (pgmq + memory), structured logs with `trace_id`
 - [ ] **Spike:** pgmq visibility-timeout/lease-extension behaviour (validates AS-02)
 - [ ] Docker images (worker, renderer) + local Compose; renderer sandbox profile
 - [ ] CI pipeline stages 1–5 (TEST-PLAN §11) incl. secret scan (SEC-10) and dependency/container scans (SEC-12)
