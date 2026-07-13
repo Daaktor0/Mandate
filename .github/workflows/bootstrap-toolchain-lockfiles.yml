@@ -59,8 +59,11 @@ jobs:
           pnpm install --frozen-lockfile
           uv sync --locked --all-groups
 
-      - name: Lint
-        run: pnpm lint
+      - name: Lint web
+        run: pnpm --filter @mandate/web lint
+
+      - name: Lint worker
+        run: uv run ruff check services/worker tests
 
       - name: Check formatting
         run: pnpm format:check
