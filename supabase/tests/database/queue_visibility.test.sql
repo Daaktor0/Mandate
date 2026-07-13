@@ -1,8 +1,6 @@
 create extension if not exists pgtap with schema extensions;
 create extension if not exists pgmq;
 
-begin;
-
 select plan(16);
 
 select has_extension(
@@ -178,5 +176,3 @@ select lives_ok(
 );
 
 select * from finish();
-
-rollback;

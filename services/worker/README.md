@@ -10,6 +10,7 @@ The worker is stateless between checkpoints, uses typed provider adapters, and m
 - `JobLoop` leases one identifier-only `JobMessage` at a time, validates it against the generated Pydantic contract, applies a 1,200-second hard timeout, archives success and leaves transient failure for visibility-timeout retry.
 - `MemoryQueueAdapter` provides deterministic pgmq-like semantics for tests and `DEMO_MODE=1`.
 - `PgmqQueueAdapter` uses the documented `pgmq.send`, `read`, `set_vt` and `archive` functions through an injected least-privilege database boundary.
+- Each pgmq call must use a short committed/autocommit transaction. `set_vt` is relative to PostgreSQL's transaction timestamp, so lease heartbeats must never share the job's long-running transaction.
 - Poison-message DLQ records contain a payload hash and audit metadata, never the untrusted payload itself.
 - Structured JSON logging supplies a `trace_id` on every event; job events bind the message's trace and identifier-only audit fields.
 

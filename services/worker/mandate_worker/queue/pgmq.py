@@ -19,7 +19,13 @@ from mandate_worker.queue.base import (
 
 
 class AsyncQueueDatabase(Protocol):
-    """Small DB boundary implemented by the worker's future connection pool."""
+    """Small DB boundary implemented by the worker's future connection pool.
+
+    Every call must finish in its own short transaction (normally autocommit).
+    pgmq ``set_vt`` is relative to PostgreSQL's transaction timestamp, so a
+    heartbeat executed repeatedly inside one long-lived transaction would not
+    move visibility forward.
+    """
 
     async def fetch_one(
         self,
