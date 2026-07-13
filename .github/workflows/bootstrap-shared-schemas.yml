@@ -30,15 +30,8 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           version: "0.7.19"
-      - name: Correct and normalize generator source
+      - name: Normalize authored sources
         run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          path = Path("scripts/generate_schemas.py")
-          source = path.read_text()
-          source = source.replace(r'?\\.)*"', r'?\.)*"')
-          path.write_text(source)
-          PY
           uv run ruff check --fix scripts tests packages/shared-schemas/python
           uv run ruff format scripts tests packages/shared-schemas/python
       - name: Generate lockfiles
@@ -59,5 +52,25 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
           uv sync --locked --all-groups
-      - name: Validate complete baseline
-        run: pnpm check
+      - name: Capture complete baseline
+        id: baseline
+        shell: bash
+        run: |
+          set +e
+          pnpm check > shared-schema-baseline.log 2>&1
+          status=$?
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Commit baseline diagnostic
+        if: steps.baseline.outputs.status != '0'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add shared-schema-baseline.log
+          git commit -m "test(RUN-05): capture shared-schema baseline failure"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+      - name: Enforce complete baseline
+        if: steps.baseline.outputs.status != '0'
+        run: |
+          cat shared-schema-baseline.log
+          exit 1
