@@ -2,7 +2,7 @@
 
 **Status header (update after every tested phase):**
 
-> **Current phase:** — (not started) · **Last gate passed:** — · **Updated:** 2026-07-13
+> **Current phase:** 0 — Engineering foundation (1/11 tasks complete) · **Last gate passed:** — · **Updated:** 2026-07-13
 
 **Sources:** product-specification doc 13 (authoritative phase order and gates); master prompt ("follow the build roadmap exactly; use vertical slices; update the checklist after every tested phase")
 **Related:** [REQUIREMENTS-TRACEABILITY.md](REQUIREMENTS-TRACEABILITY.md), [TEST-PLAN.md](TEST-PLAN.md), [ARCHITECTURE-DECISIONS.md](ARCHITECTURE-DECISIONS.md) (blockers B1–B14)
@@ -13,7 +13,7 @@ Ordering principle (doc 13): **correct entity → reliable evidence → useful q
 
 ## Phase 0 — Engineering foundation
 
-- [ ] Monorepo scaffold per SYSTEM-SPEC §3 (apps/web, services/worker, packages/shared-schemas, supabase, infra, fixtures)
+- [x] Monorepo scaffold per SYSTEM-SPEC §3 (apps/web, services/worker, packages/shared-schemas, supabase, infra, fixtures)
 - [ ] Toolchain pinned (SYSTEM-SPEC §4); lockfiles committed; lint/format/typecheck configured (web + worker)
 - [ ] Shared-schemas package: first schemas (EntityCandidate, Evidence, Claim, JobMessage) + codegen (Pydantic + zod) + drift check in CI
 - [ ] Supabase local stack + first migration: `users_profile`, `report_requests`, RLS default-deny pattern, `is_admin()` helper
