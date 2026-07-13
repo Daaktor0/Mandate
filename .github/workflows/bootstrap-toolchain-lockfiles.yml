@@ -45,7 +45,7 @@ jobs:
 
       - name: Commit generated lockfiles
         run: |
-          if git diff --quiet -- pnpm-lock.yaml uv.lock; then
+          if [ -z "$(git status --porcelain -- pnpm-lock.yaml uv.lock)" ]; then
             exit 0
           fi
           git config user.name "github-actions[bot]"
