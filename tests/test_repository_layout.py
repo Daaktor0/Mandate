@@ -3,7 +3,6 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
-
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -37,9 +36,7 @@ class RepositoryLayoutTests(unittest.TestCase):
         }
 
         missing = sorted(
-            path
-            for path in required_directories
-            if not (REPOSITORY_ROOT / path).is_dir()
+            path for path in required_directories if not (REPOSITORY_ROOT / path).is_dir()
         )
         self.assertEqual([], missing, f"Missing SYSTEM-SPEC directories: {missing}")
 
@@ -52,9 +49,7 @@ class RepositoryLayoutTests(unittest.TestCase):
             "apps/web/app/data-room",
         }
         present = sorted(
-            path
-            for path in forbidden_scaffold_paths
-            if (REPOSITORY_ROOT / path).exists()
+            path for path in forbidden_scaffold_paths if (REPOSITORY_ROOT / path).exists()
         )
         self.assertEqual([], present, f"Forbidden MVP scaffold paths found: {present}")
 
