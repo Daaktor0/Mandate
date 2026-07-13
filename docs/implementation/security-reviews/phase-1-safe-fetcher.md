@@ -14,7 +14,7 @@ code must depend on it rather than create a parallel client.
 
 | Threat | Structural control | Test evidence |
 |---|---|---|
-| Local, private, link-local, metadata, reserved, multicast and alternate-form IP targets | Canonical URL parsing plus `ipaddress` vetting; non-public host labels and integer-form hosts fail closed; IPv4-mapped, scoped, 6to4 and Teredo IPv6 forms are rejected | SEC-03 target table |
+| Local, private, link-local, metadata, reserved, multicast and alternate-form IP targets | Canonical URL parsing plus `ipaddress` vetting; non-public host labels and integer-form hosts fail closed; IPv4-mapped, scoped, NAT64 translation, 6to4 and Teredo IPv6 forms are rejected | SEC-03 target table |
 | Mixed or oversized DNS answer sets | One resolution result is deduplicated, capped and rejected in full if any answer is unsafe | SEC-03 mixed-answer test |
 | DNS rebinding | Each request connects to the selected vetted IP; original hostname is used only for Host/SNI. Retries resolve and vet again | AT-INTAKE-03 pinning test; SEC-03 production transport and retry tests |
 | Redirect pivot | Automatic redirects are disabled; each Location is canonicalised, resolved and vetted before the next request; maximum five redirects | ER-11 private redirect, same-host rebinding and redirect-budget tests |
@@ -42,6 +42,6 @@ pnpm check
 pnpm --filter @mandate/web build
 ```
 
-Focused result: 34 SafeFetcher tests passed. Repository result at review time: 29 web
-tests, 4 shared-schema tests and 87 Python tests passed; lint, formatting, schema drift,
+Focused result: 37 SafeFetcher tests passed. Repository result at review time: 29 web
+tests, 4 shared-schema tests and 90 Python tests passed; lint, formatting, schema drift,
 strict TypeScript/mypy and the production Next.js build passed.

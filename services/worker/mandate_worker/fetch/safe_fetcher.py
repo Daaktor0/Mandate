@@ -182,5 +182,5 @@ class SafeFetcher:
                 raise SafeFetchError("redirect_without_location")
             if len(redirect_chain) >= self._config.max_redirects:
                 raise SafeFetchError("too_many_redirects")
-            current_url = canonicalize_url(urljoin(target.canonical_url, location))[0]
+            current_url = canonicalize_url(urljoin(target.canonical_url, location.strip()))[0]
             redirect_chain.append(current_url)

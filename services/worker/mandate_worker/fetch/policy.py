@@ -20,6 +20,10 @@ CREDENTIAL_QUERY_KEY = re.compile(
     re.IGNORECASE,
 )
 MAX_RESOLVED_ADDRESSES = 16
+IPV6_TRANSLATION_NETWORKS = (
+    ipaddress.IPv6Network("64:ff9b::/96"),
+    ipaddress.IPv6Network("64:ff9b:1::/48"),
+)
 
 
 class SafeFetchPolicyError(ValueError):
@@ -90,6 +94,7 @@ def _public_ip(value: str) -> ipaddress.IPv4Address | ipaddress.IPv6Address:
             or address.ipv4_mapped is not None
             or address.sixtofour is not None
             or address.teredo is not None
+            or any(address in network for network in IPV6_TRANSLATION_NETWORKS)
         ):
             raise SafeFetchPolicyError("non_public_ip_address")
     # ``ipaddress.is_global`` is deliberately broader than an Internet-routable
