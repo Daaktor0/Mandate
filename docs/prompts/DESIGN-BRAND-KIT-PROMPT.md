@@ -30,24 +30,35 @@ Two roles: a UI typeface and a **document typeface for the Mandate Brief** (scre
 ### 4. UI component system
 Design tokens (colour, type, spacing, radius, elevation) exportable as CSS variables / Tailwind config, plus components: buttons, inputs, tabs (Website / Legal name intake), checkbox (the mandatory "I confirm that I am not submitting confidential information" must be prominent, not fine print), **entity-candidate cards** (legal name, CIN, status, registered office, domain relationship, evidence snippets, confidence badge, actions: "This is the company / None of these / Enter legal name / Add CIN"), **generation-progress checklist** (the seven stages as a truthful checklist with timestamps — no percentage bars, no fake spinners), the **Mandate Brief editor** (paginated document canvas + source/confidence side panel + version selector + save/regenerate/issue/letterhead/download actions + inline warning style for unsupported user-added text), letterhead upload with margin/continuation preview, dashboards, empty states, error states (including "Failed — entitlement restored", which should feel like kept trust, not breakage), modals, toasts.
 
-### 5. Screen designs
-High-fidelity for the doc-03 flows: landing page; sign-in (Google/Microsoft); first-login profile; dashboard; new Mandate Brief (both tabs); entity confirmation; clarification (mandatory client-role question with its "why this matters" explainer); generation progress; brief editor; letterhead; download (version, entity/CIN, research date, annex toggle, disclaimer); issue reporting; account/payments incl. entitlement display (available vs reserved) and pricing (₹999 single / ₹3,499 five / ₹5,999 ten — presented as Mandate Brief packs, never tokens). Landing must include: positioning, transaction-preparation promise, public-information-only explanation, sample Mandate Brief preview, three-step flow, pricing, login buttons, and the not-legal-advice statement; it must avoid agent diagrams and coverage claims.
+### 5. Full user journey
+Map the complete end-to-end journey before drawing screens, using the primary flow in doc 03 as the backbone: landing → sign-in → first-login profile → dashboard → create Mandate Brief (website or legal name) → entity discovery → entity confirmation → preliminary research → mandatory clarifications → entitlement reserve (or purchase interception when the balance is zero) → queued generation with truthful stage progress → ready notification (email + dashboard) → editor → optional letterhead → preview/download → issue reporting → repeat purchase.
 
-### 6. Mandate Brief document design
+Deliver:
+- **Journey map** — stages, user goals, emotions/trust moments (the wrong-entity fear, the wait during generation, the "Failed — entitlement restored" moment), and the system's trust-building response at each.
+- **Screen-flow diagrams** — every screen-to-screen transition, including who initiates it (user vs system) and the dashboard status shown at each point (the ten statuses are fixed vocabulary).
+- **Branch and error paths, each designed, not just noted** (doc 03 "Errors"): no entity found → ask legal name/CIN, no charge; ambiguous candidates → "None of these" / refine loop; sparse public data → shorter-brief disclosure *before* reservation; zero entitlements at generate → purchase flow and return; retryable failure → continued honest progress; terminal failure → entitlement restored messaging; provider outage; PDF re-render without re-research; cancelled job; account deletion.
+- **Key interaction states** for the moments that carry the product's trust promise: entity confirmation (default, loading, multi-candidate, single strong candidate, insufficient evidence) and generation progress (each of the seven stages, plus retry_wait shown honestly).
+- **A clickable prototype** of the happy path plus the two highest-stakes branches (wrong entity, failed generation).
+
+### 6. Screen designs
+High-fidelity for every screen the journey surfaces: landing page; sign-in (Google/Microsoft); first-login profile; dashboard; new Mandate Brief (both tabs); entity confirmation; clarification (mandatory client-role question with its "why this matters" explainer); generation progress; brief editor; letterhead; download (version, entity/CIN, research date, annex toggle, disclaimer); issue reporting; account/payments incl. entitlement display (available vs reserved) and pricing (₹999 single / ₹3,499 five / ₹5,999 ten — presented as Mandate Brief packs, never tokens). Landing must include: positioning, transaction-preparation promise, public-information-only explanation, sample Mandate Brief preview, three-step flow, pricing, login buttons, and the not-legal-advice statement; it must avoid agent diagrams and coverage claims.
+
+### 7. Mandate Brief document design
 The flagship artefact — design it like a lawyer's work product. A4, default two pages (range 1–4), following the template structure: header block (legal name, brand, CIN, type/status, registered office, prepared-for, research date), executive snapshot (≤6 bullets), sections 1–6, prioritised kickoff-question list, source annex (separate, outside the page count), verbatim disclaimer. Requirements: neutral professional tone; claim-type labelling integrated elegantly (not noisy badges on every line); **letterhead compatibility** — users stamp their firm's letterhead as background/header, so define safe margins and a header zone that tolerates it; no raw URLs in the body (sources live in the annex); print-deterministic layout (no elements that reflow unpredictably). Deliver as a styled specimen with real-looking placeholder content.
 
-### 7. Voice and naming sheet
+### 8. Voice and naming sheet
 One page: **Mandate** = product, **Mandate Brief** = report (never "brief" alone in headings, never "MandateBrief"); sample phrasing ("Create a Mandate Brief", "Your Mandate Brief is ready"); "Matters for attention" is a fixed heading; uncertainty phrasing patterns ("the company states…", "not publicly established"); banned vocabulary (tokens, AI lawyer, due diligence replacement, guaranteed/complete coverage).
 
 ## Handoff format
 
-Figma file (or equivalent) with published components and styles; token export (JSON + CSS variables); logo SVG/PNG package; font files with licence documentation proving web + PDF embedding rights; the Mandate Brief specimen as PDF; a short usage guide. Name layers/components to match the spec's terms (entity candidate, claim type, matters for attention) so engineering maps them 1:1.
+Figma file (or equivalent) with published components and styles; journey map + flow diagrams (FigJam/Figma page) and the clickable prototype; token export (JSON + CSS variables); logo SVG/PNG package; font files with licence documentation proving web + PDF embedding rights; the Mandate Brief specimen as PDF; a short usage guide. Name layers/components to match the spec's terms (entity candidate, claim type, matters for attention) so engineering maps them 1:1.
 
 ## Acceptance checklist
 
 - [ ] AA contrast verified for every token pair; statuses/labels distinguishable without colour alone
 - [ ] Logo legible at 16 px and in mono on a letterhead-style page
 - [ ] Fonts licensed for self-hosted web + PDF embedding; ₹ and tabular numerals verified
+- [ ] Journey covers the full doc-03 primary flow and every listed branch/error path; every screen in the flow diagrams exists in the screen designs (and vice versa)
 - [ ] Progress UI contains no percentages or fake motion
 - [ ] Mandate Brief specimen fits the two-page default with the template's full structure and disclaimer
 - [ ] Landing page includes all required elements and none of the banned ones
