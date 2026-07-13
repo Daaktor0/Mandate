@@ -1,0 +1,1 @@
+"""Mandate worker fetch boundary."""

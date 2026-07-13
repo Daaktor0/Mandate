@@ -1,0 +1,1 @@
+"""Mandate worker pipeline boundary."""
