@@ -2,11 +2,11 @@
 
 **Product:** Mandate
 **Flagship report:** Mandate Brief
-**Status:** Specification complete — implementation not started
+**Status:** Specification complete — Phase 0 engineering foundation implemented and Gate G0 passed
 **Derived from:** [`product-specification/`](../../product-specification/README.md) (authoritative)
 **Last updated:** 2026-07-13
 
-This directory converts the Mandate product specification into an executable technical specification, as required by the first deliverable of the [Fable 5 master prompt](../../product-specification/prompts/FABLE-5-SPEC-AND-BUILD-PROMPT.md). No product code exists yet; every document below records design intent and acceptance criteria that implementation must satisfy.
+This directory converts the Mandate product specification into an executable technical specification, as required by the first deliverable of the [Fable 5 master prompt](../../product-specification/prompts/FABLE-5-SPEC-AND-BUILD-PROMPT.md). Implementation follows the phase order and evidence gates in [BUILD-CHECKLIST.md](BUILD-CHECKLIST.md); Phase 0 is complete and its evidence is recorded in [the Gate G0 record](gates/G0-engineering-foundation.md).
 
 ## Document map
 

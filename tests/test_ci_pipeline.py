@@ -25,13 +25,14 @@ class CiPipelineTests(unittest.TestCase):
         steps = cast(list[dict[str, Any]], self.job(job_name)["steps"])
         return "\n".join(str(step.get("run", "")) for step in steps)
 
-    def test_NFR_03_TEST_PLAN_11_stages_one_to_five_are_ordered(self) -> None:
+    def test_NFR_03_TEST_PLAN_11_implemented_stages_are_ordered(self) -> None:
         expected = [
             "stage_1_quality",
             "stage_2_security",
             "stage_3_contracts",
             "stage_4_unit",
             "stage_5_integration",
+            "stage_7_traceability",
         ]
         self.assertEqual(expected, list(self.jobs))
         for previous, current in pairwise(expected):
@@ -70,6 +71,22 @@ class CiPipelineTests(unittest.TestCase):
             "supabase db lint --local",
             "docker compose --file infra/compose/local.yml up --build",
             "scripts/verify_container_runtime.py",
+        )
+        for fragment in expected:
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, commands)
+
+    def test_NFR_03_TEST_PLAN_11_stage_seven_uses_passing_junit_evidence(self) -> None:
+        commands = self.step_source("stage_7_traceability")
+
+        expected = (
+            "vitest run",
+            "--reporter=junit",
+            "pytest -q",
+            "--junitxml=",
+            "scripts/generate_traceability_report.py",
+            "REQUIREMENTS-TRACEABILITY.md",
+            "GITHUB_STEP_SUMMARY",
         )
         for fragment in expected:
             with self.subTest(fragment=fragment):

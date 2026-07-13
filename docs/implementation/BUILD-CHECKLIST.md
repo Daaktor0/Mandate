@@ -2,7 +2,7 @@
 
 **Status header (update after every tested phase):**
 
-> **Current phase:** 0 — Engineering foundation (10/11 tasks complete) · **Last gate passed:** — · **Updated:** 2026-07-13
+> **Current phase:** 0 — Engineering foundation (11/11 tasks complete) · **Last gate passed:** G0 · **Updated:** 2026-07-13
 
 **Sources:** product-specification doc 13 (authoritative phase order and gates); master prompt ("follow the build roadmap exactly; use vertical slices; update the checklist after every tested phase")
 **Related:** [REQUIREMENTS-TRACEABILITY.md](REQUIREMENTS-TRACEABILITY.md), [TEST-PLAN.md](TEST-PLAN.md), [ARCHITECTURE-DECISIONS.md](ARCHITECTURE-DECISIONS.md) (blockers B1–B14)
@@ -23,9 +23,9 @@ Ordering principle (doc 13): **correct entity → reliable evidence → useful q
 - [x] CI pipeline stages 1–5 (TEST-PLAN §11) incl. secret scan (SEC-10) and dependency/container scans (SEC-12)
 - [x] Fixtures directory + demo-mode wiring switch (`DEMO_MODE=1`, ADR-014)
 - [x] Threat model reviewed against scaffold (SECURITY-THREAT-MODEL); no open deviations ([review](security-reviews/phase-0-scaffold.md))
-- [ ] Traceability report generator (CI stage 7) reading REQUIREMENTS-TRACEABILITY.md
+- [x] Traceability report generator (CI stage 7) reading REQUIREMENTS-TRACEABILITY.md
 
-**Gate G0:** reproducible staging-shaped deployment from Compose; zero secrets in repo/images; baseline tests green in CI.
+**Gate G0:** reproducible staging-shaped deployment from Compose; zero secrets in repo/images; baseline tests green in CI. **Passed:** [evidence](gates/G0-engineering-foundation.md).
 
 ## Phase 1 — Entity-resolution proof of concept
 

@@ -34,7 +34,7 @@ dev = [
 package = false
 
 [tool.pytest.ini_options]
-pythonpath = ["services/worker", "packages/shared-schemas/python"]
+pythonpath = [".", "services/worker", "packages/shared-schemas/python"]
 testpaths = ["services/worker/tests", "tests"]
 
 [tool.ruff]
