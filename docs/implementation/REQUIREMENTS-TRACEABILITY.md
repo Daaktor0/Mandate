@@ -1,6 +1,6 @@
 # REQUIREMENTS-TRACEABILITY — Mandate MVP
 
-**Status:** Phase 0 started; `NFR-01` through `NFR-04` are `In progress`; all other requirements remain `Specified`
+**Status:** Phase 0 in progress; `NFR-03` is `Verified`; `NFR-01`, `NFR-02` and `NFR-04` are `In progress`; all other requirements remain `Specified`
 **Sources:** product-specification doc 02 (requirement IDs are normative and must be preserved in tickets, tests and PRs)
 **Related:** [TEST-PLAN.md](TEST-PLAN.md) (test IDs), [SYSTEM-SPEC.md](SYSTEM-SPEC.md) (component codes C1–C15), [BUILD-CHECKLIST.md](BUILD-CHECKLIST.md) (phases)
 
@@ -137,7 +137,7 @@ Columns: **Component** uses SYSTEM-SPEC §2 codes; **DB / API surface** cites ER
 |---|---|---|---|---|---|---|
 | NFR-01 | Jobs retryable and idempotent | C5, C6 | checkpoints + idempotency keys (QUEUE §2/6) | AT-NFR-01, E2E-05 | 2/5 | In progress |
 | NFR-02 | Tenant isolation at database layer | C4 | RLS on all tables (ERD §4) | AT-NFR-02, SEC-01 (real local database in CI stage 5; expands with each table) | 0+ | In progress |
-| NFR-03 | Containerised, Hostinger-independent worker | C6 | `services/worker/Dockerfile`; `infra/compose/local.yml`; `.github/workflows/ci.yml`; adapters; no host coupling | AT-NFR-03 (structural + live portability/sandbox check in CI stage 5) | 0 | Verified |
+| NFR-03 | Containerised, Hostinger-independent worker | C6, C8 | `services/worker/Dockerfile`; `infra/compose/local.yml`; `mandate_worker.runtime`; `fixtures/demo`; `.github/workflows/ci.yml`; no host coupling | AT-NFR-03 (structural + live portability/sandbox + complete zero-spend catalog check in CI stage 5) | 0 | Verified |
 | NFR-04 | Trace ID across API/queue/model/search/payment/PDF | C15 | `trace_id` propagation (DEPLOYMENT §6) | AT-NFR-04 | 0+ | In progress |
 | NFR-05 | Every external cost attributable to a report | C7, C15 | `provider_cost_events`; admin costs view | AT-NFR-05 | 2 | Specified |
 | NFR-06 | WCAG 2.1 AA target | C1 | axe checks in E2E; manual audit | AT-NFR-06 | 5/7 | Specified |
