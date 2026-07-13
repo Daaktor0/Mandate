@@ -22,7 +22,7 @@ uv run -m mandate_worker       # or: docker compose -f infra/compose/local.yml u
 |---|---|---|
 | `worker` | `services/worker` (Python 3.12-slim + Playwright Chromium + WeasyPrint + pinned fonts) | job loop + light-task loop + cron loop; FastAPI on :8081 (`/health`, `/metrics-lite`, internal only) |
 | `renderer` | same image, separate container | sandboxed render profile: no network namespace access to providers, seccomp default, `mem_limit 1g`, read-only rootfs + tmpfs |
-| `caddy` | caddy:2 | TLS termination, internal reverse proxy for health/uptime endpoints (and web app if ADR-016 lands on self-hosting) |
+| `caddy` | caddy:2 | TLS termination, internal reverse proxy for health/uptime endpoints (worker host only; the web app lives on Vercel — ADR-016) |
 | `uptime-kuma` | optional | uptime + alert pings |
 
 Resource limits on KVM 2 (2 vCPU / 8 GB / 100 GB NVMe — doc 15): worker 3 GB / 1.5 CPU, renderer 1 GB / 0.5 CPU, caddy 256 MB, kuma 256 MB; ~3 GB headroom. Two heavy jobs max (AS-05); Playwright bounded to one browser context at a time per job with 180 s/job budget.
@@ -41,9 +41,13 @@ Explicit non-uses of this host (doc 08): no frontier inference, no unlimited bro
 
 ## 4. Deployment procedure
 
-GitHub Actions on `main`: lint → typecheck → unit → integration (local Supabase service container) → demo E2E → build/push images (GHCR, tagged by SHA) → staging deploy (SSH: pull images, `docker compose up -d`, run pending Supabase migrations via CLI, smoke test `/health` + one fixture job) → manual approval → production deploy (same steps + pre-deploy snapshot).
+**Web (Vercel, ADR-016):** the Vercel GitHub integration builds `apps/web` on every push — PRs get preview deployments against staging Supabase; merging to `main` deploys production after CI is green (Vercel "wait for CI" check). Environment variables are managed in Vercel per environment (§5); only `NEXT_PUBLIC_*` values and server-side keys the route handlers need — worker secrets never go to Vercel.
 
-Rollback: images are SHA-tagged — `docker compose` back to previous SHA; migrations are expand/contract (additive first; destructive steps in a later release) so the previous app version always runs against the current schema. Migration rollback beyond that = restore from Supabase PITR + snapshot (documented, tested in SEC-15).
+**Worker (Hostinger):** GitHub Actions on `main`: lint → typecheck → unit → integration (local Supabase service container) → demo E2E → build/push images (GHCR, tagged by SHA) → staging deploy (SSH: pull images, `docker compose up -d`, run pending Supabase migrations via CLI, smoke test `/health` + one fixture job) → manual approval → production deploy (same steps + pre-deploy snapshot).
+
+**Migration ordering:** Supabase migrations run from the worker deploy pipeline before the Vercel production promotion is approved; expand/contract discipline (additive first; destructive steps in a later release) keeps both the previous web build and the current worker running against the current schema.
+
+Rollback: web = Vercel instant rollback to a previous deployment; worker = `docker compose` back to the previous SHA-tagged image. Migration rollback beyond expand/contract = restore from Supabase PITR + snapshot (documented, tested in SEC-15).
 
 ## 5. Environment variables (full inventory)
 
@@ -69,7 +73,7 @@ Rollback: images are SHA-tagged — `docker compose` back to previous SHA; migra
 | `LOG_LEVEL` / `TRACE_SAMPLING` | all | observability |
 | `WORKER_CONCURRENCY_HEAVY` / `_LIGHT` | worker | 2 / 2 |
 
-Per-environment files: `local.env` (defaults, demo), `staging.env`, `prod.env`. Rotation runbook per key in §8.
+Placement: web-scoped variables live in Vercel project settings per environment (preview = staging, production = production; ADR-016); worker-scoped variables live in `/opt/mandate/env/*.env` on the Hostinger host; `local.env` covers local/demo defaults. Worker secrets (DB role, provider keys) are never configured in Vercel, and Vercel-held keys join the §8 rotation runbook. Rotation runbook per key in §8.
 
 ## 6. Observability (NFR-04/05)
 
@@ -96,6 +100,7 @@ Doc 08 (~₹1,000/month incremental) is feasible only for low-volume testing on 
 | Item | Prototype assumption |
 |---|---|
 | Hostinger KVM 2 | already owned (sunk) |
+| Vercel | Hobby tier initially; Pro (~US$20/seat) before paid launch (commercial-use terms + team features) |
 | Supabase | free/dev tier initially; Pro (~US$25) before beta with PITR needs |
 | OpenRouter | pay-as-you-go; capped by daily ceiling; est. ₹15–60/brief until measured |
 | Search provider | free/trial credits during benchmark (B4) |

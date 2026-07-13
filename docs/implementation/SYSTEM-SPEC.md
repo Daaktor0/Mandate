@@ -116,8 +116,8 @@ Exact patch versions are pinned in lockfiles at Phase 0; the table pins the supp
 | Environment | Web | Database/Queue/Storage | Worker | Providers |
 |---|---|---|---|---|
 | **local** | `next dev` | Supabase CLI (local stack) | Compose service | Fixture adapters by default (`DEMO_MODE=1`, zero spend) |
-| **staging** | Hosted web (Vercel or Hostinger-served Node — ADR-016) | Supabase project (staging) | Hostinger KVM 2, Compose | Real adapters, test keys, low caps |
-| **production** | Hosted web | Supabase project (production) | Hostinger KVM 2, Compose | Real adapters, live keys, enforced caps |
+| **staging** | Vercel preview/branch deployment (ADR-016) | Supabase project (staging) | Hostinger KVM 2, Compose | Real adapters, test keys, low caps |
+| **production** | Vercel production deployment (ADR-016) | Supabase project (production) | Hostinger KVM 2, Compose | Real adapters, live keys, enforced caps |
 
 Rules: separate Supabase projects and secrets per environment; no service-role key in the frontend; the database is the source of truth in all environments.
 

@@ -5,7 +5,7 @@
 > **Current phase:** — (not started) · **Last gate passed:** — · **Updated:** 2026-07-13
 
 **Sources:** product-specification doc 13 (authoritative phase order and gates); master prompt ("follow the build roadmap exactly; use vertical slices; update the checklist after every tested phase")
-**Related:** [REQUIREMENTS-TRACEABILITY.md](REQUIREMENTS-TRACEABILITY.md), [TEST-PLAN.md](TEST-PLAN.md), [ARCHITECTURE-DECISIONS.md](ARCHITECTURE-DECISIONS.md) (blockers B1–B13)
+**Related:** [REQUIREMENTS-TRACEABILITY.md](REQUIREMENTS-TRACEABILITY.md), [TEST-PLAN.md](TEST-PLAN.md), [ARCHITECTURE-DECISIONS.md](ARCHITECTURE-DECISIONS.md) (blockers B1–B14)
 
 Ordering principle (doc 13): **correct entity → reliable evidence → useful questions → trusted Mandate Brief → safe billing.** Do not begin with a polished dashboard or theatrical multi-agent framework.
 
@@ -87,7 +87,8 @@ Ordering principle (doc 13): **correct entity → reliable evidence → useful q
 - [ ] Truthful progress endpoint + UI (7 stages, ADR-012)
 - [ ] Email notifications (B6) + `notification_log` idempotency
 - [ ] Admin job view: stages, retries, provider errors, costs; retry/cancel actions
-- [ ] Hostinger provisioning + staging deploy (B9; DEPLOYMENT §3–4)
+- [ ] Vercel project setup: repo integration, preview/production environments, env vars, wait-for-CI check (B14; ADR-016; DEPLOYMENT §4)
+- [ ] Hostinger provisioning + worker staging deploy (B9; DEPLOYMENT §3–4)
 - [ ] Two-worker concurrency test (NFR-10); worker-restart recovery test (AT-NFR-01)
 
 **Gate G5:** worker restart recovers mid-job; tenant isolation verified (SEC-01 matrix); concurrency bounded. *(Slice E2E-06: account → queued report.)*

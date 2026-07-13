@@ -115,12 +115,12 @@ ADR statuses: **Accepted** (binding for MVP), **Proposed** (needs founder/empiri
 **Decision:** `EmailProvider` (console sink in dev; Resend or SES chosen at Phase 5 — see B6), Supabase Auth phone OTP with SMS provider configured at Phase 6 (B8), structured JSON logs with `trace_id` on every log line, and a FastAPI `/health` + `/metrics-lite` endpoint on the worker. No heavy APM in MVP.
 **Consequences:** Vendor swaps stay trivial; some observability is manual (admin queries) at MVP.
 
-### ADR-016 — Web hosting for staging/production
+### ADR-016 — Web hosting for staging/production: Vercel
 
-**Status:** Proposed (needs founder input; does not block Phases 0–4).
-**Context:** Doc 08 fixes Supabase + Hostinger worker but not where Next.js is served. The frontend needs Node SSR, low ops burden and portability.
-**Options:** (a) Vercel hobby/pro (fastest, adds a vendor); (b) serve Next.js standalone from the same Hostinger KVM 2 behind Caddy (no new vendor; competes with worker for 8 GB RAM); (c) Hostinger separate small instance.
-**Default if undecided by Phase 5:** (b) with strict container memory limits, revisited at first load test.
+**Status:** Accepted (founder decision, 2026-07-13).
+**Context:** Doc 08 fixes Supabase + Hostinger worker but not where Next.js is served. The frontend needs Node SSR, low ops burden and portability. Options considered: (a) Vercel; (b) Next.js standalone on the same Hostinger KVM 2 behind Caddy; (c) a separate Hostinger instance.
+**Decision:** Host the Next.js app on Vercel (staging = preview/branch deployments, production = the production deployment), "for now" — revisit at AWS migration or if Vercel constraints bite.
+**Consequences:** Fastest path with zero web-ops burden and the KVM 2's 8 GB stays dedicated to the worker/renderer. Adds a vendor: Vercel joins the environment/secret inventory, key-rotation runbook and (as a data subprocessor serving the app) the pre-launch privacy review (B10). Long-running work must never move into web routes — route handlers stay short (NFR-07); generation remains on the queue/worker. Razorpay webhooks terminate at a Vercel route backed by durable `webhook_events` recording, which fits the existing design. Portability guard: no Vercel-proprietary APIs (KV/queues/cron/blob) — Supabase and the worker keep those roles, so the app remains deployable as a standalone Node container if we leave.
 
 ---
 
@@ -181,6 +181,7 @@ Items that require founder action or external accounts. **None blocks Phases 0�
 | B11 | GST/tax presentation of pricing (doc 11: "requires accounting review") | Paid launch | Phase 7 gate | Display "excl. taxes" placeholder in staging only |
 | B12 | Litigation/legal-database licensing decision (doc 15: do not assume automation rights) | Public-risk depth beyond official portals | Post-MVP | MVP uses official court/tribunal/regulator sources + credible legal news only, via adapter |
 | B13 | Founder checklist confirmations (doc 16): pack pricing/expiry, 24 h letterhead deletion, related-entity cap, optional transaction type, mandatory client role, phone-verified trial, opt-in edit training | Final copy + config values | Phase 6 | Spec defaults from doc 16 wired as config, marked `FOUNDER_CONFIRM` |
+| B14 | Vercel account + project linked to the repo (ADR-016); Pro plan before paid launch (commercial-use terms) | Hosted web (staging previews, production) | Phase 5 | Local `next dev` and demo mode need no hosting |
 
 ## Part E — Decisions explicitly deferred (unchanged from doc 16)
 
