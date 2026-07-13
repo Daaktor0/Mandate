@@ -131,7 +131,7 @@ Assumptions inherited from doc 16 (founder decisions/defaults) are not repeated;
 | ID | Assumption | Basis / impact if wrong |
 |---|---|---|
 | AS-01 | Version lines in SYSTEM-SPEC §4 are acceptable and current-stable at build time | Re-pin at Phase 0; no design impact |
-| AS-02 | Supabase Queues visibility-timeout semantics are sufficient for ≤30-minute jobs with lease extension | Verified in Phase 0 spike; fallback is a `pg`-native lease table behind the same adapter |
+| AS-02 | Supabase Queues visibility-timeout semantics are sufficient for ≤30-minute jobs with lease extension | **Verified conditionally, 2026-07-13** ([spike](spikes/AS-02-pgmq-lease-extension.md)): every heartbeat must be a short committed/autocommit operation; fallback remains a `pg`-native lease table behind the same adapter |
 | AS-03 | WeasyPrint print output is deterministic enough for page-count gating across container rebuilds | Pin fonts in the image; golden render tests catch drift |
 | AS-04 | The seven doc-03 progress stages map cleanly onto internal pipeline stages | Mapping table maintained in QUEUE-AND-JOB-SPEC §7 |
 | AS-05 | "Two low-concurrency jobs" (doc 08) = worker concurrency 2, global; enforced via queue lease count | Tunable config |

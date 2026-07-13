@@ -1,11 +1,20 @@
 create extension if not exists pgtap with schema extensions;
 create extension if not exists pgmq;
 
-select plan(16);
+select plan(17);
 
 select has_extension(
   'pgmq',
   'NFR-01 AS-02 pgmq is available in the supported Postgres stack'
+);
+
+select ok(
+  (
+    select extversion like '1.%'
+    from pg_extension
+    where extname = 'pgmq'
+  ),
+  'NFR-01 AS-02 the stack provides the specified pgmq 1.x line'
 );
 
 select lives_ok(
