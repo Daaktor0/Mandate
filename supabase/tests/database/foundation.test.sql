@@ -170,8 +170,8 @@ set local "request.jwt.claim.sub" = '22222222-2222-4222-8222-222222222222';
 
 select results_eq(
   $$select count(*) from public.report_requests$$,
-  array[0::bigint],
-  'NFR-02 authenticated users see no request rows before an explicit policy'
+  array[1::bigint],
+  'NFR-02 Phase 1 owner-read policy exposes only the authenticated users request'
 );
 
 reset role;
