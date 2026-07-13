@@ -1,0 +1,20 @@
+{
+  "name": "@mandate/shared-schemas",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./typescript/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "typescript": "5.8.3",
+    "vitest": "^3.0.0"
+  }
+}

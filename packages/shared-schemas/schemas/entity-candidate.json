@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.mandate.local/entity-candidate.schema.json",
+  "title": "EntityCandidate",
+  "description": "A legal-entity candidate shown for mandatory user confirmation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "candidateId",
+    "legalName",
+    "companyType",
+    "confidenceScore",
+    "confidenceLabel",
+    "evidenceSnippets",
+    "conflicts"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "candidateId": { "type": "string", "format": "uuid" },
+    "entityId": { "type": ["string", "null"], "format": "uuid" },
+    "legalName": { "type": "string", "minLength": 1, "maxLength": 300 },
+    "formerNames": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1, "maxLength": 300 },
+      "maxItems": 20,
+      "default": []
+    },
+    "cin": {
+      "type": ["string", "null"],
+      "pattern": "^[UL][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$"
+    },
+    "companyType": {
+      "type": "string",
+      "enum": ["private", "public_unlisted", "listed"]
+    },
+    "listedStatus": {
+      "type": ["string", "null"],
+      "enum": ["listed", "unlisted", null]
+    },
+    "status": { "type": ["string", "null"], "maxLength": 100 },
+    "registeredOfficeState": {
+      "type": ["string", "null"],
+      "maxLength": 100
+    },
+    "registeredOfficeSummary": {
+      "type": ["string", "null"],
+      "maxLength": 500
+    },
+    "primaryDomain": {
+      "type": ["string", "null"],
+      "format": "hostname"
+    },
+    "brandNames": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1, "maxLength": 200 },
+      "maxItems": 20,
+      "default": []
+    },
+    "confidenceScore": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "confidenceLabel": {
+      "type": "string",
+      "enum": [
+        "strong_match",
+        "probable_match",
+        "ambiguous",
+        "insufficient_evidence"
+      ]
+    },
+    "evidenceSnippets": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "evidenceId",
+          "snippet",
+          "sourceUrl",
+          "companyControlled"
+        ],
+        "properties": {
+          "evidenceId": { "type": "string", "format": "uuid" },
+          "snippet": { "type": "string", "minLength": 1, "maxLength": 1000 },
+          "sourceUrl": { "type": "string", "format": "uri" },
+          "companyControlled": { "type": "boolean" }
+        }
+      }
+    },
+    "conflicts": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1, "maxLength": 500 },
+      "maxItems": 20
+    },
+    "relatedEntityReason": {
+      "type": ["string", "null"],
+      "maxLength": 500
+    }
+  }
+}

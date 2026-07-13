@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.mandate.local/claim.schema.json",
+  "title": "Claim",
+  "description": "A normalised claim with provenance and verifier metadata.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "claimId",
+    "jobId",
+    "entityId",
+    "subject",
+    "predicate",
+    "object",
+    "displayText",
+    "claimType",
+    "evidenceIds",
+    "confidence",
+    "freshness",
+    "verifierStatus",
+    "reportSections",
+    "modelPromptVersion",
+    "isMaterial"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "claimId": { "type": "string", "format": "uuid" },
+    "jobId": { "type": "string", "format": "uuid" },
+    "entityId": { "type": "string", "format": "uuid" },
+    "subject": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "predicate": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "object": { "type": "string", "minLength": 1, "maxLength": 2000 },
+    "displayText": { "type": "string", "minLength": 1, "maxLength": 3000 },
+    "claimType": {
+      "type": "string",
+      "enum": [
+        "verified_fact",
+        "company_claim",
+        "third_party_report",
+        "inference",
+        "conflicted",
+        "not_publicly_available"
+      ]
+    },
+    "evidenceIds": {
+      "type": "array",
+      "items": { "type": "string", "format": "uuid" },
+      "maxItems": 50
+    },
+    "period": { "type": ["string", "null"], "maxLength": 200 },
+    "confidence": { "type": "string", "enum": ["high", "medium", "low"] },
+    "freshness": {
+      "type": "string",
+      "enum": ["current", "recent", "dated", "stale"]
+    },
+    "contradictionGroup": {
+      "type": ["string", "null"],
+      "format": "uuid"
+    },
+    "verifierStatus": {
+      "type": "string",
+      "enum": ["pending", "approved", "rejected", "conflicted"]
+    },
+    "reportSections": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1, "maxLength": 100 },
+      "maxItems": 20
+    },
+    "modelPromptVersion": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "isMaterial": { "type": "boolean" }
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.mandate.local/evidence.schema.json",
+  "title": "Evidence",
+  "description": "A bounded evidence object stored separately from report prose.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "evidenceId",
+    "jobId",
+    "url",
+    "canonicalUrl",
+    "title",
+    "publisher",
+    "sourceTier",
+    "accessedAt",
+    "excerpt",
+    "contentHash",
+    "entityIdentifiers",
+    "companyControlled",
+    "extractionMethod",
+    "promptInjectionSuspected",
+    "retentionClass"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "evidenceId": { "type": "string", "format": "uuid" },
+    "jobId": { "type": "string", "format": "uuid" },
+    "entityId": { "type": ["string", "null"], "format": "uuid" },
+    "url": { "type": "string", "format": "uri" },
+    "canonicalUrl": { "type": "string", "format": "uri" },
+    "title": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "publisher": { "type": "string", "minLength": 1, "maxLength": 300 },
+    "sourceTier": { "type": "integer", "minimum": 1, "maximum": 5 },
+    "publicationDate": { "type": ["string", "null"], "format": "date" },
+    "accessedAt": { "type": "string", "format": "date-time" },
+    "excerpt": { "type": "string", "minLength": 1, "maxLength": 4000 },
+    "contentHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "entityIdentifiers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["legalNames", "cins", "addresses"],
+      "properties": {
+        "legalNames": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 300 },
+          "maxItems": 50
+        },
+        "cins": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[UL][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$"
+          },
+          "maxItems": 20
+        },
+        "addresses": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 500 },
+          "maxItems": 20
+        }
+      }
+    },
+    "jurisdictionRelevance": {
+      "type": ["string", "null"],
+      "maxLength": 500
+    },
+    "companyControlled": { "type": "boolean" },
+    "extractionMethod": {
+      "type": "string",
+      "enum": ["static_html", "rendered", "api", "fixture"]
+    },
+    "promptInjectionSuspected": { "type": "boolean" },
+    "licenceNotes": { "type": ["string", "null"], "maxLength": 500 },
+    "rawBodyStorageKey": {
+      "type": ["string", "null"],
+      "maxLength": 500
+    },
+    "retentionClass": {
+      "type": "string",
+      "enum": ["with_report", "raw_30d"]
+    }
+  }
+}
