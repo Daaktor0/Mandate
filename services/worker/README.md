@@ -84,6 +84,31 @@ and environment proxies, caps responses at 1 MiB, timeouts at eight seconds, res
 data with charges and e-filings disabled. B5 remains open until credentials, commercial/
 data-use review and the 30-company staging accuracy gate are complete.
 
+## Candidate-generation and scoring boundary
+
+`mandate_worker.entity_resolution.EntityCandidateGenerator` consumes the typed site
+inspection, the `CompanyDataProvider` and pre-classified public-source signals. It looks
+up supplied/extracted CINs before exact legal names, normalises duplicate names, dedupes
+records by CIN and ranks at most 20 generated `EntityCandidate` contracts. Candidate and
+evidence IDs are deterministic UUIDv5 values so job retries cannot create a new logical
+candidate merely because the task was replayed.
+
+The scorer applies the doc 05 table verbatim: positive weights 35/20/15/15/10/5 and
+negative adjustments −15/−10/−15/−20/−10, floored at zero. Labels are derived only from
+the ≥75, 50–74, 25–49 and <25 thresholds. Each candidate has bounded evidence snippets,
+user-facing conflicts and an `entity-confidence-v1` factor audit with concise rationale
+codes—no model output or hidden reasoning. The result always contains
+`requiresUserConfirmation=true`; there is no auto-selected-candidate field. A no-match
+result returns `legal_name_or_cin_required`.
+
+Address matching is deliberately conservative: the master-data state must match and at
+least three meaningful address tokens must overlap at a ratio of 0.5 or more. A negative
+office conflict is applied automatically only when both sides expose different recognised
+Indian states; other address uncertainty remains unscored unless a verified source signal
+marks a conflict. Candidate generation is sequential and capped at 10 CIN queries, 10
+name queries, 20 provider operations (40 network calls including the provider's two-call
+retry cap), 20 candidates and 20 evidence snippets per candidate.
+
 Run the worker unit suite:
 
 ```bash
