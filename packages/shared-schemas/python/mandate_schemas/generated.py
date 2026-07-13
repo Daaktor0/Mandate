@@ -33,6 +33,14 @@ class ClaimVerifierStatus(StrEnum):
     REJECTED = "rejected"
     CONFLICTED = "conflicted"
 
+class CreateReportRequestResponseReportRequestInputKind(StrEnum):
+    WEBSITE = "website"
+    LEGAL_NAME = "legal_name"
+
+class CreateReportRequestInputKind(StrEnum):
+    WEBSITE = "website"
+    LEGAL_NAME = "legal_name"
+
 class EntityCandidateCompanyType(StrEnum):
     PRIVATE = "private"
     PUBLIC_UNLISTED = "public_unlisted"
@@ -81,6 +89,39 @@ class Claim(BaseModel):
     report_sections: list[str] = Field(..., alias="reportSections", max_length=20)
     model_prompt_version: str = Field(..., alias="modelPromptVersion", min_length=1, max_length=100)
     is_material: bool = Field(..., alias="isMaterial")
+
+class CreateReportRequestResponseReportRequest(BaseModel):
+    """Generated from the canonical Mandate JSON Schema."""
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    id: UUID = Field(...)
+    input_kind: CreateReportRequestResponseReportRequestInputKind = Field(..., alias="inputKind")
+    url: AnyHttpUrl | None = Field(..., max_length=2048)
+    legal_name: str | None = Field(..., alias="legalName", max_length=300)
+    cin: str | None = Field(..., pattern="^[UL][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$")
+    confidential_ack_at: datetime = Field(..., alias="confidentialAckAt")
+    state: Literal['draft'] = Field(...)
+    created_at: datetime = Field(..., alias="createdAt")
+    updated_at: datetime = Field(..., alias="updatedAt")
+
+class CreateReportRequestResponse(BaseModel):
+    """Generated from the canonical Mandate JSON Schema."""
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    report_request: CreateReportRequestResponseReportRequest = Field(..., alias="reportRequest")
+
+class CreateReportRequest(BaseModel):
+    """Generated from the canonical Mandate JSON Schema."""
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    input_kind: CreateReportRequestInputKind = Field(..., alias="inputKind")
+    url: AnyHttpUrl | None = Field(default=None, min_length=1, max_length=2048)
+    legal_name: str | None = Field(default=None, alias="legalName", min_length=1, max_length=300)
+    cin: str | None = Field(default=None, pattern="^[UL][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$")
+    confidential_ack: Literal[True] = Field(..., alias="confidentialAck")
 
 class EntityCandidateEvidenceSnippetsItem(BaseModel):
     """Generated from the canonical Mandate JSON Schema."""
@@ -172,6 +213,11 @@ __all__ = [
     "ClaimConfidence",
     "ClaimFreshness",
     "ClaimVerifierStatus",
+    "CreateReportRequest",
+    "CreateReportRequestInputKind",
+    "CreateReportRequestResponse",
+    "CreateReportRequestResponseReportRequest",
+    "CreateReportRequestResponseReportRequestInputKind",
     "EntityCandidate",
     "EntityCandidateCompanyType",
     "EntityCandidateConfidenceLabel",

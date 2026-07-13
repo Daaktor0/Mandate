@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.mandate.local/create-report-request.schema.json",
+  "x-mandate-versioned": false,
+  "type": "object",
+  "title": "CreateReportRequest",
+  "description": "Public-information-only intake for one Mandate Brief request.",
+  "additionalProperties": false,
+  "properties": {
+    "inputKind": {
+      "type": "string",
+      "enum": ["website", "legal_name"]
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "minLength": 1,
+      "maxLength": 2048
+    },
+    "legalName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "cin": {
+      "type": "string",
+      "pattern": "^[UL][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$"
+    },
+    "confidentialAck": {
+      "type": "boolean",
+      "const": true
+    }
+  },
+  "required": ["inputKind", "confidentialAck"]
+}

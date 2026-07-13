@@ -101,6 +101,7 @@ One user intent to create one Mandate Brief. Owns the pre-generation state machi
 | `input_legal_name` | text null | |
 | `input_cin` | text null | INTAKE-05 |
 | `confidential_ack_at` | timestamptz | mandatory checkbox (doc 03) |
+| `idempotency_key` | text null | **[implementation addition]** unique per user when present; replays return the original draft |
 | `confirmed_entity_id` | uuid FK → entities null | set by confirm-entity |
 | `related_entity_ids` | uuid[] | ≤2, user-confirmed (ENTITY-07/08) |
 | `client_role` | enum (`company_promoter`,`investor_acquirer`,`seller_transferor`,`other`) null | mandatory before generate (RESEARCH-04) |
@@ -310,6 +311,14 @@ RLS enabled on **every** table; default deny. Policy families:
 | Admin access | `is_admin()` helper on dedicated admin policies; all admin mutations also write `admin_audit_log` |
 
 Additional rules: the worker uses a dedicated Postgres role (not the anon/service web key) with least-privilege grants; storage buckets use per-user/report key prefixes and signed, short-lived URLs; possession of a report id alone never authorises access (doc 10).
+
+Phase 1 exposes intake creation only through the authenticated
+`create_report_request` RPC; authenticated clients retain no direct table-insert
+grant. The security-definer function has an empty search path, derives ownership
+only from `auth.uid()`, serialises creates per user, replays an existing
+idempotency key before rate-limit evaluation and atomically enforces the API
+limit of ten successful intake requests per rolling hour. It does not reference
+an entitlement table or queue.
 
 ## 5. Entitlement-ledger invariants
 

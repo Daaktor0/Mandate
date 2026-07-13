@@ -20,7 +20,10 @@ def test_RUN_05_canonical_json_schemas_are_valid_draft_2020_12() -> None:
         schema = json.loads(schema_path.read_text(encoding="utf-8"))
         Draft202012Validator.check_schema(schema)
         assert schema["additionalProperties"] is False
-        assert schema["properties"]["schemaVersion"]["const"] == 1
+        if schema.get("x-mandate-versioned", True):
+            assert schema["properties"]["schemaVersion"]["const"] == 1
+        else:
+            assert "schemaVersion" not in schema["properties"]
 
 
 def test_RUN_05_generated_contracts_are_in_sync() -> None:

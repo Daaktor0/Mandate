@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.mandate.local/create-report-request-response.schema.json",
+  "x-mandate-versioned": false,
+  "type": "object",
+  "title": "CreateReportRequestResponse",
+  "description": "Created draft request returned by the intake API.",
+  "additionalProperties": false,
+  "properties": {
+    "reportRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "inputKind": {
+          "type": "string",
+          "enum": ["website", "legal_name"]
+        },
+        "url": {
+          "type": ["string", "null"],
+          "format": "uri",
+          "maxLength": 2048
+        },
+        "legalName": {
+          "type": ["string", "null"],
+          "maxLength": 300
+        },
+        "cin": {
+          "type": ["string", "null"],
+          "pattern": "^[UL][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$"
+        },
+        "confidentialAckAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "state": {
+          "type": "string",
+          "const": "draft"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "inputKind",
+        "url",
+        "legalName",
+        "cin",
+        "confidentialAckAt",
+        "state",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "required": ["reportRequest"]
+}

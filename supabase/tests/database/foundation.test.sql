@@ -50,8 +50,8 @@ select is(
     where schemaname = 'public'
       and tablename in ('users_profile', 'report_requests')
   ),
-  0,
-  'NFR-02 the first migration is default deny'
+  1,
+  'NFR-02 Phase 1 adds only the report-request owner-read policy'
 );
 
 select ok(

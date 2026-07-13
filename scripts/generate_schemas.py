@@ -144,12 +144,15 @@ def python_field_type(schema: dict[str, Any], name: str, context: PyContext) -> 
             context.enums.append(f"class {enum_name}(StrEnum):\n{body}\n")
         result = enum_name
     elif schema_type == "string":
+        format_name = schema.get("format")
+        if not isinstance(format_name, str):
+            format_name = ""
         result = {
             "uuid": "UUID",
             "uri": "AnyHttpUrl",
             "date-time": "datetime",
             "date": "date",
-        }.get(schema.get("format"), "str")
+        }.get(format_name, "str")
     elif schema_type == "integer":
         result = "int"
     elif schema_type == "number":
@@ -375,7 +378,7 @@ def load_schemas() -> list[dict[str, Any]]:
     documents: list[dict[str, Any]] = []
     for path in sorted(SCHEMA_DIR.glob("*.json")):
         document = json.loads(path.read_text(encoding="utf-8"))
-        metadata_keys = {"$schema", "$id"}
+        metadata_keys = {"$schema", "$id", "x-mandate-versioned"}
         validate_keywords(
             {key: value for key, value in document.items() if key not in metadata_keys},
             root=True,
@@ -384,7 +387,10 @@ def load_schemas() -> list[dict[str, Any]]:
             raise ValueError(f"{path.name} must be an object schema")
         if document.get("additionalProperties") is not False:
             raise ValueError(f"{path.name} must fail closed on unknown fields")
-        if document.get("properties", {}).get("schemaVersion", {}).get("const") != 1:
+        versioned = document.get("x-mandate-versioned", True)
+        if not isinstance(versioned, bool):
+            raise ValueError(f"{path.name} x-mandate-versioned must be a boolean")
+        if versioned and document.get("properties", {}).get("schemaVersion", {}).get("const") != 1:
             raise ValueError(f"{path.name} must pin schemaVersion=1")
         documents.append(document)
     if not documents:
