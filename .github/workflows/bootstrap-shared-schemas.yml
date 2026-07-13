@@ -34,6 +34,8 @@ jobs:
         run: |
           uv run ruff check --fix scripts tests packages/shared-schemas/python
           uv run ruff format scripts tests packages/shared-schemas/python
+      - name: Regenerate contracts
+        run: python3 scripts/generate_schemas.py
       - name: Generate lockfiles
         run: |
           pnpm install --lockfile-only --no-frozen-lockfile
@@ -45,32 +47,12 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add scripts tests packages/shared-schemas/python pnpm-lock.yaml uv.lock
-          git commit -m "chore(RUN-05): normalize schemas and lock dependencies"
+          git add scripts tests packages/shared-schemas/python packages/shared-schemas/typescript/generated.ts pnpm-lock.yaml uv.lock
+          git commit -m "chore(RUN-05): regenerate contracts and lock dependencies"
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
       - name: Install locked dependencies
         run: |
           pnpm install --frozen-lockfile
           uv sync --locked --all-groups
-      - name: Capture complete baseline
-        id: baseline
-        shell: bash
-        run: |
-          set +e
-          pnpm check > shared-schema-baseline.log 2>&1
-          status=$?
-          echo "status=$status" >> "$GITHUB_OUTPUT"
-          exit 0
-      - name: Commit baseline diagnostic
-        if: steps.baseline.outputs.status != '0'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add shared-schema-baseline.log
-          git commit -m "test(RUN-05): capture shared-schema baseline failure"
-          git push origin HEAD:${{ github.event.pull_request.head.ref }}
-      - name: Enforce complete baseline
-        if: steps.baseline.outputs.status != '0'
-        run: |
-          cat shared-schema-baseline.log
-          exit 1
+      - name: Validate complete baseline
+        run: pnpm check
