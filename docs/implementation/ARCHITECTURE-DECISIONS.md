@@ -89,6 +89,8 @@ ADR statuses: **Accepted** (binding for MVP), **Proposed** (needs founder/empiri
 **Decision:** All outbound page fetches go through `SafeFetcher`: HTTP/HTTPS only; resolve DNS, reject private/reserved/link-local/metadata ranges, then **connect to the vetted IP** (pinned) with SNI/Host set, so a re-resolving DNS name cannot swap targets mid-request; every redirect re-runs the full check; max 5 redirects; per-fetch size/time caps; content-type allowlist; robots/ToS-respecting behaviour per doc 06. Playwright traffic is forced through the same policy via request interception, with a browser-context proxy denylist as defence in depth.
 **Consequences:** One choke point to test hard (SEC tests); slightly more complex connection code than plain httpx.
 
+**Amendment (2026-07-13, Phase 1 crawler):** AGENT-PROMPT §3 includes annual-report/policy PDFs in site inspection, but the governing product-specification precedence places security/legal boundaries first, and doc 10 requires malware scanning plus sandbox parsing for untrusted files. Until that reusable file boundary exists, the legal-page crawler records same-site PDF URLs but does not fetch extension-identified PDFs, parse PDFs or persist their bodies. If an opaque URL returns `application/pdf`, its SafeFetcher-bounded body is discarded with `pdf_sandbox_pending`. This is a fail-closed dependency decision, not an alternate parser path; PDF inspection becomes reachable only with the specified scanner/sandbox and its security tests.
+
 ### ADR-012 — Truthful progress = checkpoint-driven stage events only
 
 **Status:** Accepted.

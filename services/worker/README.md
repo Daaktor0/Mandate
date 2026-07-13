@@ -38,10 +38,33 @@ must not construct an HTTP client directly. For every request, redirect and retr
 - returns stable failure codes plus only the canonical URL, final vetted IP, redirect
   chain and response metadata needed for later audit records.
 
-Robots/ToS decisions, the 15-page entity-resolution crawl budget and Playwright request
-interception belong to the immediately following crawler/browser slices. They may add
-restrictions but may not bypass this network policy. SafeFetcher never receives or sends
-user credentials and does not implement paywall/CAPTCHA bypass behavior.
+The entity-resolution crawler layers robots/terms/access-control decisions and its
+15-page budget on this boundary. Later Playwright interception may add restrictions but
+may not bypass this network policy. SafeFetcher never receives or sends user credentials
+and does not implement paywall/CAPTCHA bypass behavior.
+
+## Legal-page crawler boundary
+
+`mandate_worker.entity_resolution.LegalPageCrawler` performs the Phase 1
+company-controlled site inspection. It is sequential and deterministic: fetch
+`robots.txt`, then inspect the submitted page and same-host/`www` legal links in the
+specified priority order. It caps successful and failed page attempts at 15, discovered
+candidates at 100, links read from one page at 250 and parseable HTML at 2 MiB. Published
+crawl delays up to five seconds are respected; a longer delay, unavailable robots policy,
+explicit automation prohibition, CAPTCHA, paywall or access-control response stops the
+relevant access without a bypass attempt.
+
+The crawler strips scripts and hidden markup, flags prompt-injection phrases, and emits
+only typed disclosure contexts and a 4,000-character excerpt—never the raw HTML. Its
+versioned deterministic extraction covers legal names and relationships, CIN, GSTIN,
+registered office, copyright/data-controller names, NSE/BSE tickers, Indian ISINs and
+LLP scope warnings. Every accepted page is marked company-controlled and retains a
+content hash for later Evidence construction.
+
+PDF annual-report/policy links are discovered and audited but not parsed. An opaque URL
+that returns a PDF is discarded after SafeFetcher's bounded read. Per the ADR-011
+amendment and security-precedence rule, PDF text extraction stays unreachable until the
+malware-scan and sandbox parser boundary is implemented.
 
 Run the worker unit suite:
 
