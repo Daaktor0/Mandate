@@ -17,7 +17,7 @@ The worker is stateless between checkpoints, uses typed provider adapters, and m
 - `PgmqQueueAdapter` uses the documented `pgmq.send`, `read`, `set_vt` and `archive` functions through an injected least-privilege database boundary.
 - Each pgmq call must use a short committed/autocommit transaction. `set_vt` is relative to PostgreSQL's transaction timestamp, so lease heartbeats must never share the job's long-running transaction.
 - Poison-message DLQ records contain a payload hash and audit metadata, never the untrusted payload itself.
-- Structured JSON logging supplies a `trace_id` on every event; job events bind the message's trace and identifier-only audit fields.
+- Structured JSON logging supplies a `trace_id` on every event; job events bind the message's trace and identifier-only audit fields. A recursive sink processor redacts secrets, identity, prompts, work product, raw content, exception detail and binary values while retaining approved audit metadata.
 
 The database pool and process supervisor are wired in the later container/deployment tasks. No provider credentials or model routes are required for this slice.
 

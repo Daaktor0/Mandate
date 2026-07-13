@@ -1,8 +1,18 @@
 from __future__ import annotations
 
+import json
+
+import pytest
 from fastapi.testclient import TestClient
 from mandate_worker.main import TRACE_HEADER, create_app
-from mandate_worker.observability import SYSTEM_TRACE_ID, ensure_trace_id
+from mandate_worker.observability import (
+    REDACTED,
+    REDACTED_BINARY,
+    SYSTEM_TRACE_ID,
+    configure_logging,
+    ensure_trace_id,
+    get_logger,
+)
 
 
 def test_NFR_04_health_propagates_a_valid_trace_id() -> None:
@@ -43,3 +53,38 @@ def test_NFR_04_log_processor_always_supplies_trace_id() -> None:
     event = ensure_trace_id(None, "info", {"event": "worker_ready"})
 
     assert event["trace_id"] == SYSTEM_TRACE_ID
+
+
+def test_SEC_09_logger_boundary_redacts_sensitive_and_nested_fields(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    configure_logging()
+    get_logger().info(
+        "provider_call",
+        trace_id="trace-sec09-0001",
+        provider="fixture",
+        prompt_version="entity-v1",
+        model_prompt_version="entity-v1",
+        token_count=42,
+        api_key="must-not-appear",
+        prompt="must-not-appear",
+        response={
+            "authorization": "must-not-appear",
+            "provider": "fixture",
+        },
+        attachment=b"must-not-appear",
+    )
+
+    output = capsys.readouterr().out
+    event = json.loads(output.splitlines()[-1])
+
+    assert "must-not-appear" not in output
+    assert event["api_key"] == REDACTED
+    assert event["prompt"] == REDACTED
+    assert event["response"]["authorization"] == REDACTED
+    assert event["attachment"] == REDACTED_BINARY
+    assert event["provider"] == "fixture"
+    assert event["response"]["provider"] == "fixture"
+    assert event["prompt_version"] == "entity-v1"
+    assert event["model_prompt_version"] == "entity-v1"
+    assert event["token_count"] == 42
