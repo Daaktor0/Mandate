@@ -1,0 +1,50 @@
+[project]
+name = "mandate-worker"
+version = "0.0.0"
+description = "Queued research and rendering worker for Mandate"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "beautifulsoup4>=4.13,<5",
+  "fastapi>=0.115,<0.117",
+  "httpx>=0.28,<0.29",
+  "playwright>=1.50,<1.60",
+  "pydantic>=2,<3",
+  "pypdf>=5,<6",
+  "pyyaml>=6,<7",
+  "structlog>=25,<26",
+  "trafilatura>=2,<3",
+  "weasyprint>=65,<66",
+]
+
+[dependency-groups]
+dev = [
+  "hypothesis>=6,<7",
+  "mypy>=1.15,<2",
+  "pytest>=8,<9",
+  "pytest-asyncio>=1,<2",
+  "ruff>=0.12,<0.13",
+  "types-pyyaml>=6,<7",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["services/worker"]
+testpaths = ["services/worker/tests", "tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "RUF"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_configs = true
+mypy_path = "services/worker"

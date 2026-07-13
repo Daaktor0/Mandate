@@ -1,0 +1,65 @@
+name: Bootstrap toolchain lockfiles
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  bootstrap:
+    if: github.event.pull_request.head.ref == 'agent/phase-0-toolchain'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out feature branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+
+      - name: Activate pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.13.1 --activate
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.7.19'
+
+      - name: Generate lockfiles
+        run: |
+          pnpm install --lockfile-only --no-frozen-lockfile
+          uv lock
+
+      - name: Install locked dependencies
+        run: |
+          pnpm install --frozen-lockfile
+          uv sync --locked --all-groups
+
+      - name: Validate toolchain
+        run: |
+          pnpm check
+          python3 -m unittest discover -s tests -p 'test_*.py' -v
+
+      - name: Commit generated lockfiles
+        run: |
+          if git diff --quiet -- pnpm-lock.yaml uv.lock; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pnpm-lock.yaml uv.lock
+          git commit -m "chore(NFR-03): commit reproducible lockfiles"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
