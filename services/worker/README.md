@@ -66,6 +66,24 @@ that returns a PDF is discarded after SafeFetcher's bounded read. Per the ADR-01
 amendment and security-precedence rule, PDF text extraction stays unreachable until the
 malware-scan and sandbox parser boundary is implemented.
 
+## Company-data provider boundary
+
+`mandate_worker.providers.CompanyDataProvider` exposes only `search_by_name(legal_name)`
+and `lookup_by_cin(cin)`. This narrow signature is the privacy allowlist: user identity,
+firm, billing, letterhead and confidential matter data have no input field and cannot be
+forwarded. Results retain only the public company fields needed for resolution, an exact
+normalised CIN and bounded provider-call metadata; provider email, directors, filings,
+charges and raw responses are discarded.
+
+`DEMO_MODE=1` selects the validated synthetic fixture and makes zero provider calls. In
+live mode, set `PROVIDER_COMPANY_DATA=attestr` and supply `ATTESTR_AUTH_TOKEN`; an absent
+credential, an unconfigured/unknown provider or a request for fixtures outside demo mode
+fails closed. The live adapter uses fixed Attestr v2 HTTPS endpoints, disables redirects
+and environment proxies, caps responses at 1 MiB, timeouts at eight seconds, results at
+20 and calls (including retry) at two. It searches exact legal names and requests master
+data with charges and e-filings disabled. B5 remains open until credentials, commercial/
+data-use review and the 30-company staging accuracy gate are complete.
+
 Run the worker unit suite:
 
 ```bash

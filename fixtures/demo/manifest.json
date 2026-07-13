@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixtureSetId": "phase-0-smoke-v1",
-  "revision": "2026-07-13.1",
+  "revision": "2026-07-13.2",
   "records": [
     {
       "id": "company_data.smoke",
@@ -9,7 +9,7 @@
       "backend": "fixture",
       "path": "company_data/smoke.json",
       "classification": "synthetic",
-      "sha256": "31ff0723bf4ca854f23135edf8d57048d61551bb96ad51d670a28e371e5c580c"
+      "sha256": "cc69c0b0f6c45af31a0b3b651c24bf6aa4216f25c493c314e22158fd865d7485"
     },
     {
       "id": "email.smoke",

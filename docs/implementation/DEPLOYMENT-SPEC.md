@@ -60,7 +60,7 @@ Rollback: web = Vercel instant rollback to a previous deployment; worker = `dock
 | `QUEUE_BACKEND` | worker | `pgmq` \| `sqs` \| `memory` |
 | `DEMO_MODE` | all | `1` = all-fixture wiring, zero spend |
 | `PROVIDER_SEARCH` | worker | `brave` \| `tavily` \| `exa` \| `fixture` (+ `SEARCH_API_KEY`) |
-| `PROVIDER_COMPANY_DATA` | worker | `attestr` \| `sandbox` \| `probe42` \| `fixture` (+ key) |
+| `PROVIDER_COMPANY_DATA` | worker | `attestr` (implemented; `ATTESTR_AUTH_TOKEN`) \| `sandbox` \| `probe42` (future adapters) \| `fixture` (forced only by `DEMO_MODE=1`) |
 | `OPENROUTER_API_KEY` | worker | model gateway |
 | `MODEL_ROUTING_CONFIG` | worker | path to versioned routing yaml |
 | `BUDGET_PROFILE_CONFIG` | worker | budget caps file |
