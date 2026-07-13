@@ -24,6 +24,7 @@ dev = [
   "pytest>=8,<9",
   "pytest-asyncio>=1,<2",
   "ruff>=0.12,<0.13",
+  "types-jsonschema>=4.23,<5",
   "types-pyyaml>=6,<7",
 ]
 
