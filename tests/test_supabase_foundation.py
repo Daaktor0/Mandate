@@ -29,6 +29,13 @@ def test_NFR_02_supabase_local_stack_targets_postgres_15_without_model_access() 
     assert "env(OPENAI_API_KEY)" not in config
 
 
+def test_SEC_01_local_auth_disables_email_password_signups() -> None:
+    config = CONFIG.read_text(encoding="utf-8")
+    email_auth = config.split("[auth.email]", maxsplit=1)[1].split("[auth.sms]", maxsplit=1)[0]
+
+    assert "enable_signup = false" in email_auth
+
+
 def test_NFR_02_first_user_tables_are_force_rls_default_deny() -> None:
     sql = _foundation_sql()
 
