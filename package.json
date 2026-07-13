@@ -9,7 +9,7 @@
   },
   "scripts": {
     "lint": "pnpm --filter @mandate/web lint && uv run ruff check services/worker tests",
-    "format:check": "pnpm exec prettier --check . && uv run ruff format --check services/worker tests",
+    "format:check": "pnpm exec prettier --check package.json pnpm-workspace.yaml tsconfig.base.json apps/web && uv run ruff format --check services/worker tests",
     "typecheck": "pnpm --filter @mandate/web typecheck && uv run mypy services/worker/mandate_worker tests",
     "test": "pnpm --filter @mandate/web test && uv run pytest -q",
     "check": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm test",
