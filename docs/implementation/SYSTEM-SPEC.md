@@ -100,7 +100,7 @@ Exact patch versions are pinned in lockfiles at Phase 0; the table pins the supp
 | HTTP client | httpx | 0.28.x |
 | Browser extraction | Playwright (Python) | 1.5x, Chromium only, bounded |
 | Text extraction | Trafilatura / BeautifulSoup4 | 2.x / 4.13.x |
-| PDF | WeasyPrint + pypdf | 65.x / 5.x |
+| PDF | WeasyPrint + pypdf | 69.x / 6.x |
 | Package manager (Py) | uv | 0.7.x |
 | Database | Supabase Postgres | 15.x |
 | Queue | pgmq (Supabase Queues) | 1.x |

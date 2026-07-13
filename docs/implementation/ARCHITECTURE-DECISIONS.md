@@ -66,6 +66,8 @@ ADR statuses: **Accepted** (binding for MVP), **Proposed** (needs founder/empiri
 **Decision:** WeasyPrint renders the brief HTML with a fixed print stylesheet (no JS execution at all), giving deterministic page counts the length controller can trust. Letterhead: uploaded PDF/PNG/JPG is scanned, rasterised/sanitised, then stamped as background/header with pypdf in a sandboxed render step; margins and continuation-page behaviour are render options. Playwright is **not** used for PDF (it stays extraction-only), keeping the render path JS-free.
 **Consequences:** No headless-browser rendering variance; CSS print debugging is the cost; letterhead never enters any prompt or log by construction.
 
+**Amendment (2026-07-13, SEC-12):** The initial implementation baseline named WeasyPrint 65.x and pypdf 5.x. Both lines now contain known production-dependency vulnerabilities, so the baseline advances to WeasyPrint 69.x and pypdf 6.x. This is a security-only version-line change: the deterministic, JavaScript-free renderer and sandboxed overlay decision are unchanged. CI blocks known dependency vulnerabilities and golden-render tests remain the compatibility gate.
+
 ### ADR-009 — Length controller: budgeted composition + deterministic post-measure loop
 
 **Status:** Accepted.

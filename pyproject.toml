@@ -5,16 +5,16 @@ description = "Queued research and rendering worker for Mandate"
 requires-python = ">=3.12,<3.13"
 dependencies = [
   "beautifulsoup4>=4.13,<5",
-  "fastapi>=0.115,<0.117",
+  "fastapi>=0.139,<0.140",
   "httpx>=0.28,<0.29",
   "playwright>=1.50,<1.60",
   "pydantic>=2,<3",
-  "pypdf>=5,<6",
+  "pypdf>=6.14,<7",
   "pyyaml>=6,<7",
   "structlog>=25,<26",
   "trafilatura>=2,<3",
   "uvicorn>=0.46,<0.47",
-  "weasyprint>=65,<66",
+  "weasyprint>=69,<70",
 ]
 
 [dependency-groups]
@@ -22,6 +22,7 @@ dev = [
   "hypothesis>=6,<7",
   "jsonschema>=4.23,<5",
   "mypy>=1.15,<2",
+  "pip-audit>=2.10.1,<2.11",
   "pytest>=8,<9",
   "pytest-asyncio>=1,<2",
   "ruff>=0.12,<0.13",

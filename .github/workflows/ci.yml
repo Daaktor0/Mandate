@@ -1,0 +1,227 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: 22.16.0
+  PNPM_VERSION: 10.13.1
+  PYTHON_VERSION: "3.12"
+  UV_VERSION: 0.7.19
+
+jobs:
+  stage_1_quality:
+    name: 1 · Lint and typecheck
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Activate pinned pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@${PNPM_VERSION} --activate
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff # v6
+        with:
+          version: ${{ env.UV_VERSION }}
+      - name: Install locked dependencies
+        run: |
+          pnpm install --frozen-lockfile
+          uv sync --locked --all-groups
+      - name: Lint and format check
+        run: |
+          pnpm lint
+          pnpm format:check
+      - name: Typecheck
+        run: pnpm typecheck
+
+  stage_2_security:
+    name: 2 · SEC-10/12 security scans
+    needs: stage_1_quality
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      GITLEAKS_VERSION: 8.30.1
+      GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+      TRIVY_VERSION: 0.72.0
+      TRIVY_SHA256: bbb64b9695866ce4a7a8f5c9592002c5961cab378577fa3f8a040df362b9b2ea
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Activate pinned pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@${PNPM_VERSION} --activate
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff # v6
+        with:
+          version: ${{ env.UV_VERSION }}
+      - name: Install locked dependencies
+        run: |
+          pnpm install --frozen-lockfile
+          uv sync --locked --all-groups
+      - name: Install checksum-verified security scanners
+        run: |
+          curl --fail --location --proto '=https' --retry 3 --tlsv1.2 \
+            --output /tmp/gitleaks.tar.gz \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  /tmp/gitleaks.tar.gz" | sha256sum --check --strict
+          tar --extract --gzip --file /tmp/gitleaks.tar.gz --directory /tmp gitleaks
+          sudo install --mode 0755 /tmp/gitleaks /usr/local/bin/gitleaks
+
+          curl --fail --location --proto '=https' --retry 3 --tlsv1.2 \
+            --output /tmp/trivy.tar.gz \
+            "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz"
+          echo "${TRIVY_SHA256}  /tmp/trivy.tar.gz" | sha256sum --check --strict
+          tar --extract --gzip --file /tmp/trivy.tar.gz --directory /tmp trivy
+          sudo install --mode 0755 /tmp/trivy /usr/local/bin/trivy
+
+          test "$(gitleaks version)" = "${GITLEAKS_VERSION}"
+          trivy --version | grep --fixed-strings "Version: ${TRIVY_VERSION}"
+      - name: SEC-10 scan full Git history
+        run: gitleaks git --log-opts="--all" --no-banner --redact --verbose .
+      - name: SEC-12 audit JavaScript dependencies
+        run: pnpm audit --audit-level=high
+      - name: SEC-12 audit locked Python production dependencies
+        run: |
+          uv export --locked --no-dev --no-emit-project \
+            --format requirements-txt --output-file /tmp/requirements.txt
+          uv run pip-audit --requirement /tmp/requirements.txt \
+            --strict --progress-spinner off --cache-dir /tmp/pip-audit-cache
+      - name: Set up pinned Docker Engine
+        uses: docker/setup-docker-action@6d7cfa65f60a9dda7b46e5513fa982536f3c9877 # v5
+        with:
+          version: v27.5.1
+      - name: Build production container targets
+        run: docker compose --file infra/compose/local.yml build --pull
+      - name: SEC-12 scan worker container
+        run: >-
+          trivy image --exit-code 1 --ignore-unfixed --no-progress
+          --scanners vuln,secret --severity HIGH,CRITICAL mandate-worker:local
+      - name: SEC-12 scan renderer container
+        run: >-
+          trivy image --exit-code 1 --ignore-unfixed --no-progress
+          --scanners vuln,secret --severity HIGH,CRITICAL mandate-renderer:local
+
+  stage_3_contracts:
+    name: 3 · Shared-schema drift
+    needs: stage_2_security
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Activate pinned pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@${PNPM_VERSION} --activate
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff # v6
+        with:
+          version: ${{ env.UV_VERSION }}
+      - name: Install locked dependencies
+        run: |
+          pnpm install --frozen-lockfile
+          uv sync --locked --all-groups
+      - name: Check generated contracts
+        run: pnpm schemas:check
+
+  stage_4_unit:
+    name: 4 · Unit suites
+    needs: stage_3_contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Activate pinned pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@${PNPM_VERSION} --activate
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff # v6
+        with:
+          version: ${{ env.UV_VERSION }}
+      - name: Install locked dependencies
+        run: |
+          pnpm install --frozen-lockfile
+          uv sync --locked --all-groups
+      - name: Run web and worker unit suites
+        run: pnpm test
+
+  stage_5_integration:
+    name: 5 · Supabase and container integration
+    needs: stage_4_unit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      SUPABASE_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Activate pinned pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@${PNPM_VERSION} --activate
+      - name: Install locked JavaScript dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Set up pinned Docker Engine
+        uses: docker/setup-docker-action@6d7cfa65f60a9dda7b46e5513fa982536f3c9877 # v5
+        with:
+          version: v27.5.1
+      - name: Start Postgres 15 and apply migrations
+        run: |
+          pnpm exec supabase db start
+          pnpm exec supabase db reset
+      - name: Run NFR-01/02 database integration tests
+        run: |
+          pnpm exec supabase test db --local
+          pnpm exec supabase db lint --local --level error --fail-on error
+      - name: Stop local database
+        if: always()
+        run: pnpm exec supabase stop --no-backup
+      - name: Start staging-shaped worker stack
+        run: docker compose --file infra/compose/local.yml up --build --detach --wait --wait-timeout 180
+      - name: Verify live NFR-03 and SEC-05 boundaries
+        run: |
+          curl --fail --silent --show-error http://127.0.0.1:8081/health
+          docker compose --file infra/compose/local.yml exec --no-TTY renderer \
+            python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8082/health', timeout=2).read()"
+          python3 scripts/verify_container_runtime.py
+      - name: Collect worker stack logs
+        if: always()
+        run: docker compose --file infra/compose/local.yml logs --no-color
+      - name: Stop worker stack
+        if: always()
+        run: docker compose --file infra/compose/local.yml down --remove-orphans

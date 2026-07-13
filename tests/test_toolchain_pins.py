@@ -17,6 +17,14 @@ class ToolchainPinTests(unittest.TestCase):
         self.assertEqual("22.16.x", package_json["engines"]["node"])
         self.assertEqual(">=3.12,<3.13", pyproject["project"]["requires-python"])
 
+    def test_SEC_12_web_runtime_uses_security_patched_release_lines(self) -> None:
+        package_json = json.loads((REPOSITORY_ROOT / "apps" / "web" / "package.json").read_text())
+
+        self.assertEqual("15.5.18", package_json["dependencies"]["next"])
+        self.assertEqual("19.1.5", package_json["dependencies"]["react"])
+        self.assertEqual("19.1.5", package_json["dependencies"]["react-dom"])
+        self.assertEqual("15.5.18", package_json["devDependencies"]["eslint-config-next"])
+
 
 if __name__ == "__main__":
     unittest.main()
