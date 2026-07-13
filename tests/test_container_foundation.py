@@ -32,6 +32,7 @@ class ContainerFoundationTests(unittest.TestCase):
             "playwright install --with-deps chromium",
             "FROM runtime AS worker",
             "FROM runtime AS renderer",
+            "COPY --chown=10001:10001 fixtures/demo ./fixtures/demo",
             "USER 10001:10001",
         )
         for fragment in expected_fragments:
@@ -82,6 +83,8 @@ class ContainerFoundationTests(unittest.TestCase):
         required_patterns = {".env", ".env.*", "**/.env", "**/.env.*", "*.pem", "*.key"}
 
         self.assertTrue(required_patterns.issubset(dockerignore))
+        self.assertIn("fixtures/*", dockerignore)
+        self.assertIn("!fixtures/demo/**", dockerignore)
         self.assertNotRegex(
             COMPOSE_FILE.read_text(),
             re.compile(r"(API_KEY|SERVICE_ROLE|PASSWORD|SECRET)\s*:", re.IGNORECASE),

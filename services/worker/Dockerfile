@@ -54,6 +54,7 @@ RUN groupadd --gid 10001 mandate \
 
 COPY --chown=10001:10001 services/worker ./services/worker
 COPY --chown=10001:10001 packages/shared-schemas/python ./packages/shared-schemas/python
+COPY --chown=10001:10001 fixtures/demo ./fixtures/demo
 
 USER 10001:10001
 STOPSIGNAL SIGTERM

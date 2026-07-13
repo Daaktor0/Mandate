@@ -34,6 +34,18 @@ def assert_common_sandbox(container: dict[str, Any]) -> None:
     assert any(str(option).startswith("no-new-privileges") for option in host["SecurityOpt"])
 
 
+def assert_demo_fixture_runtime() -> None:
+    probe = (
+        "from mandate_worker.fixtures import AdapterCapability; "
+        "from mandate_worker.main import app; "
+        "plan = app.state.runtime_adapter_plan; "
+        "assert plan.zero_spend; "
+        "assert plan.fixture_revision == '2026-07-13.1'; "
+        "assert set(plan.bindings) == set(AdapterCapability)"
+    )
+    subprocess.check_call([*COMPOSE, "exec", "--no-TTY", "worker", "python", "-c", probe])
+
+
 def main() -> None:
     worker = inspect_service("worker")
     renderer = inspect_service("renderer")
@@ -57,6 +69,8 @@ def main() -> None:
         state = cast(dict[str, Any], container["State"])
         health = cast(dict[str, Any], state["Health"])
         assert health["Status"] == "healthy"
+
+    assert_demo_fixture_runtime()
 
 
 if __name__ == "__main__":

@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+from pathlib import Path
+
 from fastapi import FastAPI, Request, Response
 from pydantic import BaseModel, ConfigDict
 from starlette.middleware.base import RequestResponseEndpoint
@@ -13,6 +16,7 @@ from mandate_worker.observability import (
     normalise_trace_id,
     trace_context,
 )
+from mandate_worker.runtime import build_runtime_adapter_plan
 
 TRACE_HEADER = "X-Trace-Id"
 
@@ -25,7 +29,12 @@ class HealthResponse(BaseModel):
     version: str
 
 
-def create_app(service_name: str = "mandate-worker") -> FastAPI:
+def create_app(
+    service_name: str = "mandate-worker",
+    *,
+    environ: Mapping[str, str] | None = None,
+    fixture_root: Path | None = None,
+) -> FastAPI:
     """Create an internal service API without starting external providers."""
 
     configure_logging()
@@ -37,6 +46,20 @@ def create_app(service_name: str = "mandate-worker") -> FastAPI:
         openapi_url=None,
     )
     logger = get_logger()
+
+    if service_name == "mandate-worker":
+        runtime_plan = build_runtime_adapter_plan(environ=environ, fixture_root=fixture_root)
+        application.state.runtime_adapter_plan = runtime_plan
+        logger.info(
+            "runtime_configured",
+            demo_mode=runtime_plan.demo_mode,
+            zero_spend=runtime_plan.zero_spend,
+            fixture_revision=runtime_plan.fixture_revision,
+            adapter_backends={
+                capability.value: backend for capability, backend in runtime_plan.bindings.items()
+            },
+            overridden_selectors=runtime_plan.overridden_selectors,
+        )
 
     @application.middleware("http")
     async def trace_middleware(request: Request, call_next: RequestResponseEndpoint) -> Response:

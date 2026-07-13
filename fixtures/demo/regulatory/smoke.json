@@ -1,0 +1,9 @@
+{
+  "fixtureVersion": 1,
+  "request": {
+    "entityKey": "synthetic-demo-entity"
+  },
+  "response": {
+    "records": []
+  }
+}
