@@ -43,16 +43,6 @@ jobs:
           pnpm install --lockfile-only --no-frozen-lockfile
           uv lock
 
-      - name: Install locked dependencies
-        run: |
-          pnpm install --frozen-lockfile
-          uv sync --locked --all-groups
-
-      - name: Validate toolchain
-        run: |
-          pnpm check
-          python3 -m unittest discover -s tests -p 'test_*.py' -v
-
       - name: Commit generated lockfiles
         run: |
           if git diff --quiet -- pnpm-lock.yaml uv.lock; then
@@ -63,3 +53,22 @@ jobs:
           git add pnpm-lock.yaml uv.lock
           git commit -m "chore(NFR-03): commit reproducible lockfiles"
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
+
+      - name: Install locked dependencies
+        run: |
+          pnpm install --frozen-lockfile
+          uv sync --locked --all-groups
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Check formatting
+        run: pnpm format:check
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: |
+          pnpm test
+          python3 -m unittest discover -s tests -p 'test_*.py' -v
