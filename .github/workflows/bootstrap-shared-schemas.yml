@@ -30,6 +30,10 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           version: "0.7.19"
+      - name: Bootstrap dependencies and lockfiles
+        run: |
+          pnpm install --no-frozen-lockfile
+          uv sync --all-groups
       - name: Normalize authored sources
         run: |
           pnpm exec prettier --write package.json pnpm-workspace.yaml tsconfig.base.json apps/web packages/shared-schemas
@@ -37,10 +41,6 @@ jobs:
           uv run ruff format scripts tests packages/shared-schemas/python
       - name: Regenerate contracts
         run: python3 scripts/generate_schemas.py
-      - name: Generate lockfiles
-        run: |
-          pnpm install --lockfile-only --no-frozen-lockfile
-          uv lock
       - name: Commit bootstrap outputs
         run: |
           if [ -z "$(git status --porcelain)" ]; then
@@ -51,7 +51,7 @@ jobs:
           git add package.json apps/web packages/shared-schemas scripts tests pnpm-lock.yaml uv.lock
           git commit -m "chore(RUN-05): normalize contracts and lock dependencies"
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
-      - name: Install locked dependencies
+      - name: Verify locked dependencies
         run: |
           pnpm install --frozen-lockfile
           uv sync --locked --all-groups
