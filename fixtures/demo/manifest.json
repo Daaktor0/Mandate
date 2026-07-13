@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "fixtureSetId": "phase-0-smoke-v1",
+  "revision": "2026-07-13.1",
+  "records": [
+    {
+      "id": "company_data.smoke",
+      "capability": "company_data",
+      "backend": "fixture",
+      "path": "company_data/smoke.json",
+      "classification": "synthetic",
+      "sha256": "31ff0723bf4ca854f23135edf8d57048d61551bb96ad51d670a28e371e5c580c"
+    },
+    {
+      "id": "email.smoke",
+      "capability": "email",
+      "backend": "console",
+      "path": "email/smoke.json",
+      "classification": "synthetic",
+      "sha256": "67f589524bad19df2ac7f41199a99dfae70d777261bd54c1e6acf68696d1498e"
+    },
+    {
+      "id": "litigation.smoke",
+      "capability": "litigation",
+      "backend": "fixture",
+      "path": "litigation/smoke.json",
+      "classification": "synthetic",
+      "sha256": "918e8151ff1224a9bc6eb31e32994d26bfd74cf8a92426294b342dec95652f98"
+    },
+    {
+      "id": "model.smoke",
+      "capability": "model",
+      "backend": "fixture",
+      "path": "model/smoke.json",
+      "classification": "synthetic",
+      "sha256": "34be785006720b29e0e981e7ac43dd3b1a04b2d6db1740ac3b62f5f52d034824"
+    },
+    {
+      "id": "page_fetcher.smoke",
+      "capability": "page_fetcher",
+      "backend": "fixture",
+      "path": "page_fetcher/smoke.json",
+      "classification": "synthetic",
+      "sha256": "5e826cc5ad2f691c8b83c7a236900c63b154a4aade3e8103123cd9d727a33c5e"
+    },
+    {
+      "id": "queue.smoke",
+      "capability": "queue",
+      "backend": "memory",
+      "path": "queue/smoke.json",
+      "classification": "synthetic",
+      "sha256": "59c8d65880366aa0425ed7e04a96b03a62f09fa09270a1f15806ff10165f51cd"
+    },
+    {
+      "id": "regulatory.smoke",
+      "capability": "regulatory",
+      "backend": "fixture",
+      "path": "regulatory/smoke.json",
+      "classification": "synthetic",
+      "sha256": "918e8151ff1224a9bc6eb31e32994d26bfd74cf8a92426294b342dec95652f98"
+    },
+    {
+      "id": "search.smoke",
+      "capability": "search",
+      "backend": "fixture",
+      "path": "search/smoke.json",
+      "classification": "synthetic",
+      "sha256": "e1fbe300a05f0be1f620117c84f1d007748881b35066fb072b1cc97f7ca229d9"
+    },
+    {
+      "id": "storage.smoke",
+      "capability": "storage",
+      "backend": "fixture",
+      "path": "storage/smoke.json",
+      "classification": "synthetic",
+      "sha256": "df9f3b3ac404e84467a0d1f4b1e9e6197459bc62bfd734b5d5a879a7b6badfd2"
+    }
+  ]
+}

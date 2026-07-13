@@ -30,7 +30,9 @@ secrets/
 # The worker image copies only its locked runtime inputs explicitly.
 apps/
 docs/
-fixtures/
+fixtures/*
+!fixtures/demo/
+!fixtures/demo/**
 infra/
 product-specification/
 supabase/

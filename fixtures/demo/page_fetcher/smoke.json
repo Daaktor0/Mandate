@@ -1,0 +1,11 @@
+{
+  "fixtureVersion": 1,
+  "request": {
+    "url": "https://mandate-demo.example/about"
+  },
+  "response": {
+    "contentType": "text/html",
+    "status": 200,
+    "body": "<main><h1>Mandate Demo Company</h1><p>Synthetic fixture content.</p></main>"
+  }
+}

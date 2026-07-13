@@ -1,0 +1,15 @@
+{
+  "fixtureVersion": 1,
+  "request": {
+    "query": "Mandate demo company"
+  },
+  "response": {
+    "results": [
+      {
+        "title": "Mandate Demo Company — synthetic fixture",
+        "url": "https://mandate-demo.example/about",
+        "snippet": "Synthetic public-information search result for offline tests."
+      }
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "fixtureVersion": 1,
+  "request": {
+    "task": "phase0_smoke",
+    "promptBundleVersion": "fixture-v1"
+  },
+  "response": {
+    "status": "fixture",
+    "decisions": [],
+    "rationale": "Deterministic synthetic response; no model call was made."
+  }
+}

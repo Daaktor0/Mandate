@@ -1,0 +1,10 @@
+{
+  "fixtureVersion": 1,
+  "request": {
+    "legalName": "Mandate Demo Company"
+  },
+  "response": {
+    "candidates": [],
+    "notice": "Synthetic fixture; not an MCA or legal-database result."
+  }
+}
