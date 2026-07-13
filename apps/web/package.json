@@ -11,9 +11,9 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "next": "15.5.7",
-    "react": "19.1.1",
-    "react-dom": "19.1.1"
+    "next": "15.5.18",
+    "react": "19.1.5",
+    "react-dom": "19.1.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
@@ -22,7 +22,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "eslint": "^9.0.0",
-    "eslint-config-next": "15.5.7",
+    "eslint-config-next": "15.5.18",
     "typescript": "5.8.3",
     "vitest": "^3.0.0"
   }

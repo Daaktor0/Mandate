@@ -40,7 +40,7 @@ class ContainerFoundationTests(unittest.TestCase):
 
         lockfile = (REPOSITORY_ROOT / "uv.lock").read_text()
         self.assertRegex(lockfile, r'name = "playwright"\nversion = "1\.59\.0"')
-        self.assertRegex(lockfile, r'name = "weasyprint"\nversion = "65\.1"')
+        self.assertRegex(lockfile, r'name = "weasyprint"\nversion = "69\.0"')
         self.assertRegex(lockfile, r'name = "uvicorn"\nversion = "0\.46\.0"')
 
     def test_AT_NFR_03_compose_is_host_independent_and_bounded(self) -> None:

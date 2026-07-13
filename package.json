@@ -24,5 +24,8 @@
   "devDependencies": {
     "prettier": "3.6.2",
     "supabase": "2.109.1"
+  },
+  "optionalDependencies": {
+    "@esbuild/linux-x64": "0.28.1"
   }
 }
