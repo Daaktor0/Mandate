@@ -74,12 +74,7 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "evidenceId",
-          "snippet",
-          "sourceUrl",
-          "companyControlled"
-        ],
+        "required": ["evidenceId", "snippet", "sourceUrl", "companyControlled"],
         "properties": {
           "evidenceId": { "type": "string", "format": "uuid" },
           "snippet": { "type": "string", "minLength": 1, "maxLength": 1000 },
