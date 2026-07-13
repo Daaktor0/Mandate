@@ -1,6 +1,6 @@
 # REQUIREMENTS-TRACEABILITY — Mandate MVP
 
-**Status:** Phase 1 in progress (2/9 tasks complete); `NFR-03` is `Verified`; `INTAKE-01`, `INTAKE-03` and `INTAKE-05` are `Implemented`; `NFR-01`, `NFR-02`, `NFR-04`, `INTAKE-02`, `INTAKE-04` and `INTAKE-06` are `In progress`; all other requirements remain `Specified`
+**Status:** Phase 1 in progress (3/9 tasks complete); `NFR-03` is `Verified`; `INTAKE-01`, `INTAKE-03` and `INTAKE-05` are `Implemented`; `NFR-01`, `NFR-02`, `NFR-04`, `INTAKE-02`, `INTAKE-04`, `INTAKE-06`, `ENTITY-01` and `RUN-06` are `In progress`; all other requirements remain `Specified`
 **Sources:** product-specification doc 02 (requirement IDs are normative and must be preserved in tickets, tests and PRs)
 **Related:** [TEST-PLAN.md](TEST-PLAN.md) (test IDs), [SYSTEM-SPEC.md](SYSTEM-SPEC.md) (component codes C1–C15), [BUILD-CHECKLIST.md](BUILD-CHECKLIST.md) (phases)
 
@@ -32,7 +32,7 @@ Columns: **Component** uses SYSTEM-SPEC §2 codes; **DB / API surface** cites ER
 
 | Req | Summary | Component | DB / API surface | Acceptance tests | Phase | Status |
 |---|---|---|---|---|---|---|
-| ENTITY-01 | Inspect website legal pages and disclosures | C6 (resolve stage), C9 | `evidence`; AGENT-PROMPT §3 step 1 | AT-ENTITY-01, ER-01/02 | 1 | Specified |
+| ENTITY-01 | Inspect website legal pages and disclosures | C6 (resolve stage), C9 | typed `LegalPageCrawler`/`PageInspection`; Evidence persistence and sandboxed PDF inspection pending | AT-ENTITY-01 (priority/robots/extraction), ER-02/10/11 foundations; full ER suite pending | 1 | In progress |
 | ENTITY-02 | Candidates with supporting evidence | C6 | `entity_candidates`; `GET …/entity-candidates` | AT-ENTITY-02, ER-06 | 1 | Specified |
 | ENTITY-03 | User confirmation mandatory | C1, C2 | `POST …/confirm-entity`; state machine | AT-ENTITY-03, E2E-01 | 1 | Specified |
 | ENTITY-04 | Ask for legal name/CIN when uncertain | C1, C2 | `none_of_these`/`refine` actions | AT-ENTITY-04, ER-09 | 1 | Specified |
@@ -62,7 +62,7 @@ Columns: **Component** uses SYSTEM-SPEC §2 codes; **DB / API surface** cites ER
 | RUN-03 | Bounded business/industry/competitor/corporate/regulatory/public-risk/synthesis tasks | C6 | pipeline stages 2–10 | AT-RUN-03, GC suite | 2 | Specified |
 | RUN-04 | Evidence stored separately from prose | C4 | `evidence`, `claims` vs `report_versions` | AT-RUN-04, E2E-02 | 2 | Specified |
 | RUN-05 | Structured model outputs where feasible | C7 | shared-schemas validation at gateway | AT-RUN-05 (gateway unit) | 2 | Specified |
-| RUN-06 | Fetched content treated as untrusted | C9, C6 | untrusted envelopes; injection rules | AT-RUN-06, SEC-04, ER-10 | 2 | Specified |
+| RUN-06 | Fetched content treated as untrusted | C9, C6 | deterministic script/hidden-markup stripping and `prompt_injection_suspected`; model untrusted envelopes pending | AT-RUN-06 (gateway pending), SEC-04/ER-10 crawler foundation | 2 | In progress |
 | RUN-07 | Per-report search/page/token/time/retry budgets | C6, C7 | budget profile (QUEUE §8) | AT-RUN-07 | 2 | Specified |
 | RUN-08 | Entity/provenance/consistency/length/safety quality gates | C6 (stage 11) | `quality_gate_result` (AGENT-PROMPT §10) | AT-RUN-08, QG fixtures | 4 | Specified |
 | RUN-09 | Unrecoverable failure does not consume entitlement | C6, C4 | `failed_restored` side effects (QUEUE §5) | AT-RUN-09, E2E-08 | 6 | Specified |
