@@ -8,11 +8,13 @@
     "pnpm": "10.13.x"
   },
   "scripts": {
-    "lint": "pnpm --filter @mandate/web lint && uv run ruff check services/worker tests",
-    "format:check": "pnpm exec prettier --check package.json pnpm-workspace.yaml tsconfig.base.json apps/web && uv run ruff format --check services/worker tests",
-    "typecheck": "pnpm --filter @mandate/web typecheck && uv run mypy services/worker/mandate_worker tests",
-    "test": "pnpm --filter @mandate/web test && uv run pytest -q",
-    "check": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm test",
+    "schemas:generate": "python3 scripts/generate_schemas.py",
+    "schemas:check": "python3 scripts/generate_schemas.py --check",
+    "lint": "pnpm --filter @mandate/web lint && uv run ruff check services/worker scripts tests packages/shared-schemas/python",
+    "format:check": "pnpm exec prettier --check package.json pnpm-workspace.yaml tsconfig.base.json apps/web packages/shared-schemas && uv run ruff format --check services/worker scripts tests packages/shared-schemas/python",
+    "typecheck": "pnpm --filter @mandate/web typecheck && pnpm --filter @mandate/shared-schemas typecheck && uv run mypy services/worker/mandate_worker packages/shared-schemas/python/mandate_schemas tests",
+    "test": "pnpm --filter @mandate/web test && pnpm --filter @mandate/shared-schemas test && uv run pytest -q",
+    "check": "pnpm schemas:check && pnpm lint && pnpm format:check && pnpm typecheck && pnpm test",
     "test:scaffold": "python3 -m unittest discover -s tests -p 'test_*.py' -v"
   },
   "devDependencies": {

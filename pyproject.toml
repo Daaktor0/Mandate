@@ -19,10 +19,12 @@ dependencies = [
 [dependency-groups]
 dev = [
   "hypothesis>=6,<7",
+  "jsonschema>=4.23,<5",
   "mypy>=1.15,<2",
   "pytest>=8,<9",
   "pytest-asyncio>=1,<2",
   "ruff>=0.12,<0.13",
+  "types-jsonschema>=4.23,<5",
   "types-pyyaml>=6,<7",
 ]
 
@@ -30,12 +32,13 @@ dev = [
 package = false
 
 [tool.pytest.ini_options]
-pythonpath = ["services/worker"]
+pythonpath = ["services/worker", "packages/shared-schemas/python"]
 testpaths = ["services/worker/tests", "tests"]
 
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+extend-exclude = ["packages/shared-schemas/python/mandate_schemas/generated.py"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "RUF"]
@@ -47,4 +50,4 @@ quote-style = "double"
 python_version = "3.12"
 strict = true
 warn_unused_configs = true
-mypy_path = "services/worker"
+mypy_path = "services/worker:packages/shared-schemas/python"

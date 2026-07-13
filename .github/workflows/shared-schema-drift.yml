@@ -1,0 +1,59 @@
+name: Shared schema drift
+
+on:
+  pull_request:
+    paths:
+      - "packages/shared-schemas/**"
+      - "scripts/generate_schemas.py"
+      - "tests/test_shared_schemas.py"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/shared-schema-drift.yml"
+  push:
+    branches: [main]
+    paths:
+      - "packages/shared-schemas/**"
+      - "scripts/generate_schemas.py"
+      - "tests/test_shared_schemas.py"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/shared-schema-drift.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+      - name: Activate pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.13.1 --activate
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.7.19"
+      - name: Install locked dependencies
+        run: |
+          pnpm install --frozen-lockfile
+          uv sync --locked --all-groups
+      - name: Check generated contracts
+        run: pnpm schemas:check
+      - name: Typecheck TypeScript contracts
+        run: pnpm --filter @mandate/shared-schemas typecheck
+      - name: Test cross-runtime contracts
+        run: |
+          pnpm --filter @mandate/shared-schemas test
+          uv run pytest -q tests/test_shared_schemas.py
