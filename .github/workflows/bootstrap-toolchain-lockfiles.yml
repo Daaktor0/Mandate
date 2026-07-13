@@ -59,30 +59,8 @@ jobs:
           pnpm install --frozen-lockfile
           uv sync --locked --all-groups
 
-      - name: Capture web lint result
-        id: web-lint
-        shell: bash
-        run: |
-          set +e
-          pnpm --filter @mandate/web lint > web-lint.log 2>&1
-          status=$?
-          echo "status=$status" >> "$GITHUB_OUTPUT"
-          exit 0
-
-      - name: Commit web lint diagnostic
-        if: steps.web-lint.outputs.status != '0'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add web-lint.log
-          git commit -m "test(NFR-03): capture web lint failure"
-          git push origin HEAD:${{ github.event.pull_request.head.ref }}
-
-      - name: Enforce web lint
-        if: steps.web-lint.outputs.status != '0'
-        run: |
-          cat web-lint.log
-          exit 1
+      - name: Lint web
+        run: pnpm --filter @mandate/web lint
 
       - name: Lint worker
         run: uv run ruff check services/worker tests
