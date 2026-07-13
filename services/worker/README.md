@@ -21,6 +21,28 @@ The worker is stateless between checkpoints, uses typed provider adapters, and m
 
 The database pool and process supervisor are wired in the later container/deployment tasks. No provider credentials or model routes are required for this slice.
 
+## SafeFetcher boundary
+
+All outbound public-page retrieval must use `mandate_worker.fetch.SafeFetcher`; callers
+must not construct an HTTP client directly. For every request, redirect and retry it:
+
+- accepts only canonical HTTP/HTTPS URLs on their default ports and rejects URL
+  credentials, credential-like query keys and non-public hostnames;
+- resolves once for that network attempt, rejects the complete DNS answer set if any
+  address is non-public, and connects to the selected vetted IP with the original Host
+  header and TLS SNI;
+- creates an isolated proxy-free, cookie-free connection, disables automatic redirects
+  and response decompression, and re-runs policy before every subsequent hop;
+- caps redirects at five, attempts at two, response bodies at 10 MiB and each timeout at
+  the configured value; and
+- returns stable failure codes plus only the canonical URL, final vetted IP, redirect
+  chain and response metadata needed for later audit records.
+
+Robots/ToS decisions, the 15-page entity-resolution crawl budget and Playwright request
+interception belong to the immediately following crawler/browser slices. They may add
+restrictions but may not bypass this network policy. SafeFetcher never receives or sends
+user credentials and does not implement paywall/CAPTCHA bypass behavior.
+
 Run the worker unit suite:
 
 ```bash
