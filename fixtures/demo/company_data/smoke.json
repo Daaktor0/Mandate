@@ -1,10 +1,62 @@
 {
   "fixtureVersion": 1,
-  "request": {
-    "legalName": "Mandate Demo Company"
-  },
-  "response": {
-    "candidates": [],
-    "notice": "Synthetic fixture; not an MCA or legal-database result."
-  }
+  "notice": "Synthetic fixture; not an MCA or legal-database result.",
+  "records": [
+    {
+      "cin": "U62099MH2024PTC123456",
+      "legalName": "MANDATE DEMO COMPANY PRIVATE LIMITED",
+      "formerNames": ["MANDATE DEMO TECHNOLOGIES PRIVATE LIMITED"],
+      "companyType": "Private Limited Company",
+      "status": "Active",
+      "active": true,
+      "incorporatedDate": "2024-02-12",
+      "listed": false,
+      "registeredOffice": {
+        "state": "Maharashtra",
+        "summary": "12 Synthetic Avenue, Mumbai, Maharashtra 400001"
+      }
+    },
+    {
+      "cin": "U64200DL2020PLC654321",
+      "legalName": "MANDATE DEMO HOLDINGS LIMITED",
+      "formerNames": [],
+      "companyType": "Public Limited Company",
+      "status": "Active",
+      "active": true,
+      "incorporatedDate": "2020-08-21",
+      "listed": false,
+      "registeredOffice": {
+        "state": "Delhi",
+        "summary": "21 Fixture Road, New Delhi, Delhi 110001"
+      }
+    },
+    {
+      "cin": "L62099KA2019PLC111222",
+      "legalName": "MANDATE DEMO LISTED LIMITED",
+      "formerNames": [],
+      "companyType": "Public Limited Company",
+      "status": "Active",
+      "active": true,
+      "incorporatedDate": "2019-05-10",
+      "listed": true,
+      "registeredOffice": {
+        "state": "Karnataka",
+        "summary": "8 Example Park, Bengaluru, Karnataka 560001"
+      }
+    }
+  ],
+  "nameSearches": [
+    {
+      "legalName": "Mandate Demo Company",
+      "cins": ["U62099MH2024PTC123456", "U64200DL2020PLC654321"]
+    },
+    {
+      "legalName": "Mandate Demo Company Private Limited",
+      "cins": ["U62099MH2024PTC123456"]
+    },
+    {
+      "legalName": "Mandate Demo Listed Limited",
+      "cins": ["L62099KA2019PLC111222"]
+    }
+  ]
 }

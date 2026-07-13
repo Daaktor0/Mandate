@@ -1,6 +1,6 @@
 # REQUIREMENTS-TRACEABILITY — Mandate MVP
 
-**Status:** Phase 1 in progress (3/9 tasks complete); `NFR-03` is `Verified`; `INTAKE-01`, `INTAKE-03` and `INTAKE-05` are `Implemented`; `NFR-01`, `NFR-02`, `NFR-04`, `INTAKE-02`, `INTAKE-04`, `INTAKE-06`, `ENTITY-01` and `RUN-06` are `In progress`; all other requirements remain `Specified`
+**Status:** Phase 1 in progress (4/9 tasks complete); `NFR-03` is `Verified`; `INTAKE-01`, `INTAKE-03` and `INTAKE-05` are `Implemented`; `NFR-01`, `NFR-02`, `NFR-04`, `NFR-05`, `INTAKE-02`, `INTAKE-04`, `INTAKE-06`, `ENTITY-01`, `ENTITY-05` and `RUN-06` are `In progress`; all other requirements remain `Specified`
 **Sources:** product-specification doc 02 (requirement IDs are normative and must be preserved in tickets, tests and PRs)
 **Related:** [TEST-PLAN.md](TEST-PLAN.md) (test IDs), [SYSTEM-SPEC.md](SYSTEM-SPEC.md) (component codes C1–C15), [BUILD-CHECKLIST.md](BUILD-CHECKLIST.md) (phases)
 
@@ -36,7 +36,7 @@ Columns: **Component** uses SYSTEM-SPEC §2 codes; **DB / API surface** cites ER
 | ENTITY-02 | Candidates with supporting evidence | C6 | `entity_candidates`; `GET …/entity-candidates` | AT-ENTITY-02, ER-06 | 1 | Specified |
 | ENTITY-03 | User confirmation mandatory | C1, C2 | `POST …/confirm-entity`; state machine | AT-ENTITY-03, E2E-01 | 1 | Specified |
 | ENTITY-04 | Ask for legal name/CIN when uncertain | C1, C2 | `none_of_these`/`refine` actions | AT-ENTITY-04, ER-09 | 1 | Specified |
-| ENTITY-05 | CIN as exact identifier; compatible master-data sources | C8 (CompanyDataProvider), C4 | `entities.cin` unique; lookup adapters | AT-ENTITY-05, ER-01 | 1 | Specified |
+| ENTITY-05 | CIN as exact identifier; compatible master-data sources | C8 (CompanyDataProvider), C4 | typed `CompanyDataProvider`; deterministic fixture; flagged Attestr adapter; `entities.cin` unique migration pending | AT-ENTITY-05 (provider contract/CIN validation); ER-01 and live B5 gate pending | 1 | In progress |
 | ENTITY-06 | Brand never replaces legal entity in brief identity | C6 (composer), C4 | `entities.brand_names`; header rules (AGENT-PROMPT §7) | AT-ENTITY-06, ER-03, GC-09 | 4 | Specified |
 | ENTITY-07 | Explain and confirm multi-entity scope | C1, C6 | `related_entity_ids` (≤2); confirm-entity payload | AT-ENTITY-07, GC-14 | 1 | Specified |
 | ENTITY-08 | Label primary and related entities separately | C6 (composer) | BriefDocument related-entity subsections (AS-10) | AT-ENTITY-08, GC-14 | 4 | Specified |
@@ -139,7 +139,7 @@ Columns: **Component** uses SYSTEM-SPEC §2 codes; **DB / API surface** cites ER
 | NFR-02 | Tenant isolation at database layer | C4 | RLS on all tables (ERD §4) | AT-NFR-02, SEC-01 (real local database in CI stage 5; expands with each table) | 0+ | In progress |
 | NFR-03 | Containerised, Hostinger-independent worker | C6, C8 | `services/worker/Dockerfile`; `infra/compose/local.yml`; `mandate_worker.runtime`; `fixtures/demo`; `.github/workflows/ci.yml`; `scripts/generate_traceability_report.py`; no host coupling | AT-NFR-03 (structural + live portability/sandbox + complete zero-spend catalog check in CI stage 5; passing JUnit evidence enforced in CI stage 7) | 0 | Verified |
 | NFR-04 | Trace ID across API/queue/model/search/payment/PDF | C15 | `trace_id` propagation and sink redaction in `mandate_worker.observability` (DEPLOYMENT §6) | AT-NFR-04; SEC-09 (logger-boundary unit coverage) | 0+ | In progress |
-| NFR-05 | Every external cost attributable to a report | C7, C15 | `provider_cost_events`; admin costs view | AT-NFR-05 | 2 | Specified |
+| NFR-05 | Every external cost attributable to a report | C7, C15 | bounded company-data call count returned for later `provider_cost_events`; report attribution/admin view pending | AT-NFR-05 (company-data call cap foundation; persistence pending) | 2 | In progress |
 | NFR-06 | WCAG 2.1 AA target | C1 | axe checks in E2E; manual audit | AT-NFR-06 | 5/7 | Specified |
 | NFR-07 | Interactive requests short; research async | C2, C5 | route-handler budget; queue offload | AT-NFR-07 (latency assertion) | 5 | Specified |
 | NFR-08 | Deletion follows retention policy | C4, C6 | retention jobs (SECURITY §4) | AT-NFR-08, SEC-14 | 7 | Specified |
