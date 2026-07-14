@@ -1,4 +1,4 @@
-name: Temporary lint diagnostics
+name: Temporary quality diagnostics
 
 on:
   pull_request:
@@ -14,7 +14,7 @@ env:
   UV_VERSION: 0.7.19
 
 jobs:
-  lint-diagnostics:
+  quality-diagnostics:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -36,14 +36,18 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
           uv sync --locked --all-groups
-      - name: Capture lint diagnostics
+      - name: Capture quality diagnostics
         continue-on-error: true
-        run: pnpm lint > /tmp/mandate-lint.log 2>&1
-      - name: Upload lint diagnostics
+        run: |
+          {
+            pnpm lint
+            pnpm format:check
+          } > /tmp/mandate-quality.log 2>&1
+      - name: Upload quality diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: mandate-lint-diagnostics
-          path: /tmp/mandate-lint.log
+          name: mandate-quality-diagnostics
+          path: /tmp/mandate-quality.log
           if-no-files-found: error
           retention-days: 1
