@@ -1,9 +1,7 @@
 name: PR22 lint diagnostic
 
 on:
-  push:
-    branches:
-      - agent/correct-company-data-and-mca-acquisition
+  pull_request:
 
 permissions:
   contents: read
