@@ -9,6 +9,7 @@ from mandate_worker.providers.corporate_filings import (
     CorporateFilingAcquisitionResult,
     CorporateFilingAcquisitionStatus,
     CorporateFilingActionCode,
+    CorporateFilingReference,
     CorporateFilingRequest,
     CorporateFilingType,
     FixtureCorporateFilingProvider,
@@ -20,7 +21,9 @@ from pydantic import ValidationError
 PRIVATE_CIN = "U62099MH2024PTC123456"
 
 
-def filing_reference(*, filing_type: CorporateFilingType, financial_year: str):
+def filing_reference(
+    *, filing_type: CorporateFilingType, financial_year: str
+) -> CorporateFilingReference:
     body = f"synthetic-{filing_type.value}-{financial_year}".encode()
     return register_untrusted_corporate_filing(
         document_id=f"fixture:{filing_type.value}:{financial_year}",
@@ -49,7 +52,9 @@ def test_INTAKE_04_filing_request_is_public_identifier_only() -> None:
 
 
 @pytest.mark.asyncio
-async def test_RUN_06_manual_vpd_requires_human_action_without_credentials_or_calls() -> None:
+async def test_RUN_06_manual_vpd_requires_human_action_without_credentials_or_calls() -> (
+    None
+):
     request = CorporateFilingRequest(
         cin=PRIVATE_CIN.lower(),
         filing_types=(CorporateFilingType.AOC_4, CorporateFilingType.MGT_7),
@@ -60,7 +65,9 @@ async def test_RUN_06_manual_vpd_requires_human_action_without_credentials_or_ca
 
     assert result.request.cin == PRIVATE_CIN
     assert result.status is CorporateFilingAcquisitionStatus.HUMAN_ACTION_REQUIRED
-    assert result.action_code is CorporateFilingActionCode.MCA_VPD_LOGIN_PAYMENT_REQUIRED
+    assert (
+        result.action_code is CorporateFilingActionCode.MCA_VPD_LOGIN_PAYMENT_REQUIRED
+    )
     assert result.provider_calls == 0
     assert result.documents == ()
     assert "password" not in result.model_dump_json().casefold()
@@ -103,8 +110,12 @@ def test_SEC_09_source_locator_rejects_embedded_credentials() -> None:
 
 @pytest.mark.asyncio
 async def test_RUN_06_fixture_provider_filters_type_and_financial_year() -> None:
-    aoc = filing_reference(filing_type=CorporateFilingType.AOC_4, financial_year="2024-25")
-    mgt = filing_reference(filing_type=CorporateFilingType.MGT_7, financial_year="2023-24")
+    aoc = filing_reference(
+        filing_type=CorporateFilingType.AOC_4, financial_year="2024-25"
+    )
+    mgt = filing_reference(
+        filing_type=CorporateFilingType.MGT_7, financial_year="2023-24"
+    )
     provider = FixtureCorporateFilingProvider({PRIVATE_CIN: (aoc, mgt)})
     request = CorporateFilingRequest(
         cin=PRIVATE_CIN,
