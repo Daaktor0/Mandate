@@ -1,0 +1,52 @@
+name: Temporary traceability updater
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+      - name: Update traceability
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("docs/implementation/REQUIREMENTS-TRACEABILITY.md")
+          text = path.read_text(encoding="utf-8")
+
+          replacements = {
+              "**Status:** Phase 1 in progress (6/9 tasks complete); `NFR-03` is `Verified`; `INTAKE-01`, `INTAKE-03`, `INTAKE-05`, `ENTITY-02` and `ENTITY-05` are `Implemented`; `NFR-01`, `NFR-02`, `NFR-04`, `NFR-05`, `INTAKE-02`, `INTAKE-04`, `INTAKE-06`, `ENTITY-01`, `ENTITY-03`, `ENTITY-04` and `RUN-06` are `In progress`; all other requirements remain `Specified`": "**Status:** Phase 1 in progress (7/9 tasks complete); `NFR-03` is `Verified`; `INTAKE-01`, `INTAKE-03`, `INTAKE-05`, `ENTITY-02`, `ENTITY-03`, `ENTITY-04` and `ENTITY-05` are `Implemented`; `NFR-01`, `NFR-02`, `NFR-04`, `NFR-05`, `INTAKE-02`, `INTAKE-04`, `INTAKE-06`, `ENTITY-01`, `ENTITY-07` and `RUN-06` are `In progress`; all other requirements remain `Specified`",
+              "| INTAKE-06 | No entitlement reserved before entity confirmation | C2, C4 | identifier-only intake command/RPC; reserve only in future `/generate` tx (QUEUE §4) | AT-INTAKE-06 (structural intake), E2E-01 and ledger invariant pending | 1/6 | In progress |": "| INTAKE-06 | No entitlement reserved before entity confirmation | C2, C4 | identifier-only intake/resolve/refine commands; confirmation RPC and UI have no ledger surface; reserve only in future `/generate` tx (QUEUE §4) | AT-INTAKE-06 (intake + confirmation structural/database/UI), E2E-01 and ledger invariant pending | 1/6 | In progress |",
+              "| ENTITY-03 | User confirmation mandatory | C1, C2, C4, C5 | literal `requiresUserConfirmation=true`; guarded request-state trigger; identifier-only resolve endpoint/outbox/light loop; no auto-selection; confirmation UI/API pending | AT-ENTITY-03 (generator, route, DB state/outbox), E2E-01 pending | 1 | In progress |": "| ENTITY-03 | User confirmation mandatory | C1, C2, C4, C5 | literal `requiresUserConfirmation=true`; evidence-first candidate GET/UI with no preselection; strict confirmation contract; tenant-scoped idempotent `confirm_report_request_entity` RPC and guarded state transitions | AT-ENTITY-03 (generator, schemas, routes, UI, database mandatory-confirmation/state cases), E2E-01 pending | 1 | Implemented |",
+              "| ENTITY-04 | Ask for legal name/CIN when uncertain | C1, C2, C4 | typed `legal_name_or_cin_required`; no-match/exhausted light task → `failed_no_charge`; `none_of_these`/`refine` API/UI pending | AT-ENTITY-04 (no-match + no-charge outcome), ER-09 foundation | 1 | In progress |": "| ENTITY-04 | Ask for legal name/CIN when uncertain | C1, C2, C4 | typed `legal_name_or_cin_required`; no-match/exhaustion → `failed_no_charge`; none/refine UI/API; immutable intake plus separate public identity hints; retryable draft/failed recovery; state hint consumed by worker | AT-ENTITY-04 (no-match/no-charge/retry/API/UI), ER-09 foundation; full ER fixture pending | 1 | Implemented |",
+              "| ENTITY-07 | Explain and confirm multi-entity scope | C1, C6 | `related_entity_ids` (≤2); confirm-entity payload | AT-ENTITY-07, GC-14 | 1 | Specified |": "| ENTITY-07 | Explain and confirm multi-entity scope | C1, C2, C4, C6 | optional related-entity UI; strict confirm payload; `related_entity_ids` unique and ≤2; primary excluded; only explicitly proposed entities with a materiality reason accepted; upstream reason generation pending ER/GC fixtures | AT-ENTITY-07 (schema/UI/database scope controls), GC-14 pending | 1 | In progress |",
+              "| NFR-01 | Jobs retryable and idempotent | C5, C6 | request-scoped deterministic candidate ids; transactional outbox; idempotent completion/failure RPCs; visibility retry/DLQ; later checkpoints (QUEUE §2/6) | AT-NFR-01 (light-task foundations), E2E-05 | 2/5 | In progress |": "| NFR-01 | Jobs retryable and idempotent | C5, C6 | request-scoped deterministic candidate ids; transactional outbox; idempotent completion/failure RPCs; private confirmation replay ledger; retryable refinement recovery; visibility retry/DLQ; later checkpoints (QUEUE §2/6) | AT-NFR-01 (light-task + confirmation foundations), E2E-05 | 2/5 | In progress |",
+              "| NFR-02 | Tenant isolation at database layer | C4 | forced RLS on every current table; owner-join candidate policy; service-only outbox and worker mutations (ERD §4) | AT-NFR-02, SEC-01 (database matrix expands with each table) | 0+ | In progress |": "| NFR-02 | Tenant isolation at database layer | C4 | forced RLS on every current table; owner-join candidate policy; service-only outbox/worker mutations; `auth.uid()`-derived confirmation RPC; private replay records (ERD §4) | AT-NFR-02, SEC-01 (database matrix expands with each table) | 0+ | In progress |",
+          }
+
+          for old, new in replacements.items():
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f"expected one traceability match, found {count}: {old[:80]}")
+              text = text.replace(old, new)
+
+          path.write_text(text, encoding="utf-8")
+          Path(".github/workflows/temporary-traceability-update.yml").unlink()
+          PY
+      - name: Commit traceability
+        run: |
+          git config user.name "mandate-docs-bot"
+          git config user.email "mandate-docs-bot@users.noreply.github.com"
+          git add --all
+          git commit -m "docs: advance entity confirmation traceability"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
