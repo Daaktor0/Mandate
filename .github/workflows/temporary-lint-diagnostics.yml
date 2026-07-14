@@ -1,4 +1,4 @@
-name: Temporary quality diagnostics
+name: Temporary Prettier diagnostics
 
 on:
   pull_request:
@@ -10,13 +10,11 @@ permissions:
 env:
   NODE_VERSION: 22.16.0
   PNPM_VERSION: 10.13.1
-  PYTHON_VERSION: "3.12"
-  UV_VERSION: 0.7.19
 
 jobs:
-  quality-diagnostics:
+  prettier-diagnostics:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
@@ -26,28 +24,16 @@ jobs:
         run: |
           corepack enable
           corepack prepare pnpm@${PNPM_VERSION} --activate
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff
-        with:
-          version: ${{ env.UV_VERSION }}
       - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Capture exact CSS formatting patch
         run: |
-          pnpm install --frozen-lockfile
-          uv sync --locked --all-groups
-      - name: Capture quality diagnostics
-        continue-on-error: true
-        run: |
-          {
-            pnpm lint
-            pnpm format:check
-          } > /tmp/mandate-quality.log 2>&1
-      - name: Upload quality diagnostics
-        if: always()
+          pnpm exec prettier --write apps/web/app/globals.css
+          git diff -- apps/web/app/globals.css > /tmp/globals-css.patch
+      - name: Upload CSS formatting patch
         uses: actions/upload-artifact@v4
         with:
-          name: mandate-quality-diagnostics
-          path: /tmp/mandate-quality.log
+          name: globals-css-prettier-patch
+          path: /tmp/globals-css.patch
           if-no-files-found: error
           retention-days: 1
