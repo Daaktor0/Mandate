@@ -24,6 +24,18 @@ from .corporate_filings import (
     ManualMcaVpdProvider,
     register_untrusted_corporate_filing,
 )
+from .search import (
+    ExaSearchProvider,
+    FixtureSearchProvider,
+    SearchConfigurationError,
+    SearchProvider,
+    SearchProviderError,
+    SearchRequest,
+    SearchResponse,
+    SearchResult,
+    SearchTransportError,
+    build_search_provider,
+)
 
 __all__ = [
     "CompanyDataConfigurationError",
@@ -41,9 +53,19 @@ __all__ = [
     "CorporateFilingReference",
     "CorporateFilingRequest",
     "CorporateFilingType",
+    "ExaSearchProvider",
     "FixtureCompanyDataProvider",
     "FixtureCorporateFilingProvider",
+    "FixtureSearchProvider",
     "ManualMcaVpdProvider",
+    "SearchConfigurationError",
+    "SearchProvider",
+    "SearchProviderError",
+    "SearchRequest",
+    "SearchResponse",
+    "SearchResult",
+    "SearchTransportError",
     "build_company_data_provider",
+    "build_search_provider",
     "register_untrusted_corporate_filing",
 ]

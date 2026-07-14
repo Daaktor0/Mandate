@@ -66,6 +66,28 @@ that returns a PDF is discarded after SafeFetcher's bounded read. Per the ADR-01
 amendment and security-precedence rule, PDF text extraction stays unreachable until the
 malware-scan and sandbox parser boundary is implemented.
 
+## Search-provider boundary
+
+`mandate_worker.providers.SearchProvider` discovers public-web URLs; it does not fetch
+pages or create evidence. `SearchRequest` accepts only a bounded public query, result
+limit, domain filters and timezone-aware publication-date filters. Account, firm,
+billing, letterhead and confidential matter fields are structurally rejected.
+
+`DEMO_MODE=1` selects the pinned synthetic search fixture and makes zero provider calls.
+In live mode, set `PROVIDER_SEARCH=exa` and supply `EXA_API_KEY`. The Exa adapter calls
+only the fixed `POST https://api.exa.ai/search` endpoint, disables redirects and
+environment proxies, requests extractive highlights rather than generated summaries or
+full-page text, caps results at 20, provider calls at two, responses at 2 MiB and each
+timeout at ten seconds, and retains Exa's reported cost for later report attribution.
+Missing credentials, fixture selection outside demo mode and unknown providers fail
+closed without fallback.
+
+Every returned URL remains untrusted discovery metadata. Credentials and non-default
+ports are rejected, fragments are stripped and duplicate canonical URLs are removed.
+Before any result can support a claim, a later `PageFetcher` stage must retrieve it
+through `SafeFetcher`, capture provenance and pass source-tier and evidence validation.
+Exa is not a company-master-data or MCA-filing provider.
+
 ## Company-data provider boundary
 
 `mandate_worker.providers.CompanyDataProvider` exposes only `search_by_name(legal_name)`
