@@ -10,13 +10,14 @@ from pydantic import BaseModel, ConfigDict
 from starlette.middleware.base import RequestResponseEndpoint
 
 from mandate_worker import __version__
+from mandate_worker.fixtures import AdapterCapability
 from mandate_worker.observability import (
     configure_logging,
     get_logger,
     normalise_trace_id,
     trace_context,
 )
-from mandate_worker.runtime import build_runtime_adapter_plan
+from mandate_worker.runtime import RuntimeConfigurationError, build_runtime_adapter_plan
 
 TRACE_HEADER = "X-Trace-Id"
 
@@ -49,6 +50,14 @@ def create_app(
 
     if service_name == "mandate-worker":
         runtime_plan = build_runtime_adapter_plan(environ=environ, fixture_root=fixture_root)
+        if (
+            not runtime_plan.demo_mode
+            and runtime_plan.bindings[AdapterCapability.COMPANY_DATA] == "attestr"
+        ):
+            raise RuntimeConfigurationError(
+                "PROVIDER_COMPANY_DATA=attestr is disabled because the required "
+                "company-master-data capability has not been verified"
+            )
         application.state.runtime_adapter_plan = runtime_plan
         logger.info(
             "runtime_configured",

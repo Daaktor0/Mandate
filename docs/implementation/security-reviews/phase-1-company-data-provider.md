@@ -1,56 +1,82 @@
-# Phase 1 CompanyDataProvider security review
+# Phase 1 company-data and corporate-filing provider security review
 
-**Date:** 2026-07-13  
-**Scope:** company-data interface, deterministic fixture, Attestr v2 adapter and runtime selection  
-**Requirements/tests:** ENTITY-05, INTAKE-04, NFR-03/05, RUN-06 foundation, AT-ENTITY-05
+**Date:** 2026-07-15  
+**Scope:** generic company-data interface, deterministic fixture, Attestr quarantine, MCA/ROC filing acquisition boundary  
+**Requirements/tests:** ENTITY-05, INTAKE-04, NFR-03/05, RUN-06, SEC-03/09
 
 ## Result
 
-No open implementation deviation was found in this slice. The provider can receive only
-a public legal name or exact CIN. Demo mode is deterministic and zero-spend; live mode
-fails closed when the selected adapter or credential is unavailable. Blocker B5 remains
-open because provider credentials, commercial/data-use review and the varied 30-company
-staging accuracy test are external gate dependencies.
+The earlier 13 July review incorrectly treated Attestr's live company-search/master-data
+capability as verified. Current first-party product information did not establish the
+capability Mandate requires. The vendor-specific conclusion is superseded by this review.
+
+The generic `CompanyDataProvider`, fixture records and candidate-scoring boundary remain
+valid. Worker startup now rejects `PROVIDER_COMPANY_DATA=attestr`; no alternative live
+master-data provider is silently selected. B5 and the 30-company live gate remain open.
+
+A separate `CorporateFilingDocumentProvider` now represents source filings. It deliberately
+cannot automate MCA login, payment, CAPTCHA, OTP or cookies. Manual MCA VPD mode performs
+zero network calls and emits a typed human-action state. Imported binaries remain
+SHA-256-addressed, size-bounded, scan-pending and structurally unparseable.
 
 ## Controls reviewed
 
 | Threat/boundary | Structural control | Test evidence |
 |---|---|---|
-| Identity/confidential data sent to a vendor | Interface methods accept only a legal-name string or CIN; request bodies have hard-coded keys; master lookup disables charges/e-filings | INTAKE-04 payload allowlist test |
-| Excess provider data retained | Attestr responses are parsed through allowlisted models; directors/signatories, email, filings, charges, capital and raw bodies are discarded | ENTITY-05 bounded-field test |
-| Wrong-company acceptance | CIN is uppercased and validated against the exact Indian company identifier shape before I/O; master response registration ID must equal the requested CIN | ENTITY-05 invalid/mismatch tests |
-| Secret or vendor-body disclosure | Auth token is a repr-hidden transport field; stable errors include only a code and retryability; raw error bodies are never surfaced | RUN-06 auth-failure test |
-| Endpoint/proxy/redirect abuse | Transport selects between two compile-time Attestr v2 HTTPS URLs, disables environment proxies and redirects, requests identity encoding and accepts JSON only | INTAKE-04 transport test |
-| Spend/retry exhaustion | ≤20 results, ≤2 calls per operation including retries, ≤8-second request timeout and ≤1 MiB streamed response; response records include call count for later cost events | NFR-05 call-cap tests |
-| Silent unsafe fallback | Fixture construction requires a loaded demo plan; unconfigured, unknown and credential-less live providers fail closed | NFR-03 selection test |
-| Fixture drift/unsupported source claims | Fixture payload is synthetic, schema-validated and SHA-256 pinned; its notice explicitly disclaims MCA/legal-database provenance | ENTITY-05 fixture tests; ADR-014 catalog tests |
+| Identity/confidential data sent to a provider | Company-data methods accept only legal name/CIN; filing requests accept only CIN, filing types, financial years and a fixed public purpose; Pydantic rejects extras | INTAKE-04 provider/request allowlist tests |
+| Unsupported vendor treated as production-ready | Worker boot fails when Attestr is selected in live mode; there is no replacement or fixture fallback | ENTITY-05 startup quarantine test |
+| MCA credential/CAPTCHA automation | Manual VPD provider accepts no credentials and makes zero provider calls; only a stable `mca_vpd_login_payment_required` action is returned | RUN-06 manual-VPD test |
+| False claim that filings were acquired | `ready` requires at least one document; non-ready states require an action code and cannot contain documents | RUN-06 result-invariant test |
+| Wrong-company filing admitted | Every filing reference carries an exact validated CIN; result validation rejects a document whose CIN differs from the request | Corporate-filing model validation |
+| Untrusted PDF/ZIP parsed directly | Registration always sets `pending_malware_scan` and `parse_allowed=false`; accepted media types and size are bounded | SEC-03 quarantine test |
+| Secret-bearing locator logged or stored | Source locator rejects password/token/API-key/secret query material; provider secrets and signed URLs are outside the model | SEC-09 locator test |
+| Fixture drift/unsupported source claims | Company fixture remains synthetic and SHA-256 pinned; filing fixture metadata identifies `fixture` acquisition | ENTITY-05 fixture and ADR-014 tests |
+| Search evidence misrepresented as registry data | ADR-017 and vendor shortlist define Exa as public-web discovery only; master data and source filings use separate interfaces | Documentation/architecture review |
+
+## MCA acquisition decision
+
+Direct unattended MCA VPD automation is rejected. The permitted paths are:
+
+1. a verified licensed document provider whose API, provenance and storage/display rights
+   pass procurement review;
+2. a human-approved MCA VPD purchase outside Mandate followed by admin-only import; or
+3. a consented EntityLocker path when an authorised target representative participates.
+
+No MCA username, password, OTP, CAPTCHA response, browser cookie or payment instrument is
+stored in Mandate. See
+[`B5-mca-data-and-document-acquisition.md`](../spikes/B5-mca-data-and-document-acquisition.md).
 
 ## AI definition of done
 
-- **Schema/audit:** frozen Pydantic records/results; exact CIN; operation, provider,
-  fixture flag and bounded call count retained.
-- **Prompt/privacy route:** no model or prompt; only public legal name/CIN can enter;
-  allowlisted public master-data fields can leave.
-- **Timeout/retry/cost:** eight-second transport timeout, two-call retry ceiling, result
-  and response-size caps; zero calls in demo mode.
-- **Failure state:** stable retryable/non-retryable codes; no fixture fallback in live
-  mode; malformed/mismatched responses rejected.
-- **Evaluation hook:** tagged provider contract tests and deterministic fixture feed the
-  candidate scorer and ER suite in the next checklist slice.
+- **Schema/audit:** exact CIN, bounded filing request, explicit acquisition method/status,
+  source provider/locator, acquisition time, SHA-256, size and quarantine state.
+- **Prompt/privacy route:** no user identity, firm, billing, matter narrative or credentials
+  can enter either provider request.
+- **Timeout/retry/cost:** manual mode has zero external calls; future licensed providers
+  must add bounded transport and report-attributed cost events before allowlisting.
+- **Failure state:** unsupported Attestr configuration stops startup; unavailable filings
+  produce a typed evidence gap/human action instead of fabricated content.
+- **Evaluation hook:** fixture provider and invariant tests are deterministic; live master
+  data and document providers remain blocked until their separate benchmarks pass.
 
 ## Deliberately deferred, not bypassed
 
-- B5 live credentials and provider contract/data-use review.
-- The ≥30-company varied staging accuracy test and any provider-specific calibration.
-- `entities`/`entity_candidates` persistence, confidence scoring and report-attributed
-  `provider_cost_events`, which remain in their ordered Phase 1/2 tasks.
+- B5 live master-data source and ≥30-company accuracy test.
+- Licensed source-filing vendor API/contract/provenance review.
+- Admin acquisition UI, quarantine storage and malware/sandbox parser implementation.
+- Any document text extraction or model use before the file-safety boundary is complete.
+- Removal of the now-unreachable historical Attestr adapter code in a dedicated cleanup.
 
 ## Reproduction
 
 ```bash
-uv run pytest -q services/worker/tests/test_company_data_provider.py services/worker/tests/test_demo_mode.py
+uv run pytest -q \
+  services/worker/tests/test_company_data_provider.py \
+  services/worker/tests/test_corporate_filings_provider.py \
+  services/worker/tests/test_demo_mode.py
 pnpm check
 pnpm --filter @mandate/web build
 ```
 
-Focused result: 19 provider/demo tests passed; Ruff, formatting and strict mypy passed.
+The final result must be taken from CI on this correction branch; no live provider or live
+Supabase project is required.

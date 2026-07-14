@@ -75,14 +75,34 @@ forwarded. Results retain only the public company fields needed for resolution, 
 normalised CIN and bounded provider-call metadata; provider email, directors, filings,
 charges and raw responses are discarded.
 
-`DEMO_MODE=1` selects the validated synthetic fixture and makes zero provider calls. In
-live mode, set `PROVIDER_COMPANY_DATA=attestr` and supply `ATTESTR_AUTH_TOKEN`; an absent
-credential, an unconfigured/unknown provider or a request for fixtures outside demo mode
-fails closed. The live adapter uses fixed Attestr v2 HTTPS endpoints, disables redirects
-and environment proxies, caps responses at 1 MiB, timeouts at eight seconds, results at
-20 and calls (including retry) at two. It searches exact legal names and requests master
-data with charges and e-filings disabled. B5 remains open until credentials, commercial/
-data-use review and the 30-company staging accuracy gate are complete.
+`DEMO_MODE=1` selects the validated synthetic fixture and makes zero provider calls. No
+live company-master-data provider is currently allowlisted. The earlier Attestr assumption
+was not supported by its current product catalogue; selecting
+`PROVIDER_COMPANY_DATA=attestr` now stops worker startup. The old adapter implementation
+is retained only as quarantined historical code until it can be removed in a dedicated
+cleanup without weakening the generic interface or fixture tests.
+
+The live Phase 1 benchmark remains open. Candidate sources are a versioned MCA-contributed
+Government Open Data snapshot and, only after current API/licence verification, providers
+such as Sandbox or Probe42. See
+[`B5-mca-data-and-document-acquisition.md`](../../docs/implementation/spikes/B5-mca-data-and-document-acquisition.md).
+
+## Corporate-filing document acquisition boundary
+
+`mandate_worker.providers.CorporateFilingDocumentProvider` is separate from master data and
+public-web search. It supports three explicit outcomes: quarantined documents are ready,
+a human MCA View Public Documents purchase is required, or the filing is unavailable.
+
+`ManualMcaVpdProvider` performs no network request and accepts no MCA credentials. It emits
+`mca_vpd_login_payment_required` so an authorised operator can procure selected public
+filings outside Mandate and import them through a future admin-only acquisition surface.
+A later licensed-provider implementation may replace that step after provenance, coverage,
+storage/display rights, pricing and security are verified.
+
+Every imported PDF/ZIP is SHA-256-addressed, size bounded and registered as
+`pending_malware_scan` with `parse_allowed=false`. No filing text may reach extraction,
+evidence or a model until the reusable malware-scan and sandbox parser boundary is built.
+Source locators reject embedded password/token/API-key material.
 
 ## Candidate-generation and scoring boundary
 

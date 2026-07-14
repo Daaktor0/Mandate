@@ -2,7 +2,7 @@
 
 **Status header (update after every tested phase):**
 
-> **Current phase:** 1 — Entity-resolution proof of concept (8/9 tasks complete) · **Last gate passed:** G0 · **Updated:** 2026-07-14
+> **Current phase:** 1 — Entity-resolution proof of concept (8/9 tasks complete) · **Last gate passed:** G0 · **Updated:** 2026-07-15
 
 **Sources:** product-specification doc 13 (authoritative phase order and gates); master prompt ("follow the build roadmap exactly; use vertical slices; update the checklist after every tested phase")
 **Related:** [REQUIREMENTS-TRACEABILITY.md](REQUIREMENTS-TRACEABILITY.md), [TEST-PLAN.md](TEST-PLAN.md), [ARCHITECTURE-DECISIONS.md](ARCHITECTURE-DECISIONS.md) (blockers B1–B14)
@@ -32,18 +32,22 @@ Ordering principle (doc 13): **correct entity → reliable evidence → useful q
 - [x] Intake API + validation (INTAKE-01..06): URL safety (SafeFetcher policy, ADR-011), confidential ack, CIN optional
 - [x] SafeFetcher module + full SSRF unit table (SEC-03 foundations; [review](security-reviews/phase-1-safe-fetcher.md))
 - [x] Legal-page crawler (discovery order, AGENT-PROMPT §3 step 1) + extraction (CIN/GSTIN/legal-suffix/office patterns; [review](security-reviews/phase-1-legal-page-crawler.md))
-- [x] `CompanyDataProvider` interface + fixture impl; real name-to-CIN adapter behind flag (Blocker B5; [review](security-reviews/phase-1-company-data-provider.md))
+- [x] `CompanyDataProvider` interface + fixture impl; live provider remains fail-closed under B5 and the unsupported Attestr selection is quarantined ([review](security-reviews/phase-1-company-data-provider.md); [B5 decision](spikes/B5-mca-data-and-document-acquisition.md))
 - [x] Candidate generation + deterministic confidence scoring (doc 05 weights) + labels ([review](security-reviews/phase-1-candidate-scoring.md))
 - [x] `entities`, `entity_candidates` migrations; light-queue resolution task; states `draft → resolving_entity → awaiting_entity_confirmation` ([review](security-reviews/phase-1-entity-resolution-persistence.md))
 - [x] Minimal confirmation UI: candidate cards (evidence snippets, confidence labels), confirm / none-of-these / refine / related-entity scope (ENTITY-03/04/07; [review](security-reviews/phase-1-entity-confirmation.md))
 - [x] ER-01..11 fixture suite green ([review](security-reviews/phase-1-er-fixture-suite.md))
-- [ ] **Live test:** ≥30 varied companies (needs B5 trial credentials on staging)
+- [ ] **Live test:** ≥30 varied companies using a verified master-data source or versioned MCA-contributed open-data snapshot; no live key/source is currently configured (B5)
 
 **Gate G1:** ambiguous cases ask instead of guessing; no paid research reachable before confirmation. *(Slices E2E-01 partially: website → candidate.)*
 
+B5's architecture is resolved: Exa is search-only; company master data and MCA/ROC source filings use separate adapters; MCA login/CAPTCHA/payment is never automated. The live accuracy evidence remains genuinely blocked.
+
 ## Phase 2 — Evidence pipeline
 
-- [ ] `SearchProvider` + `PageFetcher` adapters (fixture + one real behind flag; benchmark harness for B4)
+- [ ] `SearchProvider` + `PageFetcher` adapters (fixture + Exa behind flag; benchmark harness for B4)
+- [ ] `CorporateFilingDocumentProvider` integration after entity confirmation: fixture + manual MCA VPD state + one verified licensed vendor behind flag; no credential/CAPTCHA automation (ADR-017)
+- [ ] Reusable malware-scan, archive-limit and sandbox parser boundary before any acquired PDF/ZIP becomes parseable evidence
 - [ ] ModelGateway (ADR-005): routing config, ZDR/allowlist params, payload allowlist, schema validation + repair retry, `agent_runs` logging, cost caps (needs B3 for live; fixture ModelRouter for CI)
 - [ ] `evidence`, `claims`, `job_checkpoints`, `agent_runs`, `provider_cost_events` migrations
 - [ ] Source-tier classification + evidence-object capture (doc 06 fields)
@@ -139,7 +143,7 @@ Ordering principle (doc 13): **correct entity → reliable evidence → useful q
 
 ## Do not build first (doc 13 guardrails)
 
-Workspaces; collaboration; unlimited group research; confidential uploads; small model (doc 14 is post-MVP); mobile app; visual agent canvas; all-country registries; direct MCA document purchase; deep analytics.
+Workspaces; collaboration; unlimited group research; confidential uploads; small model (doc 14 is post-MVP); mobile app; visual agent canvas; all-country registries; user-facing automated MCA document purchase/CAPTCHA flow; deep analytics.
 
 ## Founder-parallel track (non-engineering, from doc 13)
 
