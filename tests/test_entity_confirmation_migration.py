@@ -46,6 +46,10 @@ def test_ENTITY_04_none_and_refine_cannot_accept_narrative() -> None:
     assert "state = 'draft'" in sql
     assert "state = 'resolving_entity'" in sql
     assert "delete from public.entity_candidates" in sql
+    assert "resolution_legal_name_hint" in sql
+    assert "resolution_cin_hint" in sql
+    assert "resolution_state_hint" in sql
+    assert "drop constraint report_requests_exactly_one_input" not in sql
 
 
 def test_ENTITY_07_related_scope_is_bounded_unique_and_explicitly_proposed() -> None:

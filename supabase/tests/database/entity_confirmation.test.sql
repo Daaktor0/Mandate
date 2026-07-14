@@ -619,15 +619,20 @@ select is(
 select ok(
   (
     select input_url = 'https://example.invalid'
-      and input_legal_name = 'Refined Website Operator Private Limited'
-      and input_cin = 'U62099MH2024PTC999999'
-      and input_state_hint = 'Maharashtra'
+      and input_legal_name is null
+      and input_cin is null
+      and resolution_legal_name_hint = 'Refined Website Operator Private Limited'
+      and resolution_cin_hint = 'U62099MH2024PTC999999'
+      and resolution_state_hint = 'Maharashtra'
       and state = 'resolving_entity'
       from public.report_requests
      where id = 'c3333333-3333-4333-8333-333333333333'
   ),
-  'ENTITY-04 a website request can retain its URL and add public identity hints'
+  'ENTITY-04 refinement preserves original intake and stores separate public identity hints'
 );
+
+reset role;
+
 select is(
   (
     select count(*)::integer
@@ -661,8 +666,6 @@ select is(
   null,
   'INTAKE-06 entity confirmation has no entitlement operation'
 );
-
-reset role;
 
 select * from finish();
 rollback;

@@ -1,28 +1,27 @@
 begin;
 
 alter table public.report_requests
-  drop constraint report_requests_exactly_one_input;
-
-alter table public.report_requests
-  add column input_state_hint text null
+  add column resolution_legal_name_hint text null
     check (
-      input_state_hint is null
-      or char_length(input_state_hint) between 1 and 100
+      resolution_legal_name_hint is null
+      or char_length(resolution_legal_name_hint) between 1 and 300
     ),
-  add constraint report_requests_input_shape check (
-    (
-      input_kind = 'website'
-      and input_url is not null
-    )
-    or
-    (
-      input_kind = 'legal_name'
-      and input_url is null
-      and input_legal_name is not null
-    )
-  );
+  add column resolution_cin_hint text null
+    check (
+      resolution_cin_hint is null
+      or resolution_cin_hint ~ '^[UL][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$'
+    ),
+  add column resolution_state_hint text null
+    check (
+      resolution_state_hint is null
+      or char_length(resolution_state_hint) between 1 and 100
+    );
 
-comment on column public.report_requests.input_state_hint is
+comment on column public.report_requests.resolution_legal_name_hint is
+  'Optional public legal-name refinement; the immutable original intake field remains unchanged.';
+comment on column public.report_requests.resolution_cin_hint is
+  'Optional public CIN refinement; the immutable original intake field remains unchanged.';
+comment on column public.report_requests.resolution_state_hint is
   'Optional public registered-office state supplied only to refine ambiguous entity resolution.';
 
 create or replace function private.uuid_array_is_unique(p_values uuid[])
@@ -262,7 +261,10 @@ begin
      where report_request_id = p_report_request_id;
 
     update public.report_requests
-       set confirmed_entity_id = null,
+       set resolution_legal_name_hint = null,
+           resolution_cin_hint = null,
+           resolution_state_hint = null,
+           confirmed_entity_id = null,
            related_entity_ids = '{}'::uuid[],
            state = 'draft'
      where id = p_report_request_id;
@@ -289,9 +291,18 @@ begin
      where report_request_id = p_report_request_id;
 
     update public.report_requests
-       set input_legal_name = coalesce(btrim(p_legal_name), input_legal_name),
-           input_cin = coalesce(upper(btrim(p_cin)), input_cin),
-           input_state_hint = case when p_state is null then input_state_hint else btrim(p_state) end,
+       set resolution_legal_name_hint = case
+             when p_legal_name is null then resolution_legal_name_hint
+             else btrim(p_legal_name)
+           end,
+           resolution_cin_hint = case
+             when p_cin is null then resolution_cin_hint
+             else upper(btrim(p_cin))
+           end,
+           resolution_state_hint = case
+             when p_state is null then resolution_state_hint
+             else btrim(p_state)
+           end,
            confirmed_entity_id = null,
            related_entity_ids = '{}'::uuid[],
            state = 'draft'
