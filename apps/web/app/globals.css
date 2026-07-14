@@ -415,10 +415,9 @@ main:not(.confirmation-shell) {
 
 .refine-panel {
   display: grid;
-  grid-template-columns: minmax(220px, 1.3fr) minmax(180px, 1fr) minmax(
-      180px,
-      0.8fr
-    ) auto;
+  grid-template-columns:
+    minmax(220px, 1.3fr) minmax(180px, 1fr) minmax(180px, 0.8fr)
+    auto;
   gap: 16px;
   align-items: end;
   margin-top: 20px;
