@@ -78,9 +78,7 @@ class SearchRequest(BaseModel):
 
     @field_validator("start_published_at", "end_published_at")
     @classmethod
-    def published_dates_must_be_timezone_aware(
-        cls, value: datetime | None
-    ) -> datetime | None:
+    def published_dates_must_be_timezone_aware(cls, value: datetime | None) -> datetime | None:
         if value is not None and (value.tzinfo is None or value.utcoffset() is None):
             raise ValueError("published-date filters must be timezone-aware")
         return value
@@ -137,9 +135,7 @@ class SearchResult(BaseModel):
 
     @field_validator("published_at")
     @classmethod
-    def published_at_must_be_timezone_aware(
-        cls, value: datetime | None
-    ) -> datetime | None:
+    def published_at_must_be_timezone_aware(cls, value: datetime | None) -> datetime | None:
         if value is not None and (value.tzinfo is None or value.utcoffset() is None):
             raise ValueError("search result published date must be timezone-aware")
         return value
@@ -336,11 +332,10 @@ class FixtureSearchProvider:
         return cls(fixture_query=fixture.request.query, fixture_results=results)
 
     async def search(self, request: SearchRequest) -> SearchResponse:
-        results = (
-            self.fixture_results[: request.limit]
-            if request.query == self.fixture_query
-            else ()
-        )
+        if request.query == self.fixture_query:
+            results = self.fixture_results[: request.limit]
+        else:
+            results = ()
         return SearchResponse(
             request=request,
             provider="fixture",
