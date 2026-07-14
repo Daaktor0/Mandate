@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<title>Mandate — Landing, Sign-in, Profile, Account</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#E4E1D8; font-family:"IBM Plex Sans",system-ui,sans-serif; color:#1A2430; }
+  a { color:#1D4E89; } a:hover { color:#163C6A; }
+  * { box-sizing:border-box; }
+</style>
+</helmet>
+
+<section style="padding:48px; display:flex; flex-direction:column; gap:56px">
+
+  <!-- ================= LANDING ================= -->
+  <div id="scr-landing">
+    <div style="font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#6B7280; margin-bottom:10px">11 · Landing page</div>
+    <div data-screen-label="Landing" style="width:1360px; background:#FAF9F5; border:1px solid #C9C4B8; border-radius:12px; overflow:hidden; box-shadow:0 8px 28px rgba(26,36,48,.14)">
+      <!-- nav -->
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:0 56px; height:64px; border-bottom:1px solid #E3E0D8; background:#FAF9F5">
+        <div style="font-family:'Source Serif 4',Georgia,serif; font-size:23px; font-weight:600; color:#1E3A5F">Mandate<span style="color:#A63D2F">.</span></div>
+        <div style="display:flex; align-items:center; gap:28px; font-size:13.5px">
+          <span style="color:#4A5568">How it works</span>
+          <span style="color:#4A5568">Sample Mandate Brief</span>
+          <span style="color:#4A5568">Pricing</span>
+          <button style="background:#1E3A5F; color:#fff; border:none; border-radius:6px; padding:9px 18px; font-size:13.5px; font-weight:600; font-family:inherit; cursor:pointer">Sign in</button>
+        </div>
+      </div>
+      <!-- hero -->
+      <div style="display:grid; grid-template-columns:1.05fr 1fr; gap:56px; padding:72px 56px 64px; align-items:center">
+        <div>
+          <div style="font-size:12px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:#8C6D3F; margin-bottom:18px">Transaction preparation for Indian corporate lawyers</div>
+          <div style="font-family:'Source Serif 4',Georgia,serif; font-size:52px; font-weight:600; line-height:1.12; letter-spacing:-0.015em">Know the company before the first call<span style="color:#A63D2F">.</span></div>
+          <p style="font-size:16.5px; line-height:26px; color:#4A5568; max-width:520px; margin:22px 0 28px">Give Mandate a company website or legal name. Get a concise, source-backed <strong style="color:#1A2430">Mandate Brief</strong> — two pages of what is publicly known, what is not, and the questions worth asking at kickoff.</p>
+          <div style="display:flex; gap:12px; margin-bottom:20px">
+            <button style="display:inline-flex; align-items:center; gap:10px; background:#FFFFFF; color:#1A2430; border:1px solid #C9C4B8; border-radius:6px; padding:12px 22px; font-size:14.5px; font-weight:600; font-family:inherit; cursor:pointer" style-hover="border-color:#1E3A5F"><span style="width:18px; height:18px; border-radius:3px; background:conic-gradient(from -45deg, #EA4335 0 25%, #4285F4 0 50%, #34A853 0 75%, #FBBC05 0)"></span>Continue with Google</button>
+            <button style="display:inline-flex; align-items:center; gap:10px; background:#FFFFFF; color:#1A2430; border:1px solid #C9C4B8; border-radius:6px; padding:12px 22px; font-size:14.5px; font-weight:600; font-family:inherit; cursor:pointer" style-hover="border-color:#1E3A5F"><span style="width:18px; height:18px; display:inline-grid; grid-template-columns:8px 8px; gap:2px"><span style="background:#F25022"></span><span style="background:#7FBA00"></span><span style="background:#00A4EF"></span><span style="background:#FFB900"></span></span>Continue with Microsoft</button>
+          </div>
+          <div style="font-size:12.5px; line-height:18px; color:#6B7280; max-width:520px">Mandate uses <strong style="color:#4A5568">publicly available information only</strong> — you never submit confidential material. Mandate is not legal advice, not a legal opinion, and not a substitute for due diligence.</div>
+        </div>
+        <!-- sample brief preview -->
+        <div style="position:relative; justify-self:center">
+          <div style="width:400px; background:#FFFFFF; box-shadow:0 16px 48px rgba(26,36,48,.18); padding:34px 36px; font-family:'Source Serif 4',Georgia,serif; transform:rotate(.5deg)">
+            <div style="border-bottom:2px solid #1E3A5F; padding-bottom:8px; display:flex; justify-content:space-between; align-items:flex-end">
+              <div>
+                <div style="font-family:'IBM Plex Sans',sans-serif; font-size:7px; font-weight:600; letter-spacing:.16em; color:#6B7280">MANDATE BRIEF</div>
+                <div style="font-size:14px; font-weight:600; margin-top:2px">Meridian Agrotech Private Limited</div>
+              </div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:6px; color:#4A5568; text-align:right; line-height:1.6">U01100MH2019PTC324867<br>12 July 2026</div>
+            </div>
+            <div style="font-family:'IBM Plex Sans',sans-serif; font-size:7.5px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:#1E3A5F; margin:10px 0 5px">Executive snapshot</div>
+            <div style="font-size:8.5px; line-height:1.55; color:#1A2430">
+              <div>· Bio-fertiliser manufacturer selling through ~4,000 outlets in six states.</div>
+              <div>· The company states 24,000 MT p.a. capacity at Nashik.</div>
+              <div>· Series B funded; Elevar holds one board seat.</div>
+              <div style="color:#A63D2F">· Open ₹12 cr charge on the Nashik plant — confirm at kickoff.</div>
+            </div>
+            <div style="font-family:'IBM Plex Sans',sans-serif; font-size:7.5px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:#1E3A5F; margin:10px 0 5px">Matters for attention</div>
+            <div style="font-size:8.5px; line-height:1.55; color:#4A5568">1. Open charge on the Nashik plant — verified from the registry…<br>2. Indore unit's regulatory footprint is thin — inference from absence…</div>
+            <div style="font-family:'IBM Plex Sans',sans-serif; font-size:7.5px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:#1E3A5F; margin:10px 0 5px">Suggested kickoff-call questions</div>
+            <div style="font-size:8.5px; line-height:1.55; color:#4A5568">1. What does the Axis Bank facility secure…?<br>2. Own or lease the Indore unit…?</div>
+            <div style="margin-top:12px; border-top:1px solid #EDEAE2; padding-top:5px; font-family:'IBM Plex Sans',sans-serif; font-size:6px; color:#9AA1AC; display:flex; justify-content:space-between"><span>Prepared with Mandate · not legal advice</span><span>page 1 of 2</span></div>
+          </div>
+          <div style="position:absolute; bottom:-14px; right:-10px; background:#1E3A5F; color:#fff; font-size:11.5px; font-weight:600; border-radius:999px; padding:7px 16px; box-shadow:0 4px 12px rgba(26,36,48,.25)">Real structure — see the full sample</div>
+        </div>
+      </div>
+      <!-- three steps -->
+      <div style="background:#FFFFFF; border-top:1px solid #E3E0D8; border-bottom:1px solid #E3E0D8; padding:48px 56px">
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:40px">
+          <div>
+            <div style="font-family:'Source Serif 4',Georgia,serif; font-size:30px; font-weight:600; color:#C9C4B8">1</div>
+            <div style="font-size:16px; font-weight:600; margin:8px 0 6px">Point Mandate at the company</div>
+            <div style="font-size:13.5px; line-height:20px; color:#4A5568">A website or exact legal name. You confirm the registered entity — CIN, registered office, evidence — before anything is charged.</div>
+          </div>
+          <div>
+            <div style="font-family:'Source Serif 4',Georgia,serif; font-size:30px; font-weight:600; color:#C9C4B8">2</div>
+            <div style="font-size:16px; font-weight:600; margin:8px 0 6px">Mandate researches public sources</div>
+            <div style="font-size:13.5px; line-height:20px; color:#4A5568">Registry data, the company's own statements, credible reporting — each claim labelled by how well it is established. Honest progress, stage by stage.</div>
+          </div>
+          <div>
+            <div style="font-family:'Source Serif 4',Georgia,serif; font-size:30px; font-weight:600; color:#C9C4B8">3</div>
+            <div style="font-size:16px; font-weight:600; margin:8px 0 6px">Walk into kickoff prepared</div>
+            <div style="font-size:13.5px; line-height:20px; color:#4A5568">A two-page Mandate Brief on your letterhead, with a prioritised question list and a source annex your associate can check.</div>
+          </div>
+        </div>
+      </div>
+      <!-- pricing + footer -->
+      <div style="padding:48px 56px 40px">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:56px; align-items:start">
+          <div>
+            <div style="font-family:'Source Serif 4',Georgia,serif; font-size:24px; font-weight:600; margin-bottom:8px">Priced per Mandate Brief</div>
+            <div style="font-size:13.5px; line-height:20px; color:#4A5568; margin-bottom:20px">Buy packs, use them for any company, whenever. A failed generation always restores your entitlement.</div>
+            <div style="display:flex; gap:12px">
+              <div style="flex:1; background:#FFFFFF; border:1px solid #C9C4B8; border-radius:10px; padding:18px; text-align:center"><div style="font-size:13px; font-weight:600">1 Mandate Brief</div><div style="font-family:'IBM Plex Mono',monospace; font-size:19px; margin-top:6px">₹999</div></div>
+              <div style="flex:1; background:#FFFFFF; border:1.5px solid #1E3A5F; border-radius:10px; padding:18px; text-align:center; position:relative"><div style="position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:#1E3A5F; color:#fff; font-size:10px; font-weight:600; letter-spacing:.05em; border-radius:999px; padding:3px 10px">MOST CHOSEN</div><div style="font-size:13px; font-weight:600">5 Mandate Briefs</div><div style="font-family:'IBM Plex Mono',monospace; font-size:19px; margin-top:6px">₹3,499</div><div style="font-size:11px; color:#6B7280; margin-top:2px">₹700 each</div></div>
+              <div style="flex:1; background:#FFFFFF; border:1px solid #C9C4B8; border-radius:10px; padding:18px; text-align:center"><div style="font-size:13px; font-weight:600">10 Mandate Briefs</div><div style="font-family:'IBM Plex Mono',monospace; font-size:19px; margin-top:6px">₹5,999</div><div style="font-size:11px; color:#6B7280; margin-top:2px">₹600 each</div></div>
+            </div>
+          </div>
+          <div style="background:#F1EFE9; border-radius:10px; padding:24px 28px">
+            <div style="font-size:14px; font-weight:600; margin-bottom:10px">What Mandate is — and is not</div>
+            <div style="font-size:13px; line-height:20px; color:#4A5568">Mandate prepares you for the first conversation. It works only from public information, tells you where the evidence is thin, and never claims completeness. It is <strong style="color:#1A2430">not an AI lawyer, not a due-diligence replacement, and not a legal opinion</strong> — it is the well-prepared associate's briefing note, ready before the call.</div>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; border-top:1px solid #E3E0D8; margin-top:40px; padding-top:18px; font-size:12px; color:#6B7280">
+          <span style="font-family:'Source Serif 4',Georgia,serif; font-size:15px; font-weight:600; color:#1E3A5F">Mandate<span style="color:#A63D2F">.</span></span>
+          <span>Mandate Briefs are AI-assisted preparation documents based on public information — not legal advice. · Terms · Privacy · Contact</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SIGN-IN + PROFILE ================= -->
+  <div id="scr-auth" style="display:flex; gap:40px; align-items:flex-start">
+    <div>
+      <div style="font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#6B7280; margin-bottom:10px">12 · Sign-in</div>
+      <div data-screen-label="Sign-in" style="width:520px; background:#FAF9F5; border:1px solid #C9C4B8; border-radius:12px; box-shadow:0 8px 28px rgba(26,36,48,.14); padding:56px 60px; text-align:center">
+        <div style="font-family:'Source Serif 4',Georgia,serif; font-size:30px; font-weight:600; color:#1E3A5F; margin-bottom:8px">Mandate<span style="color:#A63D2F">.</span></div>
+        <div style="font-size:13.5px; color:#4A5568; margin-bottom:32px">Sign in with your work account. No passwords to manage.</div>
+        <button style="display:flex; align-items:center; justify-content:center; gap:10px; width:100%; background:#FFFFFF; color:#1A2430; border:1px solid #C9C4B8; border-radius:6px; padding:13px 0; font-size:14.5px; font-weight:600; font-family:inherit; cursor:pointer; margin-bottom:12px" style-hover="border-color:#1E3A5F"><span style="width:18px; height:18px; border-radius:3px; background:conic-gradient(from -45deg, #EA4335 0 25%, #4285F4 0 50%, #34A853 0 75%, #FBBC05 0)"></span>Continue with Google</button>
+        <button style="display:flex; align-items:center; justify-content:center; gap:10px; width:100%; background:#FFFFFF; color:#1A2430; border:1px solid #C9C4B8; border-radius:6px; padding:13px 0; font-size:14.5px; font-weight:600; font-family:inherit; cursor:pointer" style-hover="border-color:#1E3A5F"><span style="width:18px; height:18px; display:inline-grid; grid-template-columns:8px 8px; gap:2px"><span style="background:#F25022"></span><span style="background:#7FBA00"></span><span style="background:#00A4EF"></span><span style="background:#FFB900"></span></span>Continue with Microsoft</button>
+        <div style="font-size:11.5px; line-height:17px; color:#6B7280; margin-top:28px">By signing in you agree to the Terms. Mandate produces AI-assisted preparation documents from public information — not legal advice.</div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#6B7280; margin-bottom:10px">13 · First-login profile — once, one screen</div>
+      <div data-screen-label="First-login profile" style="width:520px; background:#FAF9F5; border:1px solid #C9C4B8; border-radius:12px; box-shadow:0 8px 28px rgba(26,36,48,.14); padding:44px 52px">
+        <div style="font-family:'Source Serif 4',Georgia,serif; font-size:23px; font-weight:600; margin-bottom:6px">Welcome, Aditi</div>
+        <div style="font-size:13px; color:#4A5568; margin-bottom:24px">This appears on your Mandate Briefs as "prepared by" context. You can change it anytime.</div>
+        <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px">Full name</label>
+        <input value="Aditi Rao" style="width:100%; border:1px solid #C9C4B8; border-radius:6px; padding:11px 14px; font-size:14px; font-family:inherit; background:#fff; outline:none; margin-bottom:16px" style-focus="border-color:#1D4E89; box-shadow:0 0 0 2px rgba(29,78,137,.18)">
+        <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px">Firm or practice</label>
+        <input value="Khaitan & Rao, Advocates" style="width:100%; border:1px solid #C9C4B8; border-radius:6px; padding:11px 14px; font-size:14px; font-family:inherit; background:#fff; outline:none; margin-bottom:16px" style-focus="border-color:#1D4E89; box-shadow:0 0 0 2px rgba(29,78,137,.18)">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:24px">
+          <div>
+            <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px">Role</label>
+            <div style="border:1px solid #C9C4B8; border-radius:6px; padding:11px 14px; font-size:14px; background:#fff; color:#1A2430">Partner ▾</div>
+          </div>
+          <div>
+            <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px">City</label>
+            <input value="Mumbai" style="width:100%; border:1px solid #C9C4B8; border-radius:6px; padding:11px 14px; font-size:14px; font-family:inherit; background:#fff; outline:none" style-focus="border-color:#1D4E89; box-shadow:0 0 0 2px rgba(29,78,137,.18)">
+          </div>
+        </div>
+        <button style="width:100%; background:#1E3A5F; color:#fff; border:none; border-radius:6px; padding:13px 0; font-size:14.5px; font-weight:600; font-family:inherit; cursor:pointer" style-hover="background:#16304F">Continue to dashboard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ACCOUNT & PAYMENTS ================= -->
+  <div id="scr-account">
+    <div style="font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#6B7280; margin-bottom:10px">14 · Account &amp; payments — entitlements shown as Mandate Briefs, never tokens</div>
+    <div data-screen-label="Account" style="width:1360px; background:#FAF9F5; border:1px solid #C9C4B8; border-radius:12px; overflow:hidden; box-shadow:0 8px 28px rgba(26,36,48,.14)">
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:0 32px; height:60px; background:#FFFFFF; border-bottom:1px solid #E3E0D8">
+        <div style="display:flex; align-items:center; gap:36px">
+          <div style="font-family:'Source Serif 4',Georgia,serif; font-size:21px; font-weight:600; color:#1E3A5F">Mandate<span style="color:#A63D2F">.</span></div>
+          <div style="display:flex; gap:24px; font-size:13.5px">
+            <span style="color:#4A5568; padding:19px 0">Mandate Briefs</span>
+            <span style="font-weight:600; color:#1A2430; border-bottom:2px solid #1E3A5F; padding:19px 0">Account</span>
+          </div>
+        </div>
+        <span style="width:34px; height:34px; border-radius:50%; background:#1E3A5F; color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:600">AR</span>
+      </div>
+      <div style="padding:32px; display:grid; grid-template-columns:1.15fr 1fr; gap:24px; align-items:start">
+        <div style="display:flex; flex-direction:column; gap:24px">
+          <div style="background:#FFFFFF; border:1px solid #E3E0D8; border-radius:10px; padding:26px 30px">
+            <div style="font-size:15px; font-weight:600; margin-bottom:16px">Your Mandate Briefs</div>
+            <div style="display:flex; gap:40px; margin-bottom:18px">
+              <div><div style="font-family:'Source Serif 4',Georgia,serif; font-size:36px; font-weight:600; color:#1E3A5F">3</div><div style="font-size:12.5px; color:#4A5568">available</div></div>
+              <div><div style="font-family:'Source Serif 4',Georgia,serif; font-size:36px; font-weight:600; color:#8C6D3F">1</div><div style="font-size:12.5px; color:#4A5568">reserved — Kestrel Logistics, generating now</div></div>
+            </div>
+            <div style="font-size:12px; line-height:17px; color:#6B7280; background:#FAF9F5; border:1px solid #EDEAE2; border-radius:6px; padding:10px 14px">A reserved Mandate Brief returns to "available" automatically if generation fails — you never lose one to an error.</div>
+          </div>
+          <div style="background:#FFFFFF; border:1px solid #E3E0D8; border-radius:10px; padding:26px 30px">
+            <div style="font-size:15px; font-weight:600; margin-bottom:14px">Purchase history</div>
+            <div style="display:grid; grid-template-columns:1fr auto auto; gap:10px 24px; font-size:13px; align-items:center">
+              <span>5-pack · 5 Mandate Briefs</span><span style="font-family:'IBM Plex Mono',monospace; font-size:12.5px">₹3,499</span><span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#6B7280">02 Jul 2026 · invoice ↓</span>
+              <span>Single · 1 Mandate Brief</span><span style="font-family:'IBM Plex Mono',monospace; font-size:12.5px">₹999</span><span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#6B7280">11 Jun 2026 · invoice ↓</span>
+            </div>
+          </div>
+          <div style="background:#FFFFFF; border:1px solid #E3E0D8; border-radius:10px; padding:26px 30px">
+            <div style="font-size:15px; font-weight:600; margin-bottom:6px">Profile &amp; letterhead</div>
+            <div style="display:grid; grid-template-columns:auto 1fr; gap:6px 20px; font-size:13px; margin-bottom:14px">
+              <span style="color:#6B7280">Name</span><span>Aditi Rao · Partner</span>
+              <span style="color:#6B7280">Firm</span><span>Khaitan &amp; Rao, Advocates · Mumbai</span>
+              <span style="color:#6B7280">Letterhead</span><span>khaitan-rao-letterhead.pdf · applied by default ✓</span>
+            </div>
+            <div style="display:flex; gap:10px">
+              <button style="background:#fff; color:#1A2430; border:1px solid #C9C4B8; border-radius:6px; padding:8px 16px; font-size:12.5px; font-weight:600; font-family:inherit; cursor:pointer">Edit profile</button>
+              <button style="background:#fff; color:#9B2C1F; border:1px solid #EBC3BB; border-radius:6px; padding:8px 16px; font-size:12.5px; font-weight:600; font-family:inherit; cursor:pointer">Delete account…</button>
+            </div>
+          </div>
+        </div>
+        <div style="background:#FFFFFF; border:1px solid #E3E0D8; border-radius:10px; padding:26px 30px">
+          <div style="font-size:15px; font-weight:600; margin-bottom:4px">Buy Mandate Briefs</div>
+          <div style="font-size:12.5px; color:#6B7280; margin-bottom:18px">Packs never expire. GST invoice issued for every purchase.</div>
+          <div style="display:flex; flex-direction:column; gap:12px">
+            <div style="border:1px solid #C9C4B8; border-radius:10px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center"><div><div style="font-size:14px; font-weight:600">1 Mandate Brief</div><div style="font-size:11.5px; color:#6B7280">For the occasional matter</div></div><div style="font-family:'IBM Plex Mono',monospace; font-size:17px">₹999</div></div>
+            <div style="border:1.5px solid #1E3A5F; border-radius:10px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; position:relative"><div style="position:absolute; top:-9px; left:18px; background:#1E3A5F; color:#fff; font-size:9.5px; font-weight:600; letter-spacing:.05em; border-radius:999px; padding:2px 8px">MOST CHOSEN</div><div><div style="font-size:14px; font-weight:600">5 Mandate Briefs</div><div style="font-size:11.5px; color:#6B7280">₹700 each</div></div><div style="font-family:'IBM Plex Mono',monospace; font-size:17px">₹3,499</div></div>
+            <div style="border:1px solid #C9C4B8; border-radius:10px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center"><div><div style="font-size:14px; font-weight:600">10 Mandate Briefs</div><div style="font-size:11.5px; color:#6B7280">₹600 each</div></div><div style="font-family:'IBM Plex Mono',monospace; font-size:17px">₹5,999</div></div>
+          </div>
+          <button style="margin-top:16px; width:100%; background:#1E3A5F; color:#fff; border:none; border-radius:6px; padding:12px 0; font-size:14px; font-weight:600; font-family:inherit; cursor:pointer" style-hover="background:#16304F">Continue to payment</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+</x-dc>
+</body>
+</html>

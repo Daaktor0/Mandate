@@ -1,0 +1,32 @@
+/* Mandate design tokens — light theme (primary). Structure supports a future [data-theme="dark"] override block. */
+:root{
+  --m-brand-primary:#1E3A5F;--m-accent-seal:#A63D2F;--m-brand-primary-hover:#16304F;--m-brand-primary-active:#122840;--m-on-primary:#FFFFFF;--m-link:#1D4E89;--m-link-hover:#163C6A;
+  --m-surface-page:#FAF9F5;--m-surface-raised:#FFFFFF;--m-surface-sunken:#F1EFE9;--m-surface-inverse:#1E3A5F;--m-surface-document:#FFFFFF;
+  --m-text-primary:#1A2430;--m-text-secondary:#4A5568;--m-text-tertiary:#6B7280;--m-text-on-inverse:#FFFFFF;--m-text-on-inverse-muted:#C9D4E2;--m-text-disabled:#9AA1AC;
+  --m-border:#E3E0D8;--m-border-strong:#C9C4B8;--m-divider:#EDEAE2;--m-focus:#1D4E89;--m-border-input-hover:#A9B2BF;
+  --m-status-entity-confirmation-required-fg:#7A5410;--m-status-entity-confirmation-required-bg:#FBF3E0;--m-status-entity-confirmation-required-border:#E8D5A4;
+  --m-status-clarification-required-fg:#7A5410;--m-status-clarification-required-bg:#FBF3E0;--m-status-clarification-required-border:#E8D5A4;
+  --m-status-queued-fg:#4A5568;--m-status-queued-bg:#F1EFE9;--m-status-queued-border:#D8D5CC;
+  --m-status-researching-fg:#1E4E79;--m-status-researching-bg:#E9F0F8;--m-status-researching-border:#C5D7EA;
+  --m-status-verifying-fg:#1E4E79;--m-status-verifying-bg:#E9F0F8;--m-status-verifying-border:#C5D7EA;
+  --m-status-drafting-fg:#1E4E79;--m-status-drafting-bg:#E9F0F8;--m-status-drafting-border:#C5D7EA;
+  --m-status-preparing-mandate-brief-fg:#1E4E79;--m-status-preparing-mandate-brief-bg:#E9F0F8;--m-status-preparing-mandate-brief-border:#C5D7EA;
+  --m-status-ready-fg:#1F5B33;--m-status-ready-bg:#E7F2EA;--m-status-ready-border:#BFDCC8;
+  --m-status-failed-entitlement-restored-fg:#7C382A;--m-status-failed-entitlement-restored-bg:#F7EDE9;--m-status-failed-entitlement-restored-border:#E4C6BA;
+  --m-status-deleted-fg:#6B7280;--m-status-deleted-bg:#EFEEE9;--m-status-deleted-border:#D8D5CC;
+  --m-confidence-strong-match-fg:#1F5B33;--m-confidence-strong-match-bg:#E7F2EA;--m-confidence-strong-match-border:#BFDCC8;
+  --m-confidence-probable-match-fg:#1E4E79;--m-confidence-probable-match-bg:#E9F0F8;--m-confidence-probable-match-border:#C5D7EA;
+  --m-confidence-ambiguous-fg:#7A5410;--m-confidence-ambiguous-bg:#FBF3E0;--m-confidence-ambiguous-border:#E8D5A4;
+  --m-confidence-insufficient-evidence-fg:#5A6270;--m-confidence-insufficient-evidence-bg:#EFEEE9;--m-confidence-insufficient-evidence-border:#D8D5CC;
+  --m-claim-verified-fact-fg:#1F5B33;--m-claim-verified-fact-bg:#E7F2EA;--m-claim-verified-fact-border:#BFDCC8;
+  --m-claim-company-claim-fg:#1E4E79;--m-claim-company-claim-bg:#E9F0F8;--m-claim-company-claim-border:#C5D7EA;
+  --m-claim-third-party-report-fg:#52357E;--m-claim-third-party-report-bg:#EFEAF6;--m-claim-third-party-report-border:#D5C8E8;
+  --m-claim-inference-fg:#7A5410;--m-claim-inference-bg:#FBF3E0;--m-claim-inference-border:#E8D5A4;
+  --m-claim-conflict-fg:#9B2C1F;--m-claim-conflict-bg:#FAE9E6;--m-claim-conflict-border:#EBC3BB;
+  --m-claim-not-publicly-available-fg:#5A6270;--m-claim-not-publicly-available-bg:#EFEEE9;--m-claim-not-publicly-available-border:#D8D5CC;
+  --m-success-fg:#1F5B33;--m-success-bg:#E7F2EA;--m-warning-fg:#7A5410;--m-warning-bg:#FBF3E0;--m-danger-fg:#9B2C1F;--m-danger-bg:#FAE9E6;--m-info-fg:#1E4E79;--m-info-bg:#E9F0F8;
+  --m-font-ui:"IBM Plex Sans",system-ui,sans-serif;--m-font-doc:"Source Serif 4",Georgia,serif;--m-font-mono:"IBM Plex Mono",monospace;
+  --m-space-1:4px;--m-space-2:8px;--m-space-3:12px;--m-space-4:16px;--m-space-5:24px;--m-space-6:32px;--m-space-7:48px;--m-space-8:64px;
+  --m-radius-sm:4px;--m-radius-md:6px;--m-radius-lg:10px;--m-radius-xl:14px;--m-radius-pill:999px;
+  --m-shadow-card:0 1px 2px rgba(26,36,48,.05);--m-shadow-raised:0 2px 8px rgba(26,36,48,.08);--m-shadow-overlay:0 8px 28px rgba(26,36,48,.14);--m-shadow-modal:0 16px 48px rgba(26,36,48,.20);
+}
