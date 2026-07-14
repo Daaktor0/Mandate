@@ -6,9 +6,6 @@ from collections.abc import Mapping
 from pathlib import Path
 
 from fastapi import FastAPI, Request, Response
-from pydantic import BaseModel, ConfigDict
-from starlette.middleware.base import RequestResponseEndpoint
-
 from mandate_worker import __version__
 from mandate_worker.fixtures import AdapterCapability
 from mandate_worker.observability import (
@@ -18,6 +15,8 @@ from mandate_worker.observability import (
     trace_context,
 )
 from mandate_worker.runtime import RuntimeConfigurationError, build_runtime_adapter_plan
+from pydantic import BaseModel, ConfigDict
+from starlette.middleware.base import RequestResponseEndpoint
 
 TRACE_HEADER = "X-Trace-Id"
 
@@ -49,9 +48,7 @@ def create_app(
     logger = get_logger()
 
     if service_name == "mandate-worker":
-        runtime_plan = build_runtime_adapter_plan(
-            environ=environ, fixture_root=fixture_root
-        )
+        runtime_plan = build_runtime_adapter_plan(environ=environ, fixture_root=fixture_root)
         if (
             not runtime_plan.demo_mode
             and runtime_plan.bindings[AdapterCapability.COMPANY_DATA] == "attestr"
@@ -67,16 +64,13 @@ def create_app(
             zero_spend=runtime_plan.zero_spend,
             fixture_revision=runtime_plan.fixture_revision,
             adapter_backends={
-                capability.value: backend
-                for capability, backend in runtime_plan.bindings.items()
+                capability.value: backend for capability, backend in runtime_plan.bindings.items()
             },
             overridden_selectors=runtime_plan.overridden_selectors,
         )
 
     @application.middleware("http")
-    async def trace_middleware(
-        request: Request, call_next: RequestResponseEndpoint
-    ) -> Response:
+    async def trace_middleware(request: Request, call_next: RequestResponseEndpoint) -> Response:
         trace_id = normalise_trace_id(request.headers.get(TRACE_HEADER))
         with trace_context(trace_id, http_path=request.url.path):
             response = await call_next(request)
