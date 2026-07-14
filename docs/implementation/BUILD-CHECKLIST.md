@@ -2,7 +2,7 @@
 
 **Status header (update after every tested phase):**
 
-> **Current phase:** 1 — Entity-resolution proof of concept (7/9 tasks complete) · **Last gate passed:** G0 · **Updated:** 2026-07-14
+> **Current phase:** 1 — Entity-resolution proof of concept (8/9 tasks complete) · **Last gate passed:** G0 · **Updated:** 2026-07-14
 
 **Sources:** product-specification doc 13 (authoritative phase order and gates); master prompt ("follow the build roadmap exactly; use vertical slices; update the checklist after every tested phase")
 **Related:** [REQUIREMENTS-TRACEABILITY.md](REQUIREMENTS-TRACEABILITY.md), [TEST-PLAN.md](TEST-PLAN.md), [ARCHITECTURE-DECISIONS.md](ARCHITECTURE-DECISIONS.md) (blockers B1–B14)
@@ -36,7 +36,7 @@ Ordering principle (doc 13): **correct entity → reliable evidence → useful q
 - [x] Candidate generation + deterministic confidence scoring (doc 05 weights) + labels ([review](security-reviews/phase-1-candidate-scoring.md))
 - [x] `entities`, `entity_candidates` migrations; light-queue resolution task; states `draft → resolving_entity → awaiting_entity_confirmation` ([review](security-reviews/phase-1-entity-resolution-persistence.md))
 - [x] Minimal confirmation UI: candidate cards (evidence snippets, confidence labels), confirm / none-of-these / refine / related-entity scope (ENTITY-03/04/07; [review](security-reviews/phase-1-entity-confirmation.md))
-- [ ] ER-01..11 fixture suite green
+- [x] ER-01..11 fixture suite green ([review](security-reviews/phase-1-er-fixture-suite.md))
 - [ ] **Live test:** ≥30 varied companies (needs B5 trial credentials on staging)
 
 **Gate G1:** ambiguous cases ask instead of guessing; no paid research reachable before confirmation. *(Slices E2E-01 partially: website → candidate.)*
