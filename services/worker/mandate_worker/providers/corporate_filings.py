@@ -26,6 +26,15 @@ MAX_FINANCIAL_YEARS = 8
 MAX_DOCUMENT_BYTES = 25 * 1024 * 1024
 
 
+def _normalise_cin(value: object) -> str:
+    if not isinstance(value, str):
+        raise ValueError("CIN must be a string")
+    cin = value.strip().upper()
+    if CIN_PATTERN.fullmatch(cin) is None:
+        raise ValueError("CIN is invalid")
+    return cin
+
+
 class CorporateFilingType(StrEnum):
     AOC_4 = "aoc_4"
     AOC_4_XBRL = "aoc_4_xbrl"
@@ -74,12 +83,7 @@ class CorporateFilingRequest(BaseModel):
     @field_validator("cin", mode="before")
     @classmethod
     def normalise_cin(cls, value: object) -> str:
-        if not isinstance(value, str):
-            raise ValueError("CIN must be a string")
-        cin = value.strip().upper()
-        if CIN_PATTERN.fullmatch(cin) is None:
-            raise ValueError("CIN is invalid")
-        return cin
+        return _normalise_cin(value)
 
     @field_validator("filing_types", mode="after")
     @classmethod
@@ -110,16 +114,24 @@ class CorporateFilingReference(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    document_id: str = Field(min_length=1, max_length=128, pattern=r"^[A-Za-z0-9._:-]+$")
+    document_id: str = Field(
+        min_length=1, max_length=128, pattern=r"^[A-Za-z0-9._:-]+$"
+    )
     cin: str = Field(pattern=CIN_PATTERN.pattern)
     filing_type: CorporateFilingType
-    financial_year: str | None = Field(default=None, pattern=FINANCIAL_YEAR_PATTERN.pattern)
+    financial_year: str | None = Field(
+        default=None, pattern=FINANCIAL_YEAR_PATTERN.pattern
+    )
     filed_on: date | None = None
     acquisition_method: CorporateFilingAcquisitionMethod
-    source_provider: str = Field(min_length=1, max_length=64, pattern=r"^[a-z][a-z0-9_-]+$")
+    source_provider: str = Field(
+        min_length=1, max_length=64, pattern=r"^[a-z][a-z0-9_-]+$"
+    )
     source_locator: str = Field(min_length=1, max_length=500)
     acquired_at: datetime
-    media_type: Literal["application/pdf", "application/zip", "application/octet-stream"]
+    media_type: Literal[
+        "application/pdf", "application/zip", "application/octet-stream"
+    ]
     sha256: str = Field(pattern=SHA256_PATTERN.pattern)
     size_bytes: int = Field(ge=1, le=MAX_DOCUMENT_BYTES)
     quarantine_status: Literal["pending_malware_scan"] = "pending_malware_scan"
@@ -128,7 +140,7 @@ class CorporateFilingReference(BaseModel):
     @field_validator("cin", mode="before")
     @classmethod
     def normalise_cin(cls, value: object) -> str:
-        return CorporateFilingRequest.normalise_cin(value)
+        return _normalise_cin(value)
 
     @field_validator("source_locator")
     @classmethod
@@ -164,9 +176,13 @@ class CorporateFilingAcquisitionResult(BaseModel):
     def validate_status_shape(self) -> Self:
         if self.status is CorporateFilingAcquisitionStatus.READY:
             if not self.documents or self.action_code is not None:
-                raise ValueError("ready filing result requires documents and no action code")
+                raise ValueError(
+                    "ready filing result requires documents and no action code"
+                )
         elif self.documents or self.action_code is None:
-            raise ValueError("non-ready filing result requires one action code and no documents")
+            raise ValueError(
+                "non-ready filing result requires one action code and no documents"
+            )
         if any(document.cin != self.request.cin for document in self.documents):
             raise ValueError("filing result contains a document for a different CIN")
         return self
@@ -243,7 +259,9 @@ def register_untrusted_corporate_filing(
     acquisition_method: CorporateFilingAcquisitionMethod,
     source_provider: str,
     source_locator: str,
-    media_type: Literal["application/pdf", "application/zip", "application/octet-stream"],
+    media_type: Literal[
+        "application/pdf", "application/zip", "application/octet-stream"
+    ],
     body: bytes,
     financial_year: str | None = None,
     filed_on: date | None = None,
