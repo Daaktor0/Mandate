@@ -33,6 +33,7 @@ class ResolutionRequest(BaseModel):
     input_url: AnyHttpUrl | None = None
     input_legal_name: str | None = Field(default=None, min_length=1, max_length=300)
     input_cin: str | None = None
+    resolution_state_hint: str | None = Field(default=None, min_length=1, max_length=100)
     state: Literal["resolving_entity"]
 
 
@@ -87,8 +88,10 @@ class PostgresResolutionRepository:
     ) -> ResolutionRequest | None:
         row = await self.database.fetch_one(
             """
-            select id, user_id, input_kind::text, input_url, input_legal_name,
-                   input_cin, state::text
+            select id, user_id, input_kind::text, input_url,
+                   coalesce(resolution_legal_name_hint, input_legal_name) as input_legal_name,
+                   coalesce(resolution_cin_hint, input_cin) as input_cin,
+                   resolution_state_hint, state::text
               from public.report_requests
              where id = %s and user_id = %s
             """,
@@ -169,6 +172,7 @@ class EntityResolutionTaskHandler:
                 report_request_id=request.id,
                 supplied_legal_name=request.input_legal_name,
                 supplied_cin=request.input_cin,
+                supplied_state=request.resolution_state_hint,
                 site_inspection=inspection,
             )
         except CompanyDataProviderError as error:

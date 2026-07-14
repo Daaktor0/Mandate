@@ -25,6 +25,28 @@ export const ClaimSchema = z
   .strict();
 export type Claim = z.infer<typeof ClaimSchema>;
 
+export const ConfirmEntityRequestSchema = z
+  .object({
+  action: z.enum(["confirm", "none_of_these", "refine"]),
+  candidateId: z.string().uuid().optional(),
+  relatedEntityIds: z.array(z.string().uuid()).max(2).default([]),
+  legalName: z.string().min(1).max(300).optional(),
+  cin: z.string().regex(new RegExp("^[UL][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$")).optional(),
+  state: z.string().min(1).max(100).optional(),
+  })
+  .strict();
+export type ConfirmEntityRequest = z.infer<typeof ConfirmEntityRequestSchema>;
+
+export const ConfirmEntityResponseSchema = z
+  .object({
+  state: z.enum(["draft", "resolving_entity", "preliminary_research"]),
+  confirmedEntityId: z.string().uuid().nullable(),
+  relatedEntityIds: z.array(z.string().uuid()).max(2),
+  guidance: z.string().max(500).nullable(),
+  })
+  .strict();
+export type ConfirmEntityResponse = z.infer<typeof ConfirmEntityResponseSchema>;
+
 export const CreateReportRequestResponseReportRequestSchema = z
   .object({
   id: z.string().uuid(),

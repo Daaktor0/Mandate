@@ -338,6 +338,7 @@ class EntityCandidateGenerator:
         report_request_id: UUID,
         supplied_legal_name: str | None = None,
         supplied_cin: str | None = None,
+        supplied_state: str | None = None,
         site_inspection: SiteInspection | None = None,
         signals: Sequence[ResolutionSignal] = (),
     ) -> CandidateGenerationResult:
@@ -368,6 +369,15 @@ class EntityCandidateGenerator:
             provider_queries += 1
             provider_calls += response.provider_calls
             self._ingest_response(aggregates, response)
+
+        if supplied_state is not None:
+            state_key = _normalised_state(supplied_state)
+            aggregates = {
+                cin: aggregate
+                for cin, aggregate in aggregates.items()
+                if aggregate.record.registered_office_state is not None
+                and _normalised_state(aggregate.record.registered_office_state) == state_key
+            }
 
         scored = [
             self._score_aggregate(
@@ -606,6 +616,13 @@ def _clean_cin(value: str) -> str:
     if CIN_PATTERN.fullmatch(cin) is None:
         raise ValueError("CIN is invalid")
     return cin
+
+
+def _normalised_state(value: str) -> str:
+    state = " ".join(value.split()).casefold()
+    if not state or len(state) > 100:
+        raise ValueError("registered-office state is empty or too long")
+    return state
 
 
 def _normalised_name(value: str) -> str:

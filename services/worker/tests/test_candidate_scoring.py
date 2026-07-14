@@ -588,3 +588,23 @@ async def test_ENTITY_02_unsupported_provider_company_type_has_stable_failure_co
         )
 
     assert captured.value.code == "candidate_company_type_unsupported"
+
+
+@pytest.mark.asyncio
+async def test_ENTITY_04_registered_office_state_hint_filters_ambiguous_results() -> None:
+    maharashtra = company_record()
+    delhi = company_record(
+        cin=PUBLIC_CIN,
+        legal_name=maharashtra.legal_name,
+        state="Delhi",
+        address="1 Synthetic Avenue, New Delhi, Delhi 110001",
+    )
+    provider = FixtureProvider(searches={name_key(maharashtra.legal_name): (maharashtra, delhi)})
+
+    result = await EntityCandidateGenerator(provider).generate(
+        report_request_id=REQUEST_ID,
+        supplied_legal_name=maharashtra.legal_name,
+        supplied_state="  Maharashtra  ",
+    )
+
+    assert [candidate.cin for candidate in result.candidates] == [PRIVATE_CIN]

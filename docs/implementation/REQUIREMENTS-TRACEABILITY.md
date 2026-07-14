@@ -1,6 +1,6 @@
 # REQUIREMENTS-TRACEABILITY — Mandate MVP
 
-**Status:** Phase 1 in progress (6/9 tasks complete); `NFR-03` is `Verified`; `INTAKE-01`, `INTAKE-03`, `INTAKE-05`, `ENTITY-02` and `ENTITY-05` are `Implemented`; `NFR-01`, `NFR-02`, `NFR-04`, `NFR-05`, `INTAKE-02`, `INTAKE-04`, `INTAKE-06`, `ENTITY-01`, `ENTITY-03`, `ENTITY-04` and `RUN-06` are `In progress`; all other requirements remain `Specified`
+**Status:** Phase 1 in progress (7/9 tasks complete); `NFR-03` is `Verified`; `INTAKE-01`, `INTAKE-03`, `INTAKE-05`, `ENTITY-02`, `ENTITY-03`, `ENTITY-04` and `ENTITY-05` are `Implemented`; `NFR-01`, `NFR-02`, `NFR-04`, `NFR-05`, `INTAKE-02`, `INTAKE-04`, `INTAKE-06`, `ENTITY-01`, `ENTITY-07` and `RUN-06` are `In progress`; all other requirements remain `Specified`
 **Sources:** product-specification doc 02 (requirement IDs are normative and must be preserved in tickets, tests and PRs)
 **Related:** [TEST-PLAN.md](TEST-PLAN.md) (test IDs), [SYSTEM-SPEC.md](SYSTEM-SPEC.md) (component codes C1–C15), [BUILD-CHECKLIST.md](BUILD-CHECKLIST.md) (phases)
 
@@ -26,7 +26,7 @@ Columns: **Component** uses SYSTEM-SPEC §2 codes; **DB / API surface** cites ER
 | INTAKE-03 | Reject localhost/private/malformed/unsupported URLs | C2, C9 | `intake/url-policy.ts`; `mandate_worker.fetch.SafeFetcher` DNS/IP-pinned transport | AT-INTAKE-03 (preflight + pinned transport), SEC-03 (URL/IP/redirect/rebinding/budget table), ER-11 (crawler fixture pending) | 1 | Implemented |
 | INTAKE-04 | No confidential free-form descriptions or documents | C1, C2 | strict generated intake schema; body cap; mandatory ack in route/RPC; answer screening pending | AT-INTAKE-04 (route + DB ack), E2E-03 (pending) | 1/3 | In progress |
 | INTAKE-05 | CIN optional | C1, C2 | generated contract; `report_requests.input_cin`; route/RPC | AT-INTAKE-05 (route + DB), ER-01 (pending) | 1 | Implemented |
-| INTAKE-06 | No entitlement reserved before entity confirmation | C2, C4 | identifier-only intake command/RPC; reserve only in future `/generate` tx (QUEUE §4) | AT-INTAKE-06 (structural intake), E2E-01 and ledger invariant pending | 1/6 | In progress |
+| INTAKE-06 | No entitlement reserved before entity confirmation | C2, C4 | identifier-only intake/resolve/refine commands; confirmation RPC and UI have no ledger surface; reserve only in future `/generate` tx (QUEUE §4) | AT-INTAKE-06 (intake + confirmation structural/database/UI), E2E-01 and ledger invariant pending | 1/6 | In progress |
 
 ## Entity resolution
 
@@ -34,11 +34,11 @@ Columns: **Component** uses SYSTEM-SPEC §2 codes; **DB / API surface** cites ER
 |---|---|---|---|---|---|---|
 | ENTITY-01 | Inspect website legal pages and disclosures | C6 (resolve stage), C9 | typed `LegalPageCrawler`/`PageInspection`; Evidence persistence and sandboxed PDF inspection pending | AT-ENTITY-01 (priority/robots/extraction), ER-02/10/11 foundations; full ER suite pending | 1 | In progress |
 | ENTITY-02 | Candidates with supporting evidence | C6, C4 | typed `EntityCandidateGenerator`; generated `EntityCandidate`; atomic `entities`/`entity_candidates` persistence with evidence ids + factor audit | AT-ENTITY-02 (verbatim scoring/evidence/dedupe/persistence); ER-01/02/05/06/07/09/10 foundations | 1 | Implemented |
-| ENTITY-03 | User confirmation mandatory | C1, C2, C4, C5 | literal `requiresUserConfirmation=true`; guarded request-state trigger; identifier-only resolve endpoint/outbox/light loop; no auto-selection; confirmation UI/API pending | AT-ENTITY-03 (generator, route, DB state/outbox), E2E-01 pending | 1 | In progress |
-| ENTITY-04 | Ask for legal name/CIN when uncertain | C1, C2, C4 | typed `legal_name_or_cin_required`; no-match/exhausted light task → `failed_no_charge`; `none_of_these`/`refine` API/UI pending | AT-ENTITY-04 (no-match + no-charge outcome), ER-09 foundation | 1 | In progress |
+| ENTITY-03 | User confirmation mandatory | C1, C2, C4, C5 | literal `requiresUserConfirmation=true`; evidence-first candidate GET/UI with no preselection; strict confirmation contract; tenant-scoped idempotent `confirm_report_request_entity` RPC and guarded state transitions | AT-ENTITY-03 (generator, schemas, routes, UI, database mandatory-confirmation/state cases), E2E-01 pending | 1 | Implemented |
+| ENTITY-04 | Ask for legal name/CIN when uncertain | C1, C2, C4 | typed `legal_name_or_cin_required`; no-match/exhaustion → `failed_no_charge`; none/refine UI/API; immutable intake plus separate public identity hints; retryable draft/failed recovery; state hint consumed by worker | AT-ENTITY-04 (no-match/no-charge/retry/API/UI), ER-09 foundation; full ER fixture pending | 1 | Implemented |
 | ENTITY-05 | CIN as exact identifier; compatible master-data sources | C8 (CompanyDataProvider), C4 | typed provider + deterministic fixture + flagged Attestr adapter; `entities.cin` unique and CIN-first identity key | AT-ENTITY-05 (provider/CIN/database identity); ER-01 foundation; live B5 gate is phase exit evidence | 1 | Implemented |
 | ENTITY-06 | Brand never replaces legal entity in brief identity | C6 (composer), C4 | `entities.brand_names`; header rules (AGENT-PROMPT §7) | AT-ENTITY-06, ER-03, GC-09 | 4 | Specified |
-| ENTITY-07 | Explain and confirm multi-entity scope | C1, C6 | `related_entity_ids` (≤2); confirm-entity payload | AT-ENTITY-07, GC-14 | 1 | Specified |
+| ENTITY-07 | Explain and confirm multi-entity scope | C1, C2, C4, C6 | optional related-entity UI; strict confirm payload; `related_entity_ids` unique and ≤2; primary excluded; only explicitly proposed entities with a materiality reason accepted; upstream reason generation pending ER/GC fixtures | AT-ENTITY-07 (schema/UI/database scope controls), GC-14 pending | 1 | In progress |
 | ENTITY-08 | Label primary and related entities separately | C6 (composer) | BriefDocument related-entity subsections (AS-10) | AT-ENTITY-08, GC-14 | 4 | Specified |
 
 ## Preliminary research and clarification
@@ -135,8 +135,8 @@ Columns: **Component** uses SYSTEM-SPEC §2 codes; **DB / API surface** cites ER
 
 | Req | Summary | Component | DB / API surface | Acceptance tests | Phase | Status |
 |---|---|---|---|---|---|---|
-| NFR-01 | Jobs retryable and idempotent | C5, C6 | request-scoped deterministic candidate ids; transactional outbox; idempotent completion/failure RPCs; visibility retry/DLQ; later checkpoints (QUEUE §2/6) | AT-NFR-01 (light-task foundations), E2E-05 | 2/5 | In progress |
-| NFR-02 | Tenant isolation at database layer | C4 | forced RLS on every current table; owner-join candidate policy; service-only outbox and worker mutations (ERD §4) | AT-NFR-02, SEC-01 (database matrix expands with each table) | 0+ | In progress |
+| NFR-01 | Jobs retryable and idempotent | C5, C6 | request-scoped deterministic candidate ids; transactional outbox; idempotent completion/failure RPCs; private confirmation replay ledger; retryable refinement recovery; visibility retry/DLQ; later checkpoints (QUEUE §2/6) | AT-NFR-01 (light-task + confirmation foundations), E2E-05 | 2/5 | In progress |
+| NFR-02 | Tenant isolation at database layer | C4 | forced RLS on every current table; owner-join candidate policy; service-only outbox/worker mutations; `auth.uid()`-derived confirmation RPC; private replay records (ERD §4) | AT-NFR-02, SEC-01 (database matrix expands with each table) | 0+ | In progress |
 | NFR-03 | Containerised, Hostinger-independent worker | C6, C8 | `services/worker/Dockerfile`; `infra/compose/local.yml`; `mandate_worker.runtime`; `fixtures/demo`; `.github/workflows/ci.yml`; `scripts/generate_traceability_report.py`; no host coupling | AT-NFR-03 (structural + live portability/sandbox + complete zero-spend catalog check in CI stage 5; passing JUnit evidence enforced in CI stage 7) | 0 | Verified |
 | NFR-04 | Trace ID across API/queue/model/search/payment/PDF | C15 | web-minted trace → validated outbox/light message → worker trace context; sink redaction (DEPLOYMENT §6); later provider/model/payment/PDF propagation pending | AT-NFR-04; SEC-09 (route/message/logger coverage) | 0+ | In progress |
 | NFR-05 | Every external cost attributable to a report | C7, C15 | bounded company-data call/query counts returned for later `provider_cost_events`; report attribution/admin view pending | AT-NFR-05 (provider and candidate-generation caps; persistence pending) | 2 | In progress |

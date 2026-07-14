@@ -147,6 +147,37 @@ class RecordingDatabase:
 
 
 @pytest.mark.asyncio
+async def test_ENTITY_04_postgres_repository_reads_effective_refinement_hints() -> None:
+    cin = "U62099MH2024PTC123456"
+    database = RecordingDatabase(
+        [
+            {
+                "id": REQUEST_ID,
+                "user_id": USER_ID,
+                "input_kind": "website",
+                "input_url": "https://company.example/",
+                "input_legal_name": "Refined Company Private Limited",
+                "input_cin": cin,
+                "resolution_state_hint": "Maharashtra",
+                "state": "resolving_entity",
+            }
+        ]
+    )
+    repository = PostgresResolutionRepository(database)
+
+    request = await repository.load_request(REQUEST_ID, USER_ID)
+
+    assert request is not None
+    assert request.input_legal_name == "Refined Company Private Limited"
+    assert request.input_cin == cin
+    assert request.resolution_state_hint == "Maharashtra"
+    statement, parameters = database.calls[0]
+    assert "coalesce(resolution_legal_name_hint, input_legal_name)" in statement
+    assert "coalesce(resolution_cin_hint, input_cin)" in statement
+    assert parameters == (REQUEST_ID, USER_ID)
+
+
+@pytest.mark.asyncio
 async def test_ENTITY_02_postgres_repository_uses_atomic_completion_function() -> None:
     database = RecordingDatabase([{"state": "failed_no_charge"}])
     repository = PostgresResolutionRepository(database)
