@@ -44,7 +44,7 @@ def test_SEC_01_confirmation_page_rejects_malformed_ids_before_database_access()
 
     assert "if (!UUID.test(id))" in source
     assert source.index("if (!UUID.test(id))") < source.index(
-        "createRequestSupabaseClient()"
+        "createRequestSupabaseClient()",
     )
     assert "notFound();" in source
 
