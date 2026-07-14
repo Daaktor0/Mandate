@@ -689,7 +689,11 @@ def brand_context_statement(candidate: EntityCandidate, brand_name: str) -> str:
 
     requested = " ".join(brand_name.split())
     canonical = next(
-        (brand for brand in candidate.brand_names or () if brand.casefold() == requested.casefold()),
+        (
+            brand
+            for brand in candidate.brand_names or ()
+            if brand.casefold() == requested.casefold()
+        ),
         None,
     )
     if canonical is None:
