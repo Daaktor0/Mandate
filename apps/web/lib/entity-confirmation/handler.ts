@@ -123,7 +123,9 @@ function parseDecision(body: unknown) {
   const decision = parsed.data;
   const related = decision.relatedEntityIds;
   if (new Set(related).size !== related.length) {
-    throw new InvalidConfirmationError("A related entity can be included only once.");
+    throw new InvalidConfirmationError(
+      "A related entity can be included only once.",
+    );
   }
 
   if (decision.action === "confirm") {
@@ -189,7 +191,9 @@ export async function handleGetEntityCandidates(
         traceId,
       );
     }
-    const candidates = EntityCandidateSchema.array().max(20).parse(result.candidates);
+    const candidates = EntityCandidateSchema.array()
+      .max(20)
+      .parse(result.candidates);
     return Response.json(
       { state: result.state, candidates },
       { status: 200, headers: responseHeaders(traceId) },

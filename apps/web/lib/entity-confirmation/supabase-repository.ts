@@ -22,8 +22,13 @@ const CANDIDATE_STATES = new Set<EntityCandidateState>([
 ]);
 
 function candidateState(value: unknown): EntityCandidateState {
-  if (typeof value !== "string" || !CANDIDATE_STATES.has(value as EntityCandidateState)) {
-    throw new Error("Supabase returned an unsupported entity-confirmation state");
+  if (
+    typeof value !== "string" ||
+    !CANDIDATE_STATES.has(value as EntityCandidateState)
+  ) {
+    throw new Error(
+      "Supabase returned an unsupported entity-confirmation state",
+    );
   }
   return value as EntityCandidateState;
 }
@@ -40,7 +45,9 @@ export function createSupabaseEntityConfirmationDependencies(
       return data.user === null ? null : Object.freeze({ id: data.user.id });
     },
 
-    async loadCandidates(reportRequestId: string): Promise<CandidateListResult> {
+    async loadCandidates(
+      reportRequestId: string,
+    ): Promise<CandidateListResult> {
       const { data: request, error: requestError } = await client
         .from("report_requests")
         .select("state")
@@ -72,19 +79,24 @@ export function createSupabaseEntityConfirmationDependencies(
       return Object.freeze({ kind: "found", state, candidates });
     },
 
-    async confirmEntity(command: ConfirmEntityCommand): Promise<ConfirmEntityResult> {
+    async confirmEntity(
+      command: ConfirmEntityCommand,
+    ): Promise<ConfirmEntityResult> {
       const { decision } = command;
-      const { data, error } = await client.rpc("confirm_report_request_entity", {
-        p_report_request_id: command.reportRequestId,
-        p_action: decision.action,
-        p_candidate_id: decision.candidateId ?? null,
-        p_related_entity_ids: decision.relatedEntityIds,
-        p_legal_name: decision.legalName ?? null,
-        p_cin: decision.cin ?? null,
-        p_state: decision.state ?? null,
-        p_idempotency_key: command.idempotencyKey,
-        p_trace_id: command.traceId,
-      });
+      const { data, error } = await client.rpc(
+        "confirm_report_request_entity",
+        {
+          p_report_request_id: command.reportRequestId,
+          p_action: decision.action,
+          p_candidate_id: decision.candidateId ?? null,
+          p_related_entity_ids: decision.relatedEntityIds,
+          p_legal_name: decision.legalName ?? null,
+          p_cin: decision.cin ?? null,
+          p_state: decision.state ?? null,
+          p_idempotency_key: command.idempotencyKey,
+          p_trace_id: command.traceId,
+        },
+      );
       if (error !== null) {
         if (
           error.code === "P0002" &&
@@ -99,7 +111,10 @@ export function createSupabaseEntityConfirmationDependencies(
         ) {
           return Object.freeze({ kind: "state_conflict" });
         }
-        if (error.code === "P0001" && error.message === "IDEMPOTENCY_CONFLICT") {
+        if (
+          error.code === "P0001" &&
+          error.message === "IDEMPOTENCY_CONFLICT"
+        ) {
           return Object.freeze({ kind: "idempotency_conflict" });
         }
         if (

@@ -56,10 +56,12 @@ function post(body: unknown, headers: Record<string, string> = {}): Request {
   );
 }
 
-function harness(options: {
-  candidates?: CandidateListResult;
-  confirmation?: ConfirmEntityResult;
-} = {}) {
+function harness(
+  options: {
+    candidates?: CandidateListResult;
+    confirmation?: ConfirmEntityResult;
+  } = {},
+) {
   const commands: ConfirmEntityCommand[] = [];
   const dependencies: EntityConfirmationDependencies = {
     async authenticate() {
@@ -250,16 +252,8 @@ describe("entity-confirmation decision API", () => {
 
   it.each([
     [{ kind: "not_found" } as const, 404, "REQUEST_NOT_FOUND"],
-    [
-      { kind: "state_conflict" } as const,
-      409,
-      "INVALID_REQUEST_STATE",
-    ],
-    [
-      { kind: "idempotency_conflict" } as const,
-      409,
-      "IDEMPOTENCY_CONFLICT",
-    ],
+    [{ kind: "state_conflict" } as const, 409, "INVALID_REQUEST_STATE"],
+    [{ kind: "idempotency_conflict" } as const, 409, "IDEMPOTENCY_CONFLICT"],
     [{ kind: "invalid" } as const, 422, "INVALID_REQUEST"],
     [
       { kind: "rate_limited", retryAfterSeconds: 3600 } as const,

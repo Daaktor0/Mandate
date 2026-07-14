@@ -25,7 +25,7 @@ def test_ENTITY_03_candidate_cards_show_identity_evidence_and_confidence() -> No
     ):
         assert field in source
     assert 'name="primary-entity"' in source
-    assert 'checked={selectedCandidateId === candidate.candidateId}' in source
+    assert "checked={selectedCandidateId === candidate.candidateId}" in source
     assert "setSelectedCandidateId(null)" in source
 
 

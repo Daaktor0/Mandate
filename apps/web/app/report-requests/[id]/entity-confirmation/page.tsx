@@ -20,8 +20,8 @@ export default async function EntityConfirmationPage({ params }: PageProps) {
           <p className="eyebrow">Authentication required</p>
           <h1>Sign in to confirm the legal entity</h1>
           <p>
-            Entity candidates are private to the lawyer who created the Mandate Brief
-            request.
+            Entity candidates are private to the lawyer who created the Mandate
+            Brief request.
           </p>
         </section>
       </main>

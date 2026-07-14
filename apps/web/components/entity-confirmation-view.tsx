@@ -69,7 +69,10 @@ export function EntityConfirmationView({
   const [pending, setPending] = useState(false);
 
   const selectedCandidate = useMemo(
-    () => candidates.find((candidate) => candidate.candidateId === selectedCandidateId),
+    () =>
+      candidates.find(
+        (candidate) => candidate.candidateId === selectedCandidateId,
+      ),
     [candidates, selectedCandidateId],
   );
   const relatedSuggestions = useMemo(
@@ -134,7 +137,9 @@ export function EntityConfirmationView({
     };
   }, [reportRequestId, state]);
 
-  async function submitDecision(decision: Record<string, unknown>): Promise<void> {
+  async function submitDecision(
+    decision: Record<string, unknown>,
+  ): Promise<void> {
     setPending(true);
     setError(null);
     try {
@@ -195,7 +200,9 @@ export function EntityConfirmationView({
         return current.filter((value) => value !== entityId);
       }
       if (current.length >= 2) {
-        setError("A Mandate Brief can include at most two material related entities.");
+        setError(
+          "A Mandate Brief can include at most two material related entities.",
+        );
         return current;
       }
       setError(null);
@@ -225,8 +232,9 @@ export function EntityConfirmationView({
           <p className="eyebrow">Entity confirmed</p>
           <h1>{selectedCandidate?.legalName ?? "Legal entity confirmed"}</h1>
           <p>
-            Mandate has recorded the primary legal entity. Preliminary public-source
-            research is the next stage; no report entitlement has been reserved yet.
+            Mandate has recorded the primary legal entity. Preliminary
+            public-source research is the next stage; no report entitlement has
+            been reserved yet.
           </p>
         </section>
       </main>
@@ -256,20 +264,27 @@ export function EntityConfirmationView({
         ) : null}
         {state === "failed_no_charge" ? (
           <p className="status-card status-warning">
-            No reliable candidate was found. Add the registered legal name or CIN
-            below. You have not been charged.
+            No reliable candidate was found. Add the registered legal name or
+            CIN below. You have not been charged.
           </p>
         ) : null}
         {guidance !== null ? <p className="status-card">{guidance}</p> : null}
-        {error !== null ? <p className="status-card status-error">{error}</p> : null}
+        {error !== null ? (
+          <p className="status-card status-error">{error}</p>
+        ) : null}
       </div>
 
       {state === "awaiting_entity_confirmation" ? (
-        <section className="candidate-list" aria-label="Legal entity candidates">
+        <section
+          className="candidate-list"
+          aria-label="Legal entity candidates"
+        >
           {candidates.map((candidate) => (
             <article
               className={`candidate-card ${
-                selectedCandidateId === candidate.candidateId ? "candidate-selected" : ""
+                selectedCandidateId === candidate.candidateId
+                  ? "candidate-selected"
+                  : ""
               }`}
               key={candidate.candidateId}
             >
@@ -283,7 +298,9 @@ export function EntityConfirmationView({
                 <span>
                   <span className="candidate-title-row">
                     <strong>{candidate.legalName}</strong>
-                    <span className={`confidence confidence-${candidate.confidenceLabel}`}>
+                    <span
+                      className={`confidence confidence-${candidate.confidenceLabel}`}
+                    >
                       {CONFIDENCE_LABELS[candidate.confidenceLabel]}
                     </span>
                   </span>
@@ -296,7 +313,9 @@ export function EntityConfirmationView({
               <dl className="candidate-facts">
                 <div>
                   <dt>CIN</dt>
-                  <dd>{candidate.cin ?? "Not found in the available sources"}</dd>
+                  <dd>
+                    {candidate.cin ?? "Not found in the available sources"}
+                  </dd>
                 </div>
                 <div>
                   <dt>Status</dt>
@@ -313,7 +332,8 @@ export function EntityConfirmationView({
                 <div>
                   <dt>Domain relationship</dt>
                   <dd>
-                    {candidate.primaryDomain === undefined || candidate.primaryDomain === null
+                    {candidate.primaryDomain === undefined ||
+                    candidate.primaryDomain === null
                       ? "No verified domain linkage"
                       : candidate.primaryDomain}
                   </dd>
@@ -327,7 +347,9 @@ export function EntityConfirmationView({
                     <li key={evidence.evidenceId}>
                       <span>{evidence.snippet}</span>
                       <small>
-                        {evidence.companyControlled ? "Company-controlled" : "Public data"}
+                        {evidence.companyControlled
+                          ? "Company-controlled"
+                          : "Public data"}
                         {" · "}
                         {sourceHost(evidence.sourceUrl)}
                       </small>
@@ -394,15 +416,17 @@ export function EntityConfirmationView({
             <fieldset className="related-scope">
               <legend>Material related entities (optional, maximum two)</legend>
               <p>
-                Include another entity only when it materially owns IP, employs staff,
-                holds licences, owns assets or premises, contracts, receives revenue, or
-                controls the primary entity.
+                Include another entity only when it materially owns IP, employs
+                staff, holds licences, owns assets or premises, contracts,
+                receives revenue, or controls the primary entity.
               </p>
               {relatedSuggestions.map((candidate) => (
                 <label key={candidate.candidateId}>
                   <input
                     type="checkbox"
-                    checked={relatedEntityIds.includes(candidate.entityId as string)}
+                    checked={relatedEntityIds.includes(
+                      candidate.entityId as string,
+                    )}
                     onChange={() => toggleRelated(candidate.entityId as string)}
                   />
                   <span>
@@ -422,8 +446,8 @@ export function EntityConfirmationView({
             <p className="eyebrow">Refine the search</p>
             <h2>Use public identity details only</h2>
             <p>
-              Enter the registered legal name, the CIN, or both. Do not enter mandate
-              facts, transaction details or confidential information.
+              Enter the registered legal name, the CIN, or both. Do not enter
+              mandate facts, transaction details or confidential information.
             </p>
           </div>
           <label>
