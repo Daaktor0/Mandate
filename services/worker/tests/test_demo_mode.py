@@ -37,13 +37,19 @@ def test_NFR_03_ADR_014_catalog_covers_every_adapter_and_is_synthetic() -> None:
     catalog = FixtureCatalog.load(FIXTURE_ROOT)
 
     assert catalog.manifest.fixture_set_id == "phase-0-smoke-v1"
-    assert {record.capability for record in catalog.manifest.records} == set(AdapterCapability)
-    assert all(record.classification == "synthetic" for record in catalog.manifest.records)
+    assert {record.capability for record in catalog.manifest.records} == set(
+        AdapterCapability
+    )
+    assert all(
+        record.classification == "synthetic" for record in catalog.manifest.records
+    )
     for capability in AdapterCapability:
         assert catalog.payload(capability)["fixtureVersion"] == 1
 
 
-def test_INTAKE_04_demo_fixtures_exclude_identity_credentials_and_confidential_inputs() -> None:
+def test_INTAKE_04_demo_fixtures_exclude_identity_credentials_and_confidential_inputs() -> (
+    None
+):
     catalog = FixtureCatalog.load(FIXTURE_ROOT)
     forbidden_keys = {
         "api_key",
@@ -61,7 +67,9 @@ def test_INTAKE_04_demo_fixtures_exclude_identity_credentials_and_confidential_i
     }
 
     fixture_keys = {
-        key for capability in AdapterCapability for key in nested_keys(catalog.payload(capability))
+        key
+        for capability in AdapterCapability
+        for key in nested_keys(catalog.payload(capability))
     }
     assert fixture_keys.isdisjoint(forbidden_keys)
 
@@ -141,7 +149,9 @@ def test_NFR_03_live_mode_does_not_load_or_silently_select_fixtures() -> None:
     assert plan.bindings[AdapterCapability.MODEL] == "unconfigured"
 
 
-def test_NFR_03_worker_bootstraps_demo_catalog_but_renderer_has_no_provider_plan() -> None:
+def test_NFR_03_worker_bootstraps_demo_catalog_but_renderer_has_no_provider_plan() -> (
+    None
+):
     worker = create_app(environ={"DEMO_MODE": "1"}, fixture_root=FIXTURE_ROOT)
     renderer = create_app(
         service_name="mandate-renderer",
