@@ -19,7 +19,7 @@ Implementation review is in progress and remains gated on the complete repositor
 | Confidentiality | Fixture schema contains only public identity/evidence fields; a structural test rejects credential and confidential-matter vocabulary. |
 | Brand/legal identity | Typed relationship hints attach brand context to a legal candidate; the legal name remains the candidate identity and the rendered statement follows the product-spec brand rule. Generated brand metadata is treated as optional at the schema boundary and handled fail-closed when absent. |
 | Related-entity scope | A related reason must be tied to an identified candidate and a specific public evidence object. Conflicting materiality reasons fail closed. |
-| Confidence integrity | Relationship hints are resolved only after scoring facts are assembled and are excluded from all confidence factors and score audits. Acceptance tests compare candidate ids and scores with and without relationship metadata. |
+| Confidence integrity | Relationship hints are resolved after scoring facts are assembled, are excluded from every confidence factor and score-audit decision, and may add evidence/presentation metadata only. Acceptance tests compare candidate ids and scores with and without the relationship hints. |
 | User confirmation | Every fixture outcome retains `requiresUserConfirmation=true`; the result schema has no auto-selection field. |
 | Spend/entitlement | Fixtures use zero-call providers and do not expose entitlement, payment, or paid-research surfaces. |
 | Supabase isolation | No live Supabase project is linked or referenced. Any later database stage runs only against GitHub Actions' ephemeral local Supabase/Postgres stack. |
