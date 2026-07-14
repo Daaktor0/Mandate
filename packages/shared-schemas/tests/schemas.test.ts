@@ -3,6 +3,8 @@ import { randomUUID } from "node:crypto";
 import { describe, expect, it } from "vitest";
 
 import {
+  ConfirmEntityRequestSchema,
+  ConfirmEntityResponseSchema,
   CreateReportRequestResponseSchema,
   CreateReportRequestSchema,
   EvidenceSchema,
@@ -101,5 +103,39 @@ describe("RUN-05 shared-schema validation", () => {
         },
       }).reportRequest.state,
     ).toBe("draft");
+  });
+
+  it("ENTITY-03/04/07 keeps confirmation decisions strict and bounded", () => {
+    expect(
+      ConfirmEntityRequestSchema.parse({
+        action: "confirm",
+        candidateId: randomUUID(),
+        relatedEntityIds: [randomUUID(), randomUUID()],
+      }).relatedEntityIds,
+    ).toHaveLength(2);
+
+    expect(() =>
+      ConfirmEntityRequestSchema.parse({
+        action: "confirm",
+        candidateId: randomUUID(),
+        relatedEntityIds: [randomUUID(), randomUUID(), randomUUID()],
+      }),
+    ).toThrow();
+
+    expect(() =>
+      ConfirmEntityRequestSchema.parse({
+        action: "none_of_these",
+        description: "Confidential transaction narrative",
+      }),
+    ).toThrow();
+
+    expect(
+      ConfirmEntityResponseSchema.parse({
+        state: "preliminary_research",
+        confirmedEntityId: randomUUID(),
+        relatedEntityIds: [],
+        guidance: null,
+      }).state,
+    ).toBe("preliminary_research");
   });
 });
