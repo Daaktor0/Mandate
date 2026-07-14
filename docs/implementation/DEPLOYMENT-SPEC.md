@@ -59,8 +59,9 @@ Rollback: web = Vercel instant rollback to a previous deployment; worker = `dock
 | `SUPABASE_STORAGE_BUCKET_REPORTS` / `_LETTERHEADS` / `_EVIDENCE` | web+worker | bucket names; letterheads bucket encrypted, no provider-path access |
 | `QUEUE_BACKEND` | worker | `pgmq` \| `sqs` \| `memory` |
 | `DEMO_MODE` | all | `1` = all-fixture wiring, zero spend |
-| `PROVIDER_SEARCH` | worker | `brave` \| `tavily` \| `exa` \| `fixture` (+ `SEARCH_API_KEY`) |
-| `PROVIDER_COMPANY_DATA` | worker | `attestr` (implemented; `ATTESTR_AUTH_TOKEN`) \| `sandbox` \| `probe42` (future adapters) \| `fixture` (forced only by `DEMO_MODE=1`) |
+| `PROVIDER_SEARCH` | worker | `exa` \| `brave` \| `tavily` \| `fixture`; Exa uses `EXA_API_KEY` and remains public-web search only |
+| `PROVIDER_COMPANY_DATA` | worker | `unconfigured` \| a specifically verified live master-data adapter \| `fixture` (forced only by `DEMO_MODE=1`); `attestr` is disabled |
+| `PROVIDER_CORPORATE_FILINGS` | worker | `manual_vpd` \| a specifically verified licensed-vendor adapter \| `fixture`; manual VPD takes no MCA credentials |
 | `OPENROUTER_API_KEY` | worker | model gateway |
 | `MODEL_ROUTING_CONFIG` | worker | path to versioned routing yaml |
 | `BUDGET_PROFILE_CONFIG` | worker | budget caps file |
@@ -75,12 +76,15 @@ Rollback: web = Vercel instant rollback to a previous deployment; worker = `dock
 
 Placement: web-scoped variables live in Vercel project settings per environment (preview = staging, production = production; ADR-016); worker-scoped variables live in `/opt/mandate/env/*.env` on the Hostinger host; `local.env` covers local/demo defaults. Worker secrets (DB role, provider keys) are never configured in Vercel, and Vercel-held keys join the §8 rotation runbook. Rotation runbook per key in §8.
 
+MCA username, password, OTP, CAPTCHA response, session cookie and payment instrument are not Mandate environment variables. Manual VPD procurement occurs outside the application; only non-secret transaction/document provenance is imported.
+
 ## 6. Observability (NFR-04/05)
 
 - **Trace ID** minted at request creation, propagated web → outbox → queue message → worker stages → model gateway → payment/webhook handlers → PDF/email; on every log line and API response header.
 - **Structured JSON logs** to stdout → `docker logs` + optional Loki later; redaction at logger boundary (SEC-09).
 - **Metrics** (worker `/metrics-lite`, admin overview): queue depth and oldest-message age, active jobs, per-stage durations, model/search spend per job and per day, error rates by provider, PDF/webhook failures, entitlement-reconciliation status, quality-gate pass rate, CPU/RAM (host node-exporter optional).
 - **Cost attribution:** every external call writes `provider_cost_events` with `job_id` — cost per successful Mandate Brief is a first-class admin metric (doc 08 cost control; NFR-05). Daily spend caps: gateway refuses new jobs past a configurable daily model-spend ceiling; admin alert at 80%.
+- **Filing acquisition audit:** store confirmed CIN, filing type/year, acquisition method, non-secret order/transaction reference, timestamp, SHA-256, size and scan/parser state. Never log signed download URLs, provider secrets or MCA session data.
 
 ## 7. Scheduled operations
 
@@ -91,7 +95,7 @@ Retention/reconciliation jobs from SECURITY §4 run in the worker's cron loop (s
 - **Postgres/Storage:** Supabase daily backups + PITR (plan-dependent); restore procedure documented and rehearsed (SEC-15).
 - **Host:** weekly + pre-deploy snapshots; compose + env files backed up encrypted off-host.
 - **Recovery targets [implementation addition]:** RPO ≤24 h (PITR typically better), RTO ≤4 h for full stack re-provision (runbook-timed).
-- **Key rotation runbook:** per provider (Supabase keys, OpenRouter, search, company-data, Razorpay, email, SMS): where issued, where stored, rotation steps, blast radius, verification. Rotation cadence: 90 days or on incident.
+- **Key rotation runbook:** per provider (Supabase keys, OpenRouter, search, verified company-data/filing vendors, Razorpay, email, SMS): where issued, where stored, rotation steps, blast radius, verification. Rotation cadence: 90 days or on incident.
 
 ## 9. Monthly cost model (prototype)
 
@@ -103,8 +107,9 @@ Doc 08 (~₹1,000/month incremental) is feasible only for low-volume testing on 
 | Vercel | Hobby tier initially; Pro (~US$20/seat) before paid launch (commercial-use terms + team features) |
 | Supabase | free/dev tier initially; Pro (~US$25) before beta with PITR needs |
 | OpenRouter | pay-as-you-go; capped by daily ceiling; est. ₹15–60/brief until measured |
-| Search provider | free/trial credits during benchmark (B4) |
-| Company-data API | trial tier (B5) |
+| Search provider | existing Exa credits for Phase 2 benchmark; measured per-report cost thereafter |
+| Company master data | Government Open Data snapshot first; live API cost unassumed until verified |
+| Source filings | fixture/manual VPD during development; licensed-provider and MCA transaction cost measured separately |
 | Email/SMS | negligible at test volume |
 
 The 30-brief measurement (Phase 2/7, doc 11) replaces these assumptions with data; paid launch must not depend permanently on free tiers (doc 08).
