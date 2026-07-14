@@ -31,12 +31,13 @@ def test_ENTITY_03_candidate_cards_show_identity_evidence_and_confidence() -> No
 
 def test_ENTITY_04_confirmation_ui_supports_none_and_public_identity_refinement() -> None:
     source = _component()
+    compact_source = " ".join(source.split())
 
     assert "None of these" in source
     assert 'action: "none_of_these"' in source
     assert "Enter legal name or add CIN" in source
     assert 'action: "refine"' in source
-    assert "Do not enter mandate" in source
+    assert "Do not enter mandate" in compact_source
     assert "description" not in source
     assert "upload" not in source.lower()
 
