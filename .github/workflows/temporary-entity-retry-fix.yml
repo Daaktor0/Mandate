@@ -1,0 +1,194 @@
+name: Temporary entity retry state-machine fix
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+      - name: Repair retry state machine and tests
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          def replace_once(path: str, pattern: str, replacement: str, label: str) -> None:
+              file = Path(path)
+              text = file.read_text(encoding="utf-8")
+              updated, count = re.subn(pattern, replacement, text, count=1, flags=re.S)
+              if count != 1:
+                  raise SystemExit(f"{label}: expected one match, found {count}")
+              file.write_text(updated, encoding="utf-8")
+              print(f"updated {label}")
+
+          migration = "supabase/migrations/20260714090000_entity_confirmation.sql"
+          transition_function = """
+
+          create or replace function private.is_legal_request_state_transition(
+            p_from public.request_state,
+            p_to public.request_state
+          )
+          returns boolean
+          language sql
+          immutable
+          set search_path = ''
+          as $$
+            select (p_from, p_to) in (
+              ('draft'::public.request_state, 'resolving_entity'::public.request_state),
+              ('resolving_entity'::public.request_state, 'awaiting_entity_confirmation'::public.request_state),
+              ('resolving_entity'::public.request_state, 'failed_no_charge'::public.request_state),
+              ('awaiting_entity_confirmation'::public.request_state, 'draft'::public.request_state),
+              ('awaiting_entity_confirmation'::public.request_state, 'preliminary_research'::public.request_state),
+              ('preliminary_research'::public.request_state, 'awaiting_clarification'::public.request_state),
+              ('preliminary_research'::public.request_state, 'failed_no_charge'::public.request_state),
+              ('failed_no_charge'::public.request_state, 'draft'::public.request_state),
+              ('awaiting_clarification'::public.request_state, 'queued'::public.request_state),
+              ('queued'::public.request_state, 'researching'::public.request_state),
+              ('queued'::public.request_state, 'cancelled_restored'::public.request_state),
+              ('researching'::public.request_state, 'verifying'::public.request_state),
+              ('researching'::public.request_state, 'retry_wait'::public.request_state),
+              ('researching'::public.request_state, 'failed_restored'::public.request_state),
+              ('researching'::public.request_state, 'cancelled_restored'::public.request_state),
+              ('verifying'::public.request_state, 'composing'::public.request_state),
+              ('verifying'::public.request_state, 'retry_wait'::public.request_state),
+              ('verifying'::public.request_state, 'failed_restored'::public.request_state),
+              ('verifying'::public.request_state, 'cancelled_restored'::public.request_state),
+              ('composing'::public.request_state, 'rendering'::public.request_state),
+              ('composing'::public.request_state, 'retry_wait'::public.request_state),
+              ('composing'::public.request_state, 'failed_restored'::public.request_state),
+              ('composing'::public.request_state, 'cancelled_restored'::public.request_state),
+              ('rendering'::public.request_state, 'completed'::public.request_state),
+              ('rendering'::public.request_state, 'retry_wait'::public.request_state),
+              ('rendering'::public.request_state, 'failed_restored'::public.request_state),
+              ('rendering'::public.request_state, 'cancelled_restored'::public.request_state),
+              ('retry_wait'::public.request_state, 'queued'::public.request_state)
+            );
+          $$;
+          """
+          replace_once(
+              migration,
+              r"(comment on column public\.report_requests\.resolution_state_hint is\s+'Optional public registered-office state supplied only to refine ambiguous entity resolution\.';)",
+              r"\1" + transition_function,
+              "retry transition",
+          )
+          replace_once(
+              migration,
+              r"if v_request\.state <> 'awaiting_entity_confirmation'::public\.request_state then\s+raise exception 'CONFIRMATION_STATE_CONFLICT' using errcode = 'P0001';\s+end if;",
+              """if p_action in ('confirm', 'none_of_these')
+              and v_request.state <> 'awaiting_entity_confirmation'::public.request_state
+            then
+              raise exception 'CONFIRMATION_STATE_CONFLICT' using errcode = 'P0001';
+            end if;
+            if p_action = 'refine'
+              and v_request.state not in (
+                'draft'::public.request_state,
+                'awaiting_entity_confirmation'::public.request_state,
+                'failed_no_charge'::public.request_state
+              )
+            then
+              raise exception 'CONFIRMATION_STATE_CONFLICT' using errcode = 'P0001';
+            end if;""",
+              "action-specific state guard",
+          )
+          replace_once(
+              migration,
+              r"set resolution_legal_name_hint = case\s+when p_legal_name is null then resolution_legal_name_hint\s+else btrim\(p_legal_name\)\s+end,\s+resolution_cin_hint = case\s+when p_cin is null then resolution_cin_hint\s+else upper\(btrim\(p_cin\)\)\s+end,\s+resolution_state_hint = case\s+when p_state is null then resolution_state_hint\s+else btrim\(p_state\)\s+end,",
+              """set resolution_legal_name_hint = case
+                       when p_legal_name is null then null
+                       else btrim(p_legal_name)
+                     end,
+                     resolution_cin_hint = case
+                       when p_cin is null then null
+                       else upper(btrim(p_cin))
+                     end,
+                     resolution_state_hint = case
+                       when p_state is null then null
+                       else btrim(p_state)
+                     end,""",
+              "authoritative refinement hints",
+          )
+
+          db_test = "supabase/tests/database/entity_confirmation.test.sql"
+          replace_once(db_test, r"select plan\(24\);", "select plan(26);", "pgTAP plan")
+          replace_once(
+              db_test,
+              r"(\s+\(\s+'c4444444-4444-4444-8444-444444444444',\s+'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',\s+'legal_name',\s+null,\s+'Ambiguous Example Private Limited',\s+now\(\),\s+'awaiting_entity_confirmation'\s+\)\s*);",
+              r"\1,\n  (\n    'c5555555-5555-4555-8555-555555555555',\n    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',\n    'legal_name',\n    null,\n    'Retry Example Private Limited',\n    now(),\n    'failed_no_charge'\n  );",
+              "failed-no-charge fixture",
+          )
+          draft_retry = """
+
+          create temporary table draft_retry_response as
+          select public.confirm_report_request_entity(
+            'c2222222-2222-4222-8222-222222222222',
+            'refine',
+            null,
+            '{}'::uuid[],
+            'No Match Example Private Limited',
+            null,
+            null,
+            'refine-after-none-001',
+            'trace-confirmation-after-none'
+          ) as payload;
+
+          select is(
+            (select payload ->> 'state' from draft_retry_response),
+            'resolving_entity',
+            'ENTITY-04 none-of-these can be followed by a refined resolution attempt'
+          );
+
+          create temporary table failed_retry_response as
+          select public.confirm_report_request_entity(
+            'c5555555-5555-4555-8555-555555555555',
+            'refine',
+            null,
+            '{}'::uuid[],
+            null,
+            'U62099MH2024PTC555555',
+            null,
+            'refine-after-failure-001',
+            'trace-confirmation-after-failure'
+          ) as payload;
+
+          select is(
+            (select payload ->> 'state' from failed_retry_response),
+            'resolving_entity',
+            'ENTITY-04 failed-no-charge can be retried with refined public identifiers'
+          );
+          """
+          replace_once(
+              db_test,
+              r"\ncreate temporary table refine_response as",
+              draft_retry + "\ncreate temporary table refine_response as",
+              "retry regression cases",
+          )
+
+          structural = "tests/test_entity_confirmation_migration.py"
+          replace_once(
+              structural,
+              r"assert \"drop constraint report_requests_exactly_one_input\" not in sql",
+              """assert \"drop constraint report_requests_exactly_one_input\" not in sql
+              assert \"('failed_no_charge'::public.request_state, 'draft'::public.request_state)\" in sql
+              assert \"v_request.state not in\" in sql""",
+              "retry structural assertions",
+          )
+
+          Path(".github/workflows/temporary-entity-retry-fix.yml").unlink()
+          PY
+      - name: Commit repair
+        run: |
+          git config user.name "mandate-fix-bot"
+          git config user.email "mandate-fix-bot@users.noreply.github.com"
+          git add --all
+          git commit -m "fix: keep entity refinement retryable after no-match"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
