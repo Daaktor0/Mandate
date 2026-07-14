@@ -1,0 +1,67 @@
+name: PR23 status promotion
+
+on:
+  push:
+    branches:
+      - agent/phase-2-exa-search-provider
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: agent/phase-2-exa-search-provider
+          fetch-depth: 0
+      - name: Record validated Phase 2 slice
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          checklist = Path('docs/implementation/BUILD-CHECKLIST.md')
+          text = checklist.read_text()
+          replacements = {
+              '> **Current phase:** 1 — Entity-resolution proof of concept (8/9 tasks complete) · **Last gate passed:** G0 · **Updated:** 2026-07-15':
+              '> **Current phase:** 2 — Evidence pipeline (1/13 tasks complete) · **Phase 1 live benchmark:** blocked at 8/9 · **Last gate passed:** G0 · **Updated:** 2026-07-15',
+              '- [ ] `SearchProvider` + `PageFetcher` adapters (fixture + Exa behind flag; benchmark harness for B4)':
+              '- [x] `SearchProvider` adapter: fixture + bounded Exa implementation behind flag; extractive highlights only; discovery results remain untrusted; live B4 benchmark pending ([review](security-reviews/phase-2-exa-search-provider.md))\n- [ ] `PageFetcher` adapter wired to SafeFetcher + extraction/evidence capture',
+          }
+          for old, new in replacements.items():
+              if text.count(old) != 1:
+                  raise SystemExit(f'checklist replacement count for {old!r}: {text.count(old)}')
+              text = text.replace(old, new)
+          checklist.write_text(text)
+
+          trace = Path('docs/implementation/REQUIREMENTS-TRACEABILITY.md')
+          text = trace.read_text()
+          replacements = {
+              '**Status:** Phase 1 in progress (8/9 tasks complete); `NFR-03` is `Verified`; `INTAKE-01`, `INTAKE-03`, `INTAKE-05`, `ENTITY-01`, `ENTITY-02`, `ENTITY-03`, `ENTITY-04`, `ENTITY-05` and `ENTITY-07` are `Implemented`; `NFR-01`, `NFR-02`, `NFR-04`, `NFR-05`, `INTAKE-02`, `INTAKE-04`, `INTAKE-06` and `RUN-06` are `In progress`; all other requirements remain `Specified`':
+              '**Status:** Phase 2 in progress (1/13 tasks complete); Phase 1 live benchmark remains blocked at 8/9; `NFR-03` is `Verified`; `INTAKE-01`, `INTAKE-03`, `INTAKE-05`, `ENTITY-01`, `ENTITY-02`, `ENTITY-03`, `ENTITY-04`, `ENTITY-05` and `ENTITY-07` are `Implemented`; `NFR-01`, `NFR-02`, `NFR-04`, `NFR-05`, `INTAKE-02`, `INTAKE-04`, `INTAKE-06` and `RUN-06` are `In progress`; all other requirements remain `Specified`',
+              '| INTAKE-04 | No confidential free-form descriptions or documents | C1, C2 | strict generated intake schema; body cap; mandatory ack in route/RPC; answer screening pending | AT-INTAKE-04 (route + DB ack), E2E-03 (pending) | 1/3 | In progress |':
+              '| INTAKE-04 | No confidential free-form descriptions or documents | C1, C2 | strict generated intake schema; body cap; mandatory ack in route/RPC; privacy-allowlisted search request; answer screening pending | AT-INTAKE-04 (route + DB ack + SearchRequest extra-field rejection), E2E-03 (pending) | 1/3 | In progress |',
+              '| ENTITY-05 | CIN as exact identifier; compatible master-data sources | C8 (CompanyDataProvider), C4 | typed provider + deterministic registry fixtures + flagged Attestr adapter; `entities.cin` unique and CIN-first identity key | AT-ENTITY-05 (provider/CIN/database identity), ER-01 exact-identifier case; live B5 gate remains phase-exit evidence | 1 | Implemented |':
+              '| ENTITY-05 | CIN as exact identifier; compatible master-data sources | C8 (CompanyDataProvider), C4 | typed provider + deterministic registry fixtures; unsupported Attestr live selection fails closed; `entities.cin` unique and CIN-first identity key | AT-ENTITY-05 (provider/CIN/database identity), ER-01 exact-identifier case; live B5 gate remains phase-exit evidence | 1 | Implemented |',
+              '| RUN-06 | Fetched content treated as untrusted | C9, C6 | deterministic script/hidden-markup stripping and `prompt_injection_suspected`; model untrusted envelopes pending | AT-RUN-06 (gateway pending), SEC-04 and ER-10 malicious-page acceptance green | 2 | In progress |':
+              '| RUN-06 | Fetched content treated as untrusted | C8, C9, C6 | Exa results are bounded discovery metadata only; URLs still require SafeFetcher and evidence capture; deterministic script/hidden-markup stripping and `prompt_injection_suspected`; model untrusted envelopes pending | AT-RUN-06 (Exa payload/result boundary; gateway pending), SEC-04 and ER-10 malicious-page acceptance green | 2 | In progress |',
+              '| RUN-07 | Per-report search/page/token/time/retry budgets | C6, C7 | budget profile (QUEUE §8) | AT-RUN-07 | 2 | Specified |':
+              '| RUN-07 | Per-report search/page/token/time/retry budgets | C6, C7, C8 | Exa request/result/call/time/body caps and one-retry classification implemented; report-level budget profile and orchestration pending (QUEUE §8) | AT-RUN-07 (search-provider bounds/retry foundations) | 2 | Specified |',
+              '| NFR-05 | Every external cost attributable to a report | C7, C15 | bounded company-data call/query counts returned for later `provider_cost_events`; report attribution/admin view pending | AT-NFR-05 (provider and candidate-generation caps; persistence pending) | 2 | In progress |':
+              '| NFR-05 | Every external cost attributable to a report | C7, C8, C15 | bounded company-data call/query counts plus Exa provider-call count and reported `costDollars.total` returned for later `provider_cost_events`; report attribution/admin view pending | AT-NFR-05 (provider/candidate/search cost foundations; persistence pending) | 2 | In progress |',
+          }
+          for old, new in replacements.items():
+              if text.count(old) != 1:
+                  raise SystemExit(f'traceability replacement count for {old!r}: {text.count(old)}')
+              text = text.replace(old, new)
+          trace.write_text(text)
+          PY
+          rm .github/workflows/pr23-status-promotion.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add docs/implementation/BUILD-CHECKLIST.md docs/implementation/REQUIREMENTS-TRACEABILITY.md .github/workflows/pr23-status-promotion.yml
+          git commit -m "Record validated Exa provider slice"
+          git push origin HEAD:agent/phase-2-exa-search-provider
