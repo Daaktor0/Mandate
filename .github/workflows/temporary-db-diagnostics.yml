@@ -1,0 +1,54 @@
+name: Temporary database diagnostics
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: 22.16.0
+  PNPM_VERSION: 10.13.1
+  SUPABASE_TELEMETRY_DISABLED: "1"
+
+jobs:
+  database-diagnostics:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Activate pinned pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@${PNPM_VERSION} --activate
+      - name: Install locked JavaScript dependencies
+        run: pnpm install --frozen-lockfile
+      - uses: docker/setup-docker-action@6d7cfa65f60a9dda7b46e5513fa982536f3c9877
+        with:
+          version: v27.5.1
+      - name: Start database and capture diagnostics
+        continue-on-error: true
+        run: |
+          {
+            pnpm exec supabase db start
+            pnpm exec supabase db reset
+            pnpm exec supabase test db --local
+            pnpm exec supabase db lint --local --level error --fail-on error
+          } > /tmp/mandate-db.log 2>&1
+      - name: Stop local database
+        if: always()
+        run: pnpm exec supabase stop --no-backup
+      - name: Upload database diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mandate-db-diagnostics
+          path: /tmp/mandate-db.log
+          if-no-files-found: error
+          retention-days: 1
