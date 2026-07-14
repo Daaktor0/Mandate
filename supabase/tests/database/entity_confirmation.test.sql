@@ -2,7 +2,7 @@ create extension if not exists pgtap with schema extensions;
 
 begin;
 
-select plan(24);
+select plan(26);
 
 select has_function(
   'public',
@@ -171,6 +171,15 @@ values
     'Ambiguous Example Private Limited',
     now(),
     'awaiting_entity_confirmation'
+  ),
+  (
+    'c5555555-5555-4555-8555-555555555555',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    'legal_name',
+    null,
+    'Retry Example Private Limited',
+    now(),
+    'failed_no_charge'
   );
 
 insert into public.entity_candidates (
@@ -596,6 +605,45 @@ select ok(
   (select payload ->> 'guidance' from none_response) like '%legal name%'
     and (select payload ->> 'guidance' from none_response) like '%CIN%',
   'ENTITY-04 none-of-these returns public-identity refinement guidance'
+);
+
+
+create temporary table draft_retry_response as
+select public.confirm_report_request_entity(
+  'c2222222-2222-4222-8222-222222222222',
+  'refine',
+  null,
+  '{}'::uuid[],
+  'No Match Example Private Limited',
+  null,
+  null,
+  'refine-after-none-001',
+  'trace-confirmation-after-none'
+) as payload;
+
+select is(
+  (select payload ->> 'state' from draft_retry_response),
+  'resolving_entity',
+  'ENTITY-04 none-of-these can be followed by a refined resolution attempt'
+);
+
+create temporary table failed_retry_response as
+select public.confirm_report_request_entity(
+  'c5555555-5555-4555-8555-555555555555',
+  'refine',
+  null,
+  '{}'::uuid[],
+  null,
+  'U62099MH2024PTC555555',
+  null,
+  'refine-after-failure-001',
+  'trace-confirmation-after-failure'
+) as payload;
+
+select is(
+  (select payload ->> 'state' from failed_retry_response),
+  'resolving_entity',
+  'ENTITY-04 failed-no-charge can be retried with refined public identifiers'
 );
 
 create temporary table refine_response as

@@ -24,6 +24,48 @@ comment on column public.report_requests.resolution_cin_hint is
 comment on column public.report_requests.resolution_state_hint is
   'Optional public registered-office state supplied only to refine ambiguous entity resolution.';
 
+create or replace function private.is_legal_request_state_transition(
+  p_from public.request_state,
+  p_to public.request_state
+)
+returns boolean
+language sql
+immutable
+set search_path = ''
+as $$
+  select (p_from, p_to) in (
+    ('draft'::public.request_state, 'resolving_entity'::public.request_state),
+    ('resolving_entity'::public.request_state, 'awaiting_entity_confirmation'::public.request_state),
+    ('resolving_entity'::public.request_state, 'failed_no_charge'::public.request_state),
+    ('awaiting_entity_confirmation'::public.request_state, 'draft'::public.request_state),
+    ('awaiting_entity_confirmation'::public.request_state, 'preliminary_research'::public.request_state),
+    ('preliminary_research'::public.request_state, 'awaiting_clarification'::public.request_state),
+    ('preliminary_research'::public.request_state, 'failed_no_charge'::public.request_state),
+    ('failed_no_charge'::public.request_state, 'draft'::public.request_state),
+    ('awaiting_clarification'::public.request_state, 'queued'::public.request_state),
+    ('queued'::public.request_state, 'researching'::public.request_state),
+    ('queued'::public.request_state, 'cancelled_restored'::public.request_state),
+    ('researching'::public.request_state, 'verifying'::public.request_state),
+    ('researching'::public.request_state, 'retry_wait'::public.request_state),
+    ('researching'::public.request_state, 'failed_restored'::public.request_state),
+    ('researching'::public.request_state, 'cancelled_restored'::public.request_state),
+    ('verifying'::public.request_state, 'composing'::public.request_state),
+    ('verifying'::public.request_state, 'retry_wait'::public.request_state),
+    ('verifying'::public.request_state, 'failed_restored'::public.request_state),
+    ('verifying'::public.request_state, 'cancelled_restored'::public.request_state),
+    ('composing'::public.request_state, 'rendering'::public.request_state),
+    ('composing'::public.request_state, 'retry_wait'::public.request_state),
+    ('composing'::public.request_state, 'failed_restored'::public.request_state),
+    ('composing'::public.request_state, 'cancelled_restored'::public.request_state),
+    ('rendering'::public.request_state, 'completed'::public.request_state),
+    ('rendering'::public.request_state, 'retry_wait'::public.request_state),
+    ('rendering'::public.request_state, 'failed_restored'::public.request_state),
+    ('rendering'::public.request_state, 'cancelled_restored'::public.request_state),
+    ('retry_wait'::public.request_state, 'queued'::public.request_state)
+  );
+$$;
+
+
 create or replace function private.uuid_array_is_unique(p_values uuid[])
 returns boolean
 language sql
@@ -210,7 +252,18 @@ begin
   if not found then
     raise exception 'REPORT_REQUEST_NOT_FOUND' using errcode = 'P0002';
   end if;
-  if v_request.state <> 'awaiting_entity_confirmation'::public.request_state then
+  if p_action in ('confirm', 'none_of_these')
+    and v_request.state <> 'awaiting_entity_confirmation'::public.request_state
+  then
+    raise exception 'CONFIRMATION_STATE_CONFLICT' using errcode = 'P0001';
+  end if;
+  if p_action = 'refine'
+    and v_request.state not in (
+      'draft'::public.request_state,
+      'awaiting_entity_confirmation'::public.request_state,
+      'failed_no_charge'::public.request_state
+    )
+  then
     raise exception 'CONFIRMATION_STATE_CONFLICT' using errcode = 'P0001';
   end if;
 
@@ -292,15 +345,15 @@ begin
 
     update public.report_requests
        set resolution_legal_name_hint = case
-             when p_legal_name is null then resolution_legal_name_hint
+             when p_legal_name is null then null
              else btrim(p_legal_name)
            end,
            resolution_cin_hint = case
-             when p_cin is null then resolution_cin_hint
+             when p_cin is null then null
              else upper(btrim(p_cin))
            end,
            resolution_state_hint = case
-             when p_state is null then resolution_state_hint
+             when p_state is null then null
              else btrim(p_state)
            end,
            confirmed_entity_id = null,

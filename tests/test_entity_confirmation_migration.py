@@ -50,6 +50,8 @@ def test_ENTITY_04_none_and_refine_cannot_accept_narrative() -> None:
     assert "resolution_cin_hint" in sql
     assert "resolution_state_hint" in sql
     assert "drop constraint report_requests_exactly_one_input" not in sql
+    assert "('failed_no_charge'::public.request_state, 'draft'::public.request_state)" in sql
+    assert "v_request.state not in" in sql
 
 
 def test_ENTITY_07_related_scope_is_bounded_unique_and_explicitly_proposed() -> None:
