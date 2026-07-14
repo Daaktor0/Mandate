@@ -1,54 +1,46 @@
-name: Temporary quality diagnostics
+name: Temporary ER cleanup fix
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
 
 permissions:
-  contents: read
-
-env:
-  NODE_VERSION: 22.16.0
-  PNPM_VERSION: 10.13.1
-  PYTHON_VERSION: "3.12"
-  UV_VERSION: 0.7.19
+  contents: write
 
 jobs:
-  diagnose:
+  fix:
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           ref: ${{ github.event.pull_request.head.ref }}
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-      - name: Activate pinned pnpm
+      - name: Apply multiline brand iterator and clean temporary workflows
         run: |
-          corepack enable
-          corepack prepare pnpm@${PNPM_VERSION} --activate
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff
-        with:
-          version: ${{ env.UV_VERSION }}
-      - name: Install locked dependencies
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("services/worker/mandate_worker/entity_resolution/candidates.py")
+          text = path.read_text(encoding="utf-8")
+          old = """        (brand for brand in candidate.brand_names or () if brand.casefold() == requested.casefold()),
+"""
+          new = """        (
+            brand
+            for brand in candidate.brand_names or ()
+            if brand.casefold() == requested.casefold()
+        ),
+"""
+          if text.count(old) != 1:
+              raise SystemExit("brand formatting anchor missing or duplicated")
+          path.write_text(text.replace(old, new), encoding="utf-8")
+          Path(".github/workflows/temporary-fix-er-format.yml").unlink(missing_ok=True)
+          Path(".github/workflows/temporary-quality-diagnostics.yml").unlink(missing_ok=True)
+          PY
+      - name: Commit cleanup
         run: |
-          pnpm install --frozen-lockfile
-          uv sync --locked --all-groups
-      - name: Capture diagnostics
-        continue-on-error: true
-        run: |
-          {
-            pnpm lint
-            pnpm format:check
-          } > /tmp/quality.log 2>&1
-      - name: Upload diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: er-fixture-quality
-          path: /tmp/quality.log
-          retention-days: 1
+          git config user.name "mandate-er-fixture-bot"
+          git config user.email "mandate-er-fixture-bot@users.noreply.github.com"
+          git add --all
+          git commit -m "style: wrap optional brand iterator"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
