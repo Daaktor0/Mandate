@@ -135,6 +135,13 @@ the worker-side relay and avoids giving the web role pgmq access.
 **Decision:** Host the Next.js app on Vercel (staging = preview/branch deployments, production = the production deployment), "for now" — revisit at AWS migration or if Vercel constraints bite.
 **Consequences:** Fastest path with zero web-ops burden and the KVM 2's 8 GB stays dedicated to the worker/renderer. Adds a vendor: Vercel joins the environment/secret inventory, key-rotation runbook and (as a data subprocessor serving the app) the pre-launch privacy review (B10). Long-running work must never move into web routes — route handlers stay short (NFR-07); generation remains on the queue/worker. Razorpay webhooks terminate at a Vercel route backed by durable `webhook_events` recording, which fits the existing design. Portability guard: no Vercel-proprietary APIs (KV/queues/cron/blob) — Supabase and the worker keep those roles, so the app remains deployable as a standalone Node container if we leave.
 
+### ADR-017 — MCA master data and source filings are separate acquisition capabilities
+
+**Status:** Accepted (2026-07-15).
+**Context:** MCA View Public Documents requires an account, payment and limited download windows; MCA terms do not support bulk automated extraction. Exa can discover and extract public web pages but cannot certify MCA records. The repository's earlier Attestr selection was not supported by the provider's current product catalogue.
+**Decision:** Keep three distinct interfaces: `SearchProvider` for public-web discovery, `CompanyDataProvider` for public legal-identity/master fields, and `CorporateFilingDocumentProvider` for AOC/MGT/charge/incorporation source files. Do not automate MCA login, CAPTCHA, OTP, payment, cookies or user credentials. Filing acquisition uses a fixture, a verified licensed provider, or a human-approved MCA VPD procurement task. Every acquired binary is hash-addressed, quarantined and structurally unparseable until malware scanning and sandbox extraction pass. The Attestr live selector is disabled. Full detail: [B5 MCA data and document acquisition](spikes/B5-mca-data-and-document-acquisition.md).
+**Consequences:** The pipeline can continue safely without an MCA API and can surface an evidence gap or human task instead of pretending retrieval succeeded. A manual step may add latency; a licensed provider adds procurement cost and licence review. Provider swaps do not change entity resolution or downstream evidence contracts.
+
 ---
 
 ## Part B — Adopted assumptions
@@ -174,6 +181,7 @@ Assumptions inherited from doc 16 (founder decisions/defaults) are not repeated;
 | R-10 | Scope creep into diligence/legal-advice territory in composed text | Medium | High (legal) | Composer constraints + final-verifier prohibited-language checks (AGENT-PROMPT §8); disclaimer mandatory |
 | R-11 | Supabase Queues semantics surprise (AS-02 wrong) | Low | Medium | Phase 0 spike; adapter swap path |
 | R-12 | Solo-founder bus factor on ops (Hostinger, keys, incidents) | High | Medium | DEPLOYMENT-SPEC runbooks; documented key rotation; snapshots |
+| R-13 | A filing vendor supplies incomplete, altered or improperly licensed MCA documents | Medium | Critical (evidence integrity/legal) | ADR-017 provenance fields, original-byte hash, filing metadata, licence review, spot-check against MCA, quarantine/scanning and explicit evidence gaps |
 
 ## Part D — Genuine blockers
 
@@ -184,8 +192,8 @@ Items that require founder action or external accounts. **None blocks Phases 0�
 | B1 | Google + Microsoft OAuth client credentials (Cloud/Entra apps) | Real login | Phase 5 | Supabase local auth + seeded test users |
 | B2 | Supabase staging/production projects | Staging deploys | Phase 5 | Supabase CLI local stack |
 | B3 | OpenRouter API key + confirmation of ZDR-eligible providers for each model tier | Real model calls | Phase 2 (staging benchmark) | Fixture ModelRouter; recorded completions |
-| B4 | Search-provider selection + key (Brave vs Tavily vs Exa; doc 15 says benchmark one primary) | Real search | Phase 2 (benchmark) | Fixture SearchProvider; benchmark harness ships in Phase 2 |
-| B5 | Company-data provider trial (Attestr name-to-CIN or equivalent; doc 15 shortlist) | Real CIN lookup | Phase 1 (staging accuracy test) | Fixture CompanyDataProvider with synthetic + hand-collected public records |
+| B4 | Exa key is available; `SearchProvider` implementation and golden-set benchmark remain | Real search | Phase 2 (benchmark) | Fixture SearchProvider until the Exa adapter and cost/quality benchmark pass |
+| B5 | No verified live company-master-data or MCA source-filing provider; Attestr rejected | Phase 1 live accuracy test and automated private-company filing retrieval | Phase 1 benchmark / Phase 2 research | Versioned Government Open Data snapshot + fixture company data; manual MCA VPD acquisition; licensed vendors remain unselected pending API/licence verification |
 | B6 | Transactional email account + sending domain (Resend/SES) | Real notifications | Phase 5 | Console/log email sink |
 | B7 | Razorpay account, keys, webhook secret | Real payments | Phase 6 | Razorpay test mode first; fixture webhook events for CI |
 | B8 | SMS/OTP provider for phone verification | Trial eligibility | Phase 6 | Feature-flag trial claiming off |
@@ -196,6 +204,6 @@ Items that require founder action or external accounts. **None blocks Phases 0�
 | B13 | Founder checklist confirmations (doc 16): pack pricing/expiry, 24 h letterhead deletion, related-entity cap, optional transaction type, mandatory client role, phone-verified trial, opt-in edit training | Final copy + config values | Phase 6 | Spec defaults from doc 16 wired as config, marked `FOUNDER_CONFIRM` |
 | B14 | Vercel account + project linked to the repo (ADR-016); Pro plan before paid launch (commercial-use terms) | Hosted web (staging previews, production) | Phase 5 | Local `next dev` and demo mode need no hosting |
 
-## Part E — Decisions explicitly deferred (unchanged from doc 16)
+## Part E — Decisions explicitly deferred (unchanged from doc 16 unless superseded above)
 
-Final visual design; source-annex default (AS-12 keeps it a toggle); saved letterheads; subscriptions; workspaces; enterprise SSO; foreign primary targets; paid MCA documents; legal-database vendor; premium human review; mobile app; Closing Room integration; small-model/GPU choice; collaboration; group pricing.
+Final visual design; source-annex default (AS-12 keeps it a toggle); saved letterheads; subscriptions; workspaces; enterprise SSO; foreign primary targets; selection of a licensed MCA filing vendor; legal-database vendor; premium human review; mobile app; Closing Room integration; small-model/GPU choice; collaboration; group pricing.
