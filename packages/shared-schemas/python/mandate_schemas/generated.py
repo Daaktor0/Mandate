@@ -33,6 +33,16 @@ class ClaimVerifierStatus(StrEnum):
     REJECTED = "rejected"
     CONFLICTED = "conflicted"
 
+class ConfirmEntityRequestAction(StrEnum):
+    CONFIRM = "confirm"
+    NONE_OF_THESE = "none_of_these"
+    REFINE = "refine"
+
+class ConfirmEntityResponseState(StrEnum):
+    DRAFT = "draft"
+    RESOLVING_ENTITY = "resolving_entity"
+    PRELIMINARY_RESEARCH = "preliminary_research"
+
 class CreateReportRequestResponseReportRequestInputKind(StrEnum):
     WEBSITE = "website"
     LEGAL_NAME = "legal_name"
@@ -94,6 +104,28 @@ class Claim(BaseModel):
     report_sections: list[str] = Field(..., alias="reportSections", max_length=20)
     model_prompt_version: str = Field(..., alias="modelPromptVersion", min_length=1, max_length=100)
     is_material: bool = Field(..., alias="isMaterial")
+
+class ConfirmEntityRequest(BaseModel):
+    """Generated from the canonical Mandate JSON Schema."""
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    action: ConfirmEntityRequestAction = Field(...)
+    candidate_id: UUID | None = Field(default=None, alias="candidateId")
+    related_entity_ids: list[UUID] | None = Field(default_factory=list, alias="relatedEntityIds", max_length=2)
+    legal_name: str | None = Field(default=None, alias="legalName", min_length=1, max_length=300)
+    cin: str | None = Field(default=None, pattern="^[UL][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$")
+    state: str | None = Field(default=None, min_length=1, max_length=100)
+
+class ConfirmEntityResponse(BaseModel):
+    """Generated from the canonical Mandate JSON Schema."""
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    state: ConfirmEntityResponseState = Field(...)
+    confirmed_entity_id: UUID | None = Field(..., alias="confirmedEntityId")
+    related_entity_ids: list[UUID] = Field(..., alias="relatedEntityIds", max_length=2)
+    guidance: str | None = Field(..., max_length=500)
 
 class CreateReportRequestResponseReportRequest(BaseModel):
     """Generated from the canonical Mandate JSON Schema."""
@@ -238,6 +270,10 @@ __all__ = [
     "ClaimConfidence",
     "ClaimFreshness",
     "ClaimVerifierStatus",
+    "ConfirmEntityRequest",
+    "ConfirmEntityRequestAction",
+    "ConfirmEntityResponse",
+    "ConfirmEntityResponseState",
     "CreateReportRequest",
     "CreateReportRequestInputKind",
     "CreateReportRequestResponse",
