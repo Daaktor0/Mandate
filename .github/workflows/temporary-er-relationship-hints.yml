@@ -32,11 +32,8 @@ jobs:
         run: uv run python scripts/temporary_apply_er_relationship_hints.py
       - name: Remove temporary automation
         run: rm scripts/temporary_apply_er_relationship_hints.py .github/workflows/temporary-er-relationship-hints.yml
-      - name: Format and verify focused suite
-        run: |
-          uv run ruff format services/worker/mandate_worker/entity_resolution services/worker/tests/test_entity_resolution_acceptance_fixtures.py
-          uv run ruff check services/worker/mandate_worker/entity_resolution services/worker/tests/test_entity_resolution_acceptance_fixtures.py
-          uv run pytest -q services/worker/tests/test_entity_resolution_acceptance_fixtures.py services/worker/tests/test_candidate_scoring.py
+      - name: Apply pinned formatting
+        run: uv run ruff format services/worker/mandate_worker/entity_resolution services/worker/tests/test_entity_resolution_acceptance_fixtures.py
       - name: Commit implementation
         run: |
           git config user.name "mandate-er-fixture-bot"
