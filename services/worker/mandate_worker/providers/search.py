@@ -265,9 +265,7 @@ class ExaHttpTransport:
                     async for chunk in response.aiter_raw():
                         body.extend(chunk)
                         if len(body) > self.max_response_bytes:
-                            raise SearchTransportError(
-                                "search_response_too_large", retryable=False
-                            )
+                            raise SearchTransportError("search_response_too_large", retryable=False)
                     return SearchHttpResponse(
                         status_code=response.status_code,
                         content_type=response.headers.get("content-type"),
