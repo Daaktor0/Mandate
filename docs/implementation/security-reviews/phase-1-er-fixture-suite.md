@@ -21,6 +21,7 @@ Implementation review is in progress and remains gated on the complete repositor
 | Relationship input validation | Candidate identifiers are normalised and bounded; brand names are deduplicated and capped; materiality reasons require non-empty bounded text and a public evidence object. |
 | Related-entity scope | A related reason must be tied to an identified candidate and a specific public evidence object. Conflicting materiality reasons fail closed. |
 | Confidence integrity | Relationship hints are resolved after scoring facts are assembled, are excluded from every confidence factor and score-audit decision, and may add evidence/presentation metadata only. Acceptance tests compare candidate ids and scores with and without the relationship hints. |
+| Deterministic scoring oracle | Expected labels follow the verbatim weighted factor table and threshold boundaries; ER-06 explicitly distinguishes the 20-point insufficient-evidence candidate from the 25+ ambiguous candidate rather than altering production scoring to satisfy a fixture. |
 | User confirmation | Every fixture outcome retains `requiresUserConfirmation=true`; the result schema has no auto-selection field. |
 | Spend/entitlement | Fixtures use zero-call providers and do not expose entitlement, payment, or paid-research surfaces. |
 | Supabase isolation | No live Supabase project is linked or referenced. Any later database stage runs only against GitHub Actions' ephemeral local Supabase/Postgres stack. |
