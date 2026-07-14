@@ -5,14 +5,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 COMPONENT = ROOT / "apps" / "web" / "components" / "entity-confirmation-view.tsx"
 PAGE = (
-    ROOT
-    / "apps"
-    / "web"
-    / "app"
-    / "report-requests"
-    / "[id]"
-    / "entity-confirmation"
-    / "page.tsx"
+    ROOT / "apps" / "web" / "app" / "report-requests" / "[id]" / "entity-confirmation" / "page.tsx"
 )
 
 
