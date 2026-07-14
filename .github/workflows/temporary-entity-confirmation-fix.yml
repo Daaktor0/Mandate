@@ -1,0 +1,396 @@
+name: Temporary entity confirmation invariant fix
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+env:
+  NODE_VERSION: 22.16.0
+  PNPM_VERSION: 10.13.1
+  PYTHON_VERSION: "3.12"
+  UV_VERSION: 0.7.19
+
+jobs:
+  fix:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Activate pinned pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@${PNPM_VERSION} --activate
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff
+        with:
+          version: ${{ env.UV_VERSION }}
+      - name: Install locked dependencies
+        run: |
+          pnpm install --frozen-lockfile
+          uv sync --locked --all-groups
+      - name: Apply invariant-safe refinement fix
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path: str, old: str, new: str) -> None:
+              file = Path(path)
+              text = file.read_text(encoding="utf-8")
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f"{path}: expected one replacement, found {count}")
+              file.write_text(text.replace(old, new), encoding="utf-8")
+
+          migration = "supabase/migrations/20260714090000_entity_confirmation.sql"
+          replace_once(
+              migration,
+              """alter table public.report_requests
+            drop constraint report_requests_exactly_one_input;
+
+          alter table public.report_requests
+            add column input_state_hint text null
+              check (
+                input_state_hint is null
+                or char_length(input_state_hint) between 1 and 100
+              ),
+            add constraint report_requests_input_shape check (
+              (
+                input_kind = 'website'
+                and input_url is not null
+              )
+              or
+              (
+                input_kind = 'legal_name'
+                and input_url is null
+                and input_legal_name is not null
+              )
+            );
+
+          comment on column public.report_requests.input_state_hint is
+            'Optional public registered-office state supplied only to refine ambiguous entity resolution.';
+          """,
+              """alter table public.report_requests
+            add column resolution_legal_name_hint text null
+              check (
+                resolution_legal_name_hint is null
+                or char_length(resolution_legal_name_hint) between 1 and 300
+              ),
+            add column resolution_cin_hint text null
+              check (
+                resolution_cin_hint is null
+                or resolution_cin_hint ~ '^[UL][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$'
+              ),
+            add column resolution_state_hint text null
+              check (
+                resolution_state_hint is null
+                or char_length(resolution_state_hint) between 1 and 100
+              );
+
+          comment on column public.report_requests.resolution_legal_name_hint is
+            'Optional public legal-name refinement; the immutable original intake field remains unchanged.';
+          comment on column public.report_requests.resolution_cin_hint is
+            'Optional public CIN refinement; the immutable original intake field remains unchanged.';
+          comment on column public.report_requests.resolution_state_hint is
+            'Optional public registered-office state supplied only to refine ambiguous entity resolution.';
+          """,
+          )
+          replace_once(
+              migration,
+              """    update public.report_requests
+                 set confirmed_entity_id = null,
+                     related_entity_ids = '{}'::uuid[],
+                     state = 'draft'
+               where id = p_report_request_id;
+          """,
+              """    update public.report_requests
+                 set resolution_legal_name_hint = null,
+                     resolution_cin_hint = null,
+                     resolution_state_hint = null,
+                     confirmed_entity_id = null,
+                     related_entity_ids = '{}'::uuid[],
+                     state = 'draft'
+               where id = p_report_request_id;
+          """,
+          )
+          replace_once(
+              migration,
+              """    update public.report_requests
+                 set input_legal_name = coalesce(btrim(p_legal_name), input_legal_name),
+                     input_cin = coalesce(upper(btrim(p_cin)), input_cin),
+                     input_state_hint = case when p_state is null then input_state_hint else btrim(p_state) end,
+                     confirmed_entity_id = null,
+                     related_entity_ids = '{}'::uuid[],
+                     state = 'draft'
+               where id = p_report_request_id;
+          """,
+              """    update public.report_requests
+                 set resolution_legal_name_hint = case
+                       when p_legal_name is null then resolution_legal_name_hint
+                       else btrim(p_legal_name)
+                     end,
+                     resolution_cin_hint = case
+                       when p_cin is null then resolution_cin_hint
+                       else upper(btrim(p_cin))
+                     end,
+                     resolution_state_hint = case
+                       when p_state is null then resolution_state_hint
+                       else btrim(p_state)
+                     end,
+                     confirmed_entity_id = null,
+                     related_entity_ids = '{}'::uuid[],
+                     state = 'draft'
+               where id = p_report_request_id;
+          """,
+          )
+
+          db_test = "supabase/tests/database/entity_confirmation.test.sql"
+          replace_once(
+              db_test,
+              """    select input_url = 'https://example.invalid'
+                and input_legal_name = 'Refined Website Operator Private Limited'
+                and input_cin = 'U62099MH2024PTC999999'
+                and input_state_hint = 'Maharashtra'
+                and state = 'resolving_entity'
+          """,
+              """    select input_url = 'https://example.invalid'
+                and input_legal_name is null
+                and input_cin is null
+                and resolution_legal_name_hint = 'Refined Website Operator Private Limited'
+                and resolution_cin_hint = 'U62099MH2024PTC999999'
+                and resolution_state_hint = 'Maharashtra'
+                and state = 'resolving_entity'
+          """,
+          )
+          replace_once(
+              db_test,
+              """  'ENTITY-04 a website request can retain its URL and add public identity hints'
+          );
+          select is(
+            (
+              select count(*)::integer
+                from public.outbox
+          """,
+              """  'ENTITY-04 refinement preserves original intake and stores separate public identity hints'
+          );
+
+          reset role;
+
+          select is(
+            (
+              select count(*)::integer
+                from public.outbox
+          """,
+          )
+          replace_once(
+              db_test,
+              """select is(
+            to_regclass('public.entitlement_ledger'),
+            null,
+            'INTAKE-06 entity confirmation has no entitlement operation'
+          );
+
+          reset role;
+
+          select * from finish();
+          """,
+              """select is(
+            to_regclass('public.entitlement_ledger'),
+            null,
+            'INTAKE-06 entity confirmation has no entitlement operation'
+          );
+
+          select * from finish();
+          """,
+          )
+
+          task = "services/worker/mandate_worker/entity_resolution/task.py"
+          replace_once(
+              task,
+              """    input_legal_name: str | None = Field(default=None, min_length=1, max_length=300)
+              input_cin: str | None = None
+              state: Literal[\"resolving_entity\"]
+          """,
+              """    input_legal_name: str | None = Field(default=None, min_length=1, max_length=300)
+              input_cin: str | None = None
+              resolution_state_hint: str | None = Field(default=None, min_length=1, max_length=100)
+              state: Literal[\"resolving_entity\"]
+          """,
+          )
+          replace_once(
+              task,
+              """            select id, user_id, input_kind::text, input_url, input_legal_name,
+                             input_cin, state::text
+          """,
+              """            select id, user_id, input_kind::text, input_url,
+                             coalesce(resolution_legal_name_hint, input_legal_name) as input_legal_name,
+                             coalesce(resolution_cin_hint, input_cin) as input_cin,
+                             resolution_state_hint, state::text
+          """,
+          )
+          replace_once(
+              task,
+              """                supplied_cin=request.input_cin,
+                      site_inspection=inspection,
+          """,
+              """                supplied_cin=request.input_cin,
+                      supplied_state=request.resolution_state_hint,
+                      site_inspection=inspection,
+          """,
+          )
+
+          candidates = "services/worker/mandate_worker/entity_resolution/candidates.py"
+          replace_once(
+              candidates,
+              """        supplied_legal_name: str | None = None,
+                  supplied_cin: str | None = None,
+                  site_inspection: SiteInspection | None = None,
+          """,
+              """        supplied_legal_name: str | None = None,
+                  supplied_cin: str | None = None,
+                  supplied_state: str | None = None,
+                  site_inspection: SiteInspection | None = None,
+          """,
+          )
+          replace_once(
+              candidates,
+              """        scored = [
+          """,
+              """        if supplied_state is not None:
+                      state_key = _normalised_state(supplied_state)
+                      aggregates = {
+                          cin: aggregate
+                          for cin, aggregate in aggregates.items()
+                          if aggregate.record.registered_office_state is not None
+                          and _normalised_state(aggregate.record.registered_office_state) == state_key
+                      }
+
+                  scored = [
+          """,
+          )
+          replace_once(
+              candidates,
+              """def _normalised_name(value: str) -> str:
+          """,
+              """def _normalised_state(value: str) -> str:
+              state = \" \".join(value.split()).casefold()
+              if not state or len(state) > 100:
+                  raise ValueError(\"registered-office state is empty or too long\")
+              return state
+
+
+          def _normalised_name(value: str) -> str:
+          """,
+          )
+
+          scoring_test = Path("services/worker/tests/test_candidate_scoring.py")
+          scoring_text = scoring_test.read_text(encoding="utf-8")
+          marker = "test_ENTITY_04_registered_office_state_hint_filters_ambiguous_results"
+          if marker not in scoring_text:
+              scoring_text += """
+
+          @pytest.mark.asyncio
+          async def test_ENTITY_04_registered_office_state_hint_filters_ambiguous_results() -> None:
+              maharashtra = company_record()
+              delhi = company_record(
+                  cin=PUBLIC_CIN,
+                  legal_name=maharashtra.legal_name,
+                  state=\"Delhi\",
+                  address=\"1 Synthetic Avenue, New Delhi, Delhi 110001\",
+              )
+              provider = FixtureProvider(
+                  searches={name_key(maharashtra.legal_name): (maharashtra, delhi)}
+              )
+
+              result = await EntityCandidateGenerator(provider).generate(
+                  report_request_id=REQUEST_ID,
+                  supplied_legal_name=maharashtra.legal_name,
+                  supplied_state=\"  Maharashtra  \",
+              )
+
+              assert [candidate.cin for candidate in result.candidates] == [PRIVATE_CIN]
+          """
+              scoring_test.write_text(scoring_text, encoding="utf-8")
+
+          task_test = Path("services/worker/tests/test_entity_resolution_task.py")
+          task_text = task_test.read_text(encoding="utf-8")
+          marker = "test_ENTITY_04_postgres_repository_reads_effective_refinement_hints"
+          if marker not in task_text:
+              insertion = """
+
+          @pytest.mark.asyncio
+          async def test_ENTITY_04_postgres_repository_reads_effective_refinement_hints() -> None:
+              database = RecordingDatabase(
+                  [
+                      {
+                          \"id\": REQUEST_ID,
+                          \"user_id\": USER_ID,
+                          \"input_kind\": \"website\",
+                          \"input_url\": \"https://company.example/\",
+                          \"input_legal_name\": \"Refined Company Private Limited\",
+                          \"input_cin\": PRIVATE_CIN,
+                          \"resolution_state_hint\": \"Maharashtra\",
+                          \"state\": \"resolving_entity\",
+                      }
+                  ]
+              )
+              repository = PostgresResolutionRepository(database)
+
+              request = await repository.load_request(REQUEST_ID, USER_ID)
+
+              assert request is not None
+              assert request.input_legal_name == \"Refined Company Private Limited\"
+              assert request.input_cin == PRIVATE_CIN
+              assert request.resolution_state_hint == \"Maharashtra\"
+              statement, parameters = database.calls[0]
+              assert \"coalesce(resolution_legal_name_hint, input_legal_name)\" in statement
+              assert \"coalesce(resolution_cin_hint, input_cin)\" in statement
+              assert parameters == (REQUEST_ID, USER_ID)
+          """
+              task_text = task_text.replace(
+                  "\n\n@pytest.mark.asyncio\nasync def test_ENTITY_02_postgres_repository_uses_atomic_completion_function",
+                  insertion + "\n\n@pytest.mark.asyncio\nasync def test_ENTITY_02_postgres_repository_uses_atomic_completion_function",
+                  1,
+              )
+              task_test.write_text(task_text, encoding="utf-8")
+
+          structural = "tests/test_entity_confirmation_migration.py"
+          replace_once(
+              structural,
+              """    assert \"delete from public.entity_candidates\" in sql
+          """,
+              """    assert \"delete from public.entity_candidates\" in sql
+              assert \"resolution_legal_name_hint\" in sql
+              assert \"resolution_cin_hint\" in sql
+              assert \"resolution_state_hint\" in sql
+              assert \"drop constraint report_requests_exactly_one_input\" not in sql
+          """,
+          )
+
+          for workflow in (
+              Path(".github/workflows/temporary-db-diagnostics.yml"),
+              Path(".github/workflows/temporary-entity-confirmation-fix.yml"),
+          ):
+              workflow.unlink(missing_ok=True)
+          PY
+      - name: Apply pinned formatters
+        run: |
+          pnpm exec prettier --write apps/web packages/shared-schemas
+          uv run ruff format services/worker tests
+      - name: Commit fixes
+        run: |
+          git config user.name "mandate-fix-bot"
+          git config user.email "mandate-fix-bot@users.noreply.github.com"
+          git add --all
+          git commit -m "fix: preserve intake invariants during entity refinement"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
