@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.mandate.local/confirm-entity-response.schema.json",
+  "x-mandate-versioned": false,
+  "type": "object",
+  "title": "ConfirmEntityResponse",
+  "description": "Result of a mandatory entity-confirmation decision.",
+  "additionalProperties": false,
+  "properties": {
+    "state": {
+      "type": "string",
+      "enum": ["draft", "resolving_entity", "preliminary_research"]
+    },
+    "confirmedEntityId": { "type": ["string", "null"], "format": "uuid" },
+    "relatedEntityIds": {
+      "type": "array",
+      "items": { "type": "string", "format": "uuid" },
+      "maxItems": 2
+    },
+    "guidance": { "type": ["string", "null"], "maxLength": 500 }
+  },
+  "required": ["state", "confirmedEntityId", "relatedEntityIds", "guidance"]
+}
