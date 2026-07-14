@@ -17,8 +17,10 @@ The original intake fields remain immutable in meaning: website and legal-name i
 | Cross-tenant candidate access | Candidate reads traverse request ownership through RLS; absent and other-owner requests produce the same not-found result | SEC-01 route, repository, RLS, and pgTAP cases |
 | Forged confirmation | The security-definer RPC derives `auth.uid()`, locks the owned request, verifies the candidate belongs to it, and rejects invalid states | ENTITY-03 API and database cases |
 | Automatic or accidental confirmation | Candidate radios have no default selection; the database accepts only an explicit candidate id while awaiting confirmation | ENTITY-03 UI and pgTAP cases |
-| Ambiguous identity | `none_of_these` removes stale candidates and returns to draft; `refine` accepts only bounded public identifiers | ENTITY-04 UI, API, structural, worker, and pgTAP cases |
+| Ambiguous identity | `none_of_these` removes stale candidates and returns to draft; `refine` accepts only bounded public identifiers and is permitted from draft, awaiting-confirmation, or failed-no-charge recovery states | ENTITY-04 UI, API, structural, worker, and pgTAP cases |
+| Irrecoverable no-match loop | A failed or rejected candidate set can be retried; the guarded transition is `failed_no_charge → draft → resolving_entity`, while confirm/none actions remain restricted to awaiting confirmation | ENTITY-04 state-machine and pgTAP regression cases |
 | Intake invariant erosion | Original website/legal-name fields are not rewritten; dedicated refinement hints preserve `report_requests_exactly_one_input` | NFR-02 foundation and ENTITY-04 migration cases |
+| Stale refinement filters | Each refinement request replaces the prior hint set; omitted public identifiers clear obsolete hints rather than silently constraining later retries | ENTITY-04 migration structural cases |
 | State hint ignored | The worker normalises the registered-office state and filters otherwise ambiguous provider results before scoring | ENTITY-04 worker unit case |
 | Related-entity overreach | Scope is optional, unique, capped at two, excludes the primary entity, and accepts only entities explicitly proposed with a materiality reason | ENTITY-07 API and pgTAP cases |
 | Duplicate side effects | Per-user/request advisory locking plus a private request/response replay ledger rejects key reuse with a different payload | NFR-01 API and pgTAP cases |
@@ -32,7 +34,7 @@ The original intake fields remain immutable in meaning: website and legal-name i
 - **Prompt/data route:** no model invocation occurs in this slice. Only public website/legal-name/CIN/state identifiers reach entity-resolution adapters.
 - **Schema/audit:** strict generated request/response contracts reject additional properties; candidate evidence and deterministic score audit remain separate from hidden reasoning.
 - **Retry/cost:** refinement enqueues one identifier-only light task, uses the existing bounded resolution loop, and makes no paid research reachable.
-- **Failure state:** none-of-these returns to draft; no-match/exhaustion remains `failed_no_charge`; malformed or stale decisions fail closed.
+- **Failure state:** none-of-these returns to draft; no-match/exhaustion remains `failed_no_charge`; both states permit a new public-identifier refinement, while malformed or stale decisions fail closed.
 - **Deployment boundary:** tests use the ephemeral Supabase/Postgres stack in GitHub Actions. No Closing Room or other live Supabase project is referenced or modified.
 
 ## Deliberately deferred
