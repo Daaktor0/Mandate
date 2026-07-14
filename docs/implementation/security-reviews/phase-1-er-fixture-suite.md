@@ -24,8 +24,20 @@ No open implementation or security deviation was found in this slice. GitHub Act
 | Deterministic scoring oracle | Expected labels follow the verbatim weighted factor table and threshold boundaries; ER-06 explicitly distinguishes the 20-point insufficient-evidence candidate from the 25+ ambiguous candidate rather than altering production scoring to satisfy a fixture. |
 | User confirmation | Every fixture outcome retains `requiresUserConfirmation=true`; the result schema has no auto-selection field. |
 | Spend/entitlement | Fixtures use zero-call providers and do not expose entitlement, payment, or paid-research surfaces. |
-| Supabase isolation | No live Supabase project is linked or referenced. Any later database stage runs only against GitHub Actions' ephemeral local Supabase/Postgres stack. |
+| Supabase isolation | No live Supabase project is linked or referenced. Database verification ran only against GitHub Actions' ephemeral local Supabase/Postgres stack. |
 
 ## Deliberate boundary
 
 The relationship hint is a typed internal public-evidence input. Automatic discovery of brand/group relationships from broader public-source research remains bounded by later retrieval adapters; this slice ensures that such evidence is represented and tested without introducing heuristic guesses or model-generated group structure.
+
+## Reproduction
+
+```bash
+pnpm check
+pnpm test
+pnpm exec supabase db start
+pnpm exec supabase db reset
+pnpm exec supabase test db --local
+pnpm exec supabase db lint --local --level error --fail-on error
+pnpm exec supabase stop --no-backup
+```
