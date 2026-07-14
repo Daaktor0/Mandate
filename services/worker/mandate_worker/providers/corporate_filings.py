@@ -12,7 +12,7 @@ import hashlib
 import re
 from collections.abc import Mapping
 from dataclasses import dataclass
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from enum import StrEnum
 from typing import Literal, Protocol, Self
 
@@ -74,9 +74,7 @@ class CorporateFilingRequest(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     cin: str = Field(pattern=CIN_PATTERN.pattern)
-    filing_types: tuple[CorporateFilingType, ...] = Field(
-        min_length=1, max_length=MAX_FILING_TYPES
-    )
+    filing_types: tuple[CorporateFilingType, ...] = Field(min_length=1, max_length=MAX_FILING_TYPES)
     financial_years: tuple[str, ...] = Field(default=(), max_length=MAX_FINANCIAL_YEARS)
     purpose: Literal["transaction_preparation"] = "transaction_preparation"
 
@@ -114,24 +112,16 @@ class CorporateFilingReference(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    document_id: str = Field(
-        min_length=1, max_length=128, pattern=r"^[A-Za-z0-9._:-]+$"
-    )
+    document_id: str = Field(min_length=1, max_length=128, pattern=r"^[A-Za-z0-9._:-]+$")
     cin: str = Field(pattern=CIN_PATTERN.pattern)
     filing_type: CorporateFilingType
-    financial_year: str | None = Field(
-        default=None, pattern=FINANCIAL_YEAR_PATTERN.pattern
-    )
+    financial_year: str | None = Field(default=None, pattern=FINANCIAL_YEAR_PATTERN.pattern)
     filed_on: date | None = None
     acquisition_method: CorporateFilingAcquisitionMethod
-    source_provider: str = Field(
-        min_length=1, max_length=64, pattern=r"^[a-z][a-z0-9_-]+$"
-    )
+    source_provider: str = Field(min_length=1, max_length=64, pattern=r"^[a-z][a-z0-9_-]+$")
     source_locator: str = Field(min_length=1, max_length=500)
     acquired_at: datetime
-    media_type: Literal[
-        "application/pdf", "application/zip", "application/octet-stream"
-    ]
+    media_type: Literal["application/pdf", "application/zip", "application/octet-stream"]
     sha256: str = Field(pattern=SHA256_PATTERN.pattern)
     size_bytes: int = Field(ge=1, le=MAX_DOCUMENT_BYTES)
     quarantine_status: Literal["pending_malware_scan"] = "pending_malware_scan"
@@ -176,22 +166,16 @@ class CorporateFilingAcquisitionResult(BaseModel):
     def validate_status_shape(self) -> Self:
         if self.status is CorporateFilingAcquisitionStatus.READY:
             if not self.documents or self.action_code is not None:
-                raise ValueError(
-                    "ready filing result requires documents and no action code"
-                )
+                raise ValueError("ready filing result requires documents and no action code")
         elif self.documents or self.action_code is None:
-            raise ValueError(
-                "non-ready filing result requires one action code and no documents"
-            )
+            raise ValueError("non-ready filing result requires one action code and no documents")
         if any(document.cin != self.request.cin for document in self.documents):
             raise ValueError("filing result contains a document for a different CIN")
         return self
 
 
 class CorporateFilingDocumentProvider(Protocol):
-    async def acquire(
-        self, request: CorporateFilingRequest
-    ) -> CorporateFilingAcquisitionResult:
+    async def acquire(self, request: CorporateFilingRequest) -> CorporateFilingAcquisitionResult:
         """Acquire source filings or return an explicit safe blocker."""
 
 
@@ -201,9 +185,7 @@ class ManualMcaVpdProvider:
 
     provider_name: str = "mca_vpd_manual"
 
-    async def acquire(
-        self, request: CorporateFilingRequest
-    ) -> CorporateFilingAcquisitionResult:
+    async def acquire(self, request: CorporateFilingRequest) -> CorporateFilingAcquisitionResult:
         return CorporateFilingAcquisitionResult(
             request=request,
             provider=self.provider_name,
@@ -221,9 +203,7 @@ class FixtureCorporateFilingProvider:
     documents_by_cin: Mapping[str, tuple[CorporateFilingReference, ...]]
     provider_name: str = "fixture"
 
-    async def acquire(
-        self, request: CorporateFilingRequest
-    ) -> CorporateFilingAcquisitionResult:
+    async def acquire(self, request: CorporateFilingRequest) -> CorporateFilingAcquisitionResult:
         requested_types = set(request.filing_types)
         requested_years = set(request.financial_years)
         documents = tuple(
@@ -259,9 +239,7 @@ def register_untrusted_corporate_filing(
     acquisition_method: CorporateFilingAcquisitionMethod,
     source_provider: str,
     source_locator: str,
-    media_type: Literal[
-        "application/pdf", "application/zip", "application/octet-stream"
-    ],
+    media_type: Literal["application/pdf", "application/zip", "application/octet-stream"],
     body: bytes,
     financial_year: str | None = None,
     filed_on: date | None = None,
@@ -282,7 +260,7 @@ def register_untrusted_corporate_filing(
         acquisition_method=acquisition_method,
         source_provider=source_provider,
         source_locator=source_locator,
-        acquired_at=acquired_at or datetime.now(timezone.utc),
+        acquired_at=acquired_at or datetime.now(UTC),
         media_type=media_type,
         sha256=hashlib.sha256(body).hexdigest(),
         size_bytes=len(body),
