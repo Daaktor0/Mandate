@@ -49,7 +49,9 @@ def create_app(
     logger = get_logger()
 
     if service_name == "mandate-worker":
-        runtime_plan = build_runtime_adapter_plan(environ=environ, fixture_root=fixture_root)
+        runtime_plan = build_runtime_adapter_plan(
+            environ=environ, fixture_root=fixture_root
+        )
         if (
             not runtime_plan.demo_mode
             and runtime_plan.bindings[AdapterCapability.COMPANY_DATA] == "attestr"
@@ -65,13 +67,16 @@ def create_app(
             zero_spend=runtime_plan.zero_spend,
             fixture_revision=runtime_plan.fixture_revision,
             adapter_backends={
-                capability.value: backend for capability, backend in runtime_plan.bindings.items()
+                capability.value: backend
+                for capability, backend in runtime_plan.bindings.items()
             },
             overridden_selectors=runtime_plan.overridden_selectors,
         )
 
     @application.middleware("http")
-    async def trace_middleware(request: Request, call_next: RequestResponseEndpoint) -> Response:
+    async def trace_middleware(
+        request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
         trace_id = normalise_trace_id(request.headers.get(TRACE_HEADER))
         with trace_context(trace_id, http_path=request.url.path):
             response = await call_next(request)
