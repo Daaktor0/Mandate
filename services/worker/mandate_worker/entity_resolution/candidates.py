@@ -261,6 +261,84 @@ class ResolutionSignal(BaseModel):
         return self
 
 
+class EntityRelationshipHint(BaseModel):
+    """Public-evidence relationship metadata; it never contributes to confidence scoring."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, populate_by_name=True)
+
+    candidate_cin: str | None = Field(default=None, alias="candidateCin")
+    candidate_legal_name: str | None = Field(
+        default=None,
+        alias="candidateLegalName",
+        min_length=1,
+        max_length=300,
+    )
+    brand_names: tuple[str, ...] = Field(default=(), alias="brandNames", max_length=20)
+    related_entity_reason: str | None = Field(
+        default=None,
+        alias="relatedEntityReason",
+        max_length=500,
+    )
+    evidence: EntityCandidateEvidenceSnippetsItem
+
+    @field_validator("candidate_cin", mode="before")
+    @classmethod
+    def normalise_candidate_cin(cls, value: object) -> object:
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            raise ValueError("relationship candidate CIN must be a string")
+        normalised = value.strip().upper()
+        if CIN_PATTERN.fullmatch(normalised) is None:
+            raise ValueError("relationship candidate CIN is invalid")
+        return normalised
+
+    @field_validator("candidate_legal_name", "related_entity_reason", mode="before")
+    @classmethod
+    def normalise_optional_text(cls, value: object) -> object:
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            raise ValueError("relationship text must be a string")
+        normalised = " ".join(value.split())
+        if not normalised:
+            raise ValueError("relationship text cannot be empty")
+        return normalised
+
+    @field_validator("brand_names", mode="before")
+    @classmethod
+    def normalise_brand_names(cls, value: object) -> tuple[str, ...]:
+        if value is None:
+            return ()
+        if isinstance(value, str):
+            raw_values = (value,)
+        elif isinstance(value, list | tuple):
+            raw_values = tuple(value)
+        else:
+            raise ValueError("brand names must be a string or sequence")
+        result: list[str] = []
+        seen: set[str] = set()
+        for raw in raw_values:
+            if not isinstance(raw, str):
+                raise ValueError("brand name must be a string")
+            brand = " ".join(raw.split())
+            if not brand or len(brand) > 200:
+                raise ValueError("brand name is empty or too long")
+            key = brand.casefold()
+            if key not in seen:
+                seen.add(key)
+                result.append(brand)
+        return tuple(result)
+
+    @model_validator(mode="after")
+    def validate_scope_and_content(self) -> Self:
+        if self.candidate_cin is None and self.candidate_legal_name is None:
+            raise ValueError("relationship hint must identify a candidate")
+        if not self.brand_names and self.related_entity_reason is None:
+            raise ValueError("relationship hint must add a brand or material related-entity reason")
+        return self
+
+
 class CandidateGeneratorConfig(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -285,6 +363,13 @@ class _CandidateSiteFacts:
     cin_ids: frozenset[UUID]
     address_match_ids: frozenset[UUID]
     address_conflict_ids: frozenset[UUID]
+    evidence: tuple[EntityCandidateEvidenceSnippetsItem, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class _CandidateRelationshipFacts:
+    brand_names: tuple[str, ...]
+    related_entity_reason: str | None
     evidence: tuple[EntityCandidateEvidenceSnippetsItem, ...]
 
 
@@ -341,6 +426,7 @@ class EntityCandidateGenerator:
         supplied_state: str | None = None,
         site_inspection: SiteInspection | None = None,
         signals: Sequence[ResolutionSignal] = (),
+        relationship_hints: Sequence[EntityRelationshipHint] = (),
     ) -> CandidateGenerationResult:
         names = _candidate_names(supplied_legal_name, site_inspection)[
             : self.config.max_name_queries
@@ -385,6 +471,7 @@ class EntityCandidateGenerator:
                 report_request_id=report_request_id,
                 site_inspection=site_inspection,
                 signals=signals,
+                relationship_hints=relationship_hints,
             )
             for aggregate in aggregates.values()
         ]
@@ -439,12 +526,14 @@ class EntityCandidateGenerator:
         report_request_id: UUID,
         site_inspection: SiteInspection | None,
         signals: Sequence[ResolutionSignal],
+        relationship_hints: Sequence[EntityRelationshipHint],
     ) -> tuple[EntityCandidate, CandidateScoreAudit]:
         record = aggregate.record
         site = _site_facts(record, site_inspection)
         matching_signals = tuple(
             signal for signal in signals if _signal_matches_record(signal, record)
         )
+        relationship = _relationship_facts(record, relationship_hints)
         signal_factors = {SIGNAL_FACTORS[signal.kind] for signal in matching_signals}
         stronger_linkage = any(
             (
@@ -491,7 +580,12 @@ class EntityCandidateGenerator:
         )
         signal_evidence = tuple(signal.evidence for signal in matching_signals)
         evidence = _dedupe_evidence(
-            (*site.evidence, *signal_evidence, *aggregate.provider_evidence.values())
+            (
+                *site.evidence,
+                *signal_evidence,
+                *relationship.evidence,
+                *aggregate.provider_evidence.values(),
+            )
         )[:MAX_EVIDENCE_PER_CANDIDATE]
         candidate_id = _candidate_id(report_request_id, record)
         candidate = EntityCandidate(
@@ -510,7 +604,8 @@ class EntityCandidateGenerator:
             registeredOfficeState=record.registered_office_state,
             registeredOfficeSummary=record.registered_office_summary,
             primaryDomain=_primary_domain(site_inspection) if site.evidence else None,
-            brandNames=[],
+            brandNames=list(relationship.brand_names),
+            relatedEntityReason=relationship.related_entity_reason,
             confidenceScore=calculation.score,
             confidenceLabel=calculation.label,
             evidenceSnippets=list(evidence),
@@ -539,6 +634,71 @@ class EntityCandidateGenerator:
             decisions=decisions,
         )
         return candidate, audit
+
+
+def _relationship_facts(
+    record: CompanyDataRecord,
+    hints: Sequence[EntityRelationshipHint],
+) -> _CandidateRelationshipFacts:
+    matching = tuple(hint for hint in hints if _relationship_matches_record(hint, record))
+    brands: list[str] = []
+    seen_brands: set[str] = set()
+    reasons: dict[str, str] = {}
+    evidence: list[EntityCandidateEvidenceSnippetsItem] = []
+    for hint in matching:
+        for brand in hint.brand_names:
+            key = brand.casefold()
+            if key not in seen_brands:
+                seen_brands.add(key)
+                brands.append(brand)
+        if hint.related_entity_reason is not None:
+            reasons.setdefault(hint.related_entity_reason.casefold(), hint.related_entity_reason)
+        evidence.append(hint.evidence)
+    if len(reasons) > 1:
+        raise CandidateGenerationError("conflicting_entity_relationship_hints")
+    return _CandidateRelationshipFacts(
+        brand_names=tuple(brands[:20]),
+        related_entity_reason=next(iter(reasons.values()), None),
+        evidence=_dedupe_evidence(evidence),
+    )
+
+
+def _relationship_matches_record(
+    hint: EntityRelationshipHint,
+    record: CompanyDataRecord,
+) -> bool:
+    matched = False
+    if hint.candidate_cin is not None:
+        if hint.candidate_cin != record.cin:
+            return False
+        matched = True
+    if hint.candidate_legal_name is not None:
+        candidate_name = _normalised_name(hint.candidate_legal_name)
+        record_names = {
+            _normalised_name(record.legal_name),
+            *(_normalised_name(name) for name in record.former_names),
+        }
+        if candidate_name not in record_names:
+            return False
+        matched = True
+    return matched
+
+
+def brand_context_statement(candidate: EntityCandidate, brand_name: str) -> str:
+    """Render the product-spec brand rule without replacing the legal identity."""
+
+    requested = " ".join(brand_name.split())
+    canonical = next(
+        (
+            brand
+            for brand in candidate.brand_names or ()
+            if brand.casefold() == requested.casefold()
+        ),
+        None,
+    )
+    if canonical is None:
+        raise ValueError("brand is not attached to the legal-entity candidate")
+    return f"{candidate.legal_name} operates the {canonical} business/website."
 
 
 def _candidate_names(
