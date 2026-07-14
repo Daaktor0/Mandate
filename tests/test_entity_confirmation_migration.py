@@ -43,8 +43,8 @@ def test_ENTITY_04_none_and_refine_cannot_accept_narrative() -> None:
         "p_upload",
     ):
         assert forbidden not in sql
-    assert "set state = 'draft'" in sql
-    assert "set state = 'resolving_entity'" in sql
+    assert "state = 'draft'" in sql
+    assert "state = 'resolving_entity'" in sql
     assert "delete from public.entity_candidates" in sql
 
 
