@@ -18,6 +18,7 @@ Implementation review is in progress and remains gated on the complete repositor
 | Prompt injection | ER-10 hides malicious instructions in page markup and requires the suspicion flag without changing candidates or confidence. |
 | Confidentiality | Fixture schema contains only public identity/evidence fields; a structural test rejects credential and confidential-matter vocabulary. |
 | Brand/legal identity | Typed relationship hints attach brand context to a legal candidate; the legal name remains the candidate identity and the rendered statement follows the product-spec brand rule. Generated brand metadata is treated as optional at the schema boundary and handled fail-closed when absent. |
+| Relationship input validation | Candidate identifiers are normalised and bounded; brand names are deduplicated and capped; materiality reasons require non-empty bounded text and a public evidence object. |
 | Related-entity scope | A related reason must be tied to an identified candidate and a specific public evidence object. Conflicting materiality reasons fail closed. |
 | Confidence integrity | Relationship hints are resolved after scoring facts are assembled, are excluded from every confidence factor and score-audit decision, and may add evidence/presentation metadata only. Acceptance tests compare candidate ids and scores with and without the relationship hints. |
 | User confirmation | Every fixture outcome retains `requiresUserConfirmation=true`; the result schema has no auto-selection field. |
