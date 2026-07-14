@@ -4,6 +4,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 COMPONENT = ROOT / "apps" / "web" / "components" / "entity-confirmation-view.tsx"
+PAGE = (
+    ROOT
+    / "apps"
+    / "web"
+    / "app"
+    / "report-requests"
+    / "[id]"
+    / "entity-confirmation"
+    / "page.tsx"
+)
 
 
 def _component() -> str:
@@ -27,6 +37,16 @@ def test_ENTITY_03_candidate_cards_show_identity_evidence_and_confidence() -> No
     assert 'name="primary-entity"' in source
     assert "checked={selectedCandidateId === candidate.candidateId}" in source
     assert "setSelectedCandidateId(null)" in source
+
+
+def test_SEC_01_confirmation_page_rejects_malformed_ids_before_database_access() -> None:
+    source = PAGE.read_text(encoding="utf-8")
+
+    assert "if (!UUID.test(id))" in source
+    assert source.index("if (!UUID.test(id))") < source.index(
+        "createRequestSupabaseClient()"
+    )
+    assert "notFound();" in source
 
 
 def test_ENTITY_04_confirmation_ui_supports_none_and_public_identity_refinement() -> None:
