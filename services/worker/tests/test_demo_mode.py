@@ -121,6 +121,14 @@ def test_NFR_03_ADR_014_demo_mode_flag_is_strict() -> None:
         build_runtime_adapter_plan({"DEMO_MODE": "true"}, fixture_root=FIXTURE_ROOT)
 
 
+def test_ENTITY_05_worker_rejects_unverified_attestr_live_binding() -> None:
+    with pytest.raises(RuntimeConfigurationError, match="attestr is disabled"):
+        create_app(
+            environ={"DEMO_MODE": "0", "PROVIDER_COMPANY_DATA": "attestr"},
+            fixture_root=FIXTURE_ROOT,
+        )
+
+
 def test_NFR_03_live_mode_does_not_load_or_silently_select_fixtures() -> None:
     plan = build_runtime_adapter_plan(
         {"DEMO_MODE": "0", "PROVIDER_SEARCH": "brave"},
