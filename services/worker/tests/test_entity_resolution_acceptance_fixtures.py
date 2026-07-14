@@ -111,11 +111,11 @@ class EntityResolutionFixture(BaseModel):
     @model_validator(mode="after")
     def references_are_closed_and_public(self) -> Self:
         records = {record.cin for record in self.records}
-        referenced = {
-            cin
-            for cins in self.searches.values()
-            for cin in cins
-        } | set(self.lookups) | set(self.lookups.values())
+        referenced = (
+            {cin for cins in self.searches.values() for cin in cins}
+            | set(self.lookups)
+            | set(self.lookups.values())
+        )
         if not referenced <= records:
             raise ValueError("fixture search/lookup references an unknown company record")
         response_urls = [item.url for item in self.responses]
@@ -143,7 +143,10 @@ class FixtureEnvelope(BaseModel):
 
 def _load_fixtures() -> tuple[EntityResolutionFixture, ...]:
     envelope = FixtureEnvelope.model_validate_json(FIXTURE_FILE.read_text(encoding="utf-8"))
-    assert envelope.notice == "Synthetic public-information fixtures; not MCA or legal-database results."
+    assert (
+        envelope.notice
+        == "Synthetic public-information fixtures; not MCA or legal-database results."
+    )
     return envelope.cases
 
 
@@ -227,7 +230,9 @@ async def _no_sleep(_seconds: float) -> None:
 
 
 def _candidate_map(result: Any) -> dict[str, Any]:
-    return {candidate.cin: candidate for candidate in result.candidates if candidate.cin is not None}
+    return {
+        candidate.cin: candidate for candidate in result.candidates if candidate.cin is not None
+    }
 
 
 def _assert_expected_case(
@@ -276,7 +281,9 @@ def _assert_expected_case(
     )
     limitation_codes = {item.code.value for item in inspection.limitations}
     assert set(expected.limitation_codes) <= limitation_codes
-    detail_codes = {item.detail_code for item in inspection.limitations if item.detail_code is not None}
+    detail_codes = {
+        item.detail_code for item in inspection.limitations if item.detail_code is not None
+    }
     assert set(expected.limitation_detail_codes) <= detail_codes
 
     if expected.abandoned_outcome is not None:
