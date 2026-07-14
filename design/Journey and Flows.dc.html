@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Mandate — User Journey &amp; Screen Flows</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#EDEBE4; font-family:"IBM Plex Sans",system-ui,sans-serif; color:#1A2430; }
+  a { color:#1D4E89; } a:hover { color:#163C6A; }
+  * { box-sizing:border-box; }
+</style>
+</helmet>
+
+<div style="max-width:1380px; margin:0 auto; padding:56px 40px 96px">
+
+  <header style="margin-bottom:48px">
+    <div style="font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:#6B7280; margin-bottom:12px">User Journey &amp; Screen Flows · doc-03 primary flow</div>
+    <div style="font-family:'Source Serif 4',Georgia,serif; font-size:36px; font-weight:600; color:#1E3A5F">From company name to kickoff call<span style="color:#A63D2F">.</span></div>
+    <p style="font-size:14.5px; line-height:22px; color:#4A5568; max-width:720px; margin:14px 0 0">Six phases, every screen-to-screen transition with its initiator and dashboard status, and all ten branch/error paths designed. The three trust moments — the wrong-entity fear, the generation wait, and the failure moment — each get an explicit system response.</p>
+  </header>
+
+  <!-- ============ A. JOURNEY MAP ============ -->
+  <section data-screen-label="Journey map" style="margin-bottom:64px">
+    <h2 style="font-size:20px; font-weight:600; margin:0 0 16px; padding-bottom:10px; border-bottom:2px solid #1E3A5F">A · Journey map</h2>
+    <div style="display:grid; grid-template-columns:repeat(6,1fr); gap:12px">
+
+      <div style="background:#FFFFFF; border:1px solid #E3E0D8; border-radius:10px; overflow:hidden; display:flex; flex-direction:column">
+        <div style="background:#1E3A5F; color:#fff; padding:12px 16px"><div style="font-size:11px; font-weight:600; letter-spacing:.06em; color:#C9D4E2">PHASE 1</div><div style="font-size:14px; font-weight:600">Arrive &amp; decide to trust</div></div>
+        <div style="padding:14px 16px; display:flex; flex-direction:column; gap:12px; font-size:12px; line-height:17px; flex:1">
+          <div><div style="font-weight:600; color:#6B7280; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:3px">Screens</div>Landing · Sign-in (Google/Microsoft) · First-login profile</div>
+          <div><div style="font-weight:600; color:#6B7280; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:3px">Goal</div>Understand what this is — and what it is not — before typing a client's name anywhere.</div>
+          <div style="font-style:italic; color:#7A5410; background:#FBF3E0; border-radius:6px; padding:8px 10px">"Another AI tool overpromising to lawyers?"</div>
+          <div style="background:#F1EFE9; border-radius:6px; padding:8px 10px; color:#1A2430"><strong>Mandate's response:</strong> public-information-only explanation, sample Mandate Brief on the landing page, not-legal-advice statement above the fold. No agent diagrams, no coverage claims.</div>
+        </div>
+        <div style="padding:10px 16px; border-top:1px solid #EDEAE2; font-size:11px; color:#6B7280">Status: —</div>
+      </div>
+
+      <div style="background:#FFFFFF; border:1px solid #E3E0D8; border-radius:10px; overflow:hidden; display:flex; flex-direction:column">
+        <div style="background:#1E3A5F; color:#fff; padding:12px 16px"><div style="font-size:11px; font-weight:600; letter-spacing:.06em; color:#C9D4E2">PHASE 2</div><div style="font-size:14px; font-weight:600">Start a Mandate Brief</div></div>
+        <div style="padding:14px 16px; display:flex; flex-direction:column; gap:12px; font-size:12px; line-height:17px; flex:1">
+          <div><div style="font-weight:600; color:#6B7280; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:3px">Screens</div>Dashboard · New Mandate Brief (Website / Legal name tabs)</div>
+          <div><div style="font-weight:600; color:#6B7280; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:3px">Goal</div>Point Mandate at the counterparty in seconds, between calls.</div>
+          <div style="font-style:italic; color:#7A5410; background:#FBF3E0; border-radius:6px; padding:8px 10px">"Am I allowed to type this here?"</div>
+          <div style="background:#F1EFE9; border-radius:6px; padding:8px 10px"><strong>Mandate's response:</strong> the confidentiality confirmation is a prominent, mandatory checkbox — not fine print. "No charge until you confirm the company" stated at the button.</div>
+        </div>
+        <div style="padding:10px 16px; border-top:1px solid #EDEAE2; font-size:11px; color:#6B7280">Status: — → <span style="color:#7A5410; font-weight:600">Entity confirmation required</span></div>
+      </div>
+
+      <div style="background:#FFFFFF; border:1px solid #E3E0D8; border-radius:10px; overflow:hidden; display:flex; flex-direction:column">
+        <div style="background:#1E3A5F; color:#fff; padding:12px 16px"><div style="font-size:11px; font-weight:600; letter-spacing:.06em; color:#C9D4E2">PHASE 3</div><div style="font-size:14px; font-weight:600">Confirm the company</div></div>
+        <div style="padding:14px 16px; display:flex; flex-direction:column; gap:12px; font-size:12px; line-height:17px; flex:1">
+          <div><div style="font-weight:600; color:#6B7280; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:3px">Screens</div>Entity discovery (system) · Entity confirmation</div>
+          <div><div style="font-weight:600; color:#6B7280; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:3px">Goal</div>Be certain the report will be about the right legal entity.</div>
+          <div style="font-style:italic; color:#7A5410; background:#FBF3E0; border-radius:6px; padding:8px 10px">"There are six companies with this name. Wrong one = useless brief."</div>
+          <div style="background:#F1EFE9; border-radius:6px; padding:8px 10px"><strong>Mandate's response:</strong> evidence-first candidate cards (CIN, registered office, domain relationship, snippets) with shape-coded confidence labels. "None of these" is a first-class action. Nothing is reserved until the user confirms.</div>
+        </div>
+        <div style="padding:10px 16px; border-top:1px solid #EDEAE2; font-size:11px; color:#6B7280">Status: <span style="color:#7A5410; font-weight:600">Entity confirmation required</span></div>
+      </div>
+
+      <div style="background:#FFFFFF; border:1px solid #E3E0D8; border-radius:10px; overflow:hidden; display:flex; flex-direction:column">
+        <div style="background:#1E3A5F; color:#fff; padding:12px 16px"><div style="font-size:11px; font-weight:600; letter-spacing:.06em; color:#C9D4E2">PHASE 4</div><div style="font-size:14px; font-weight:600">Scope &amp; commit</div></div>
+        <div style="padding:14px 16px; display:flex; flex-direction:column; gap:12px; font-size:12px; line-height:17px; flex:1">
+          <div><div style="font-weight:600; color:#6B7280; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:3px">Screens</div>Clarification (client role) · Sparse-data disclosure · Entitlement reserve / purchase</div>
+          <div><div style="font-weight:600; color:#6B7280; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:3px">Goal</div>Know exactly what will be produced and what it costs before committing.</div>
+          <div style="font-style:italic; color:#7A5410; background:#FBF3E0; border-radius:6px; padding:8px 10px">"What am I spending, and on what, exactly?"</div>
+          <div style="background:#F1EFE9; border-radius:6px; padding:8px 10px"><strong>Mandate's response:</strong> client-role question with a "why this matters" explainer; sparse public data disclosed <em>before</em> anything is reserved; reserve shown as 2 available → 1 reserved. Zero balance → purchase, then return to this exact point.</div>
+        </div>
+        <div style="padding:10px 16px; border-top:1px solid #EDEAE2; font-size:11px; color:#6B7280">Status: <span style="color:#7A5410; font-weight:600">Clarification required</span> → <span style="color:#4A5568; font-weight:600">Queued</span></div>
+      </div>
+
+      <div style="background:#FFFFFF; border:1px solid #E3E0D8; border-radius:10px; overflow:hidden; display:flex; flex-direction:column">
+        <div style="background:#1E3A5F; color:#fff; padding:12px 16px"><div style="font-size:11px; font-weight:600; letter-spacing:.06em; color:#C9D4E2">PHASE 5</div><div style="font-size:14px; font-weight:600">The wait</div></div>
+        <div style="padding:14px 16px; display:flex; flex-direction:column; gap:12px; font-size:12px; line-height:17px; flex:1">
+          <div><div style="font-weight:600; color:#6B7280; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:3px">Screens</div>Generation progress (7 truthful stages) · Ready notification (email + dashboard)</div>
+          <div><div style="font-weight:600; color:#6B7280; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:3px">Goal</div>Get on with other work, confident the job is really moving.</div>
+          <div style="font-style:italic; color:#7A5410; background:#FBF3E0; border-radius:6px; padding:8px 10px">"Is it actually doing anything, or is this a fake spinner?"</div>
+          <div style="background:#F1EFE9; border-radius:6px; padding:8px 10px"><strong>Mandate's response:</strong> a timestamped checklist of real stages — no percentages, no fake motion. Retries shown honestly ("retry scheduled 14:32"). "You can close this page; we'll email you."</div>
+        </div>
+        <div style="padding:10px 16px; border-top:1px solid #EDEAE2; font-size:11px; color:#6B7280">Status: <span style="color:#4A5568; font-weight:600">Queued</span> → <span style="color:#1E4E79; font-weight:600">Researching · Verifying · Drafting · Preparing Mandate Brief</span> → <span style="color:#1F5B33; font-weight:600">Ready</span></div>
+      </div>
+
+      <div style="background:#FFFFFF; border:1px solid #E3E0D8; border-radius:10px; overflow:hidden; display:flex; flex-direction:column">
+        <div style="background:#1E3A5F; color:#fff; padding:12px 16px"><div style="font-size:11px; font-weight:600; letter-spacing:.06em; color:#C9D4E2">PHASE 6</div><div style="font-size:14px; font-weight:600">Deliver &amp; use</div></div>
+        <div style="padding:14px 16px; display:flex; flex-direction:column; gap:12px; font-size:12px; line-height:17px; flex:1">
+          <div><div style="font-weight:600; color:#6B7280; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:3px">Screens</div>Brief editor · Letterhead · Preview &amp; download · Issue reporting · Repeat purchase</div>
+          <div><div style="font-weight:600; color:#6B7280; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:3px">Goal</div>Hand a partner-grade document across the table — on firm letterhead.</div>
+          <div style="font-style:italic; color:#7A5410; background:#FBF3E0; border-radius:6px; padding:8px 10px">"Can I put my name on this?"</div>
+          <div style="background:#F1EFE9; border-radius:6px; padding:8px 10px"><strong>Mandate's response:</strong> every claim traceable in the source panel; user-added text that outruns the sources is flagged inline; letterhead-safe margins; the download sheet restates version, entity, CIN, research date and the disclaimer.</div>
+        </div>
+        <div style="padding:10px 16px; border-top:1px solid #EDEAE2; font-size:11px; color:#6B7280">Status: <span style="color:#1F5B33; font-weight:600">Ready</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ B. PRIMARY SCREEN FLOW ============ -->
+  <section data-screen-label="Screen flow" style="margin-bottom:64px">
+    <h2 style="font-size:20px; font-weight:600; margin:0 0 6px; padding-bottom:10px; border-bottom:2px solid #1E3A5F">B · Primary screen flow</h2>
+    <div style="display:flex; gap:20px; align-items:center; font-size:12px; color:#4A5568; margin:12px 0 20px">
+      <span style="display:inline-flex; align-items:center; gap:6px"><span style="width:14px; height:14px; border-radius:50%; background:#1E3A5F; color:#fff; font-size:9px; font-weight:700; display:inline-flex; align-items:center; justify-content:center">U</span>user initiates</span>
+      <span style="display:inline-flex; align-items:center; gap:6px"><span style="width:14px; height:14px; border-radius:50%; background:#8C6D3F; color:#fff; font-size:9px; font-weight:700; display:inline-flex; align-items:center; justify-content:center">S</span>system advances</span>
+      <span>· chips show the dashboard status visible at that point · ⑂ marks a branch designed in section C</span>
+    </div>
+
+    <sc-for list="{{ flow }}" as="n" hint-placeholder-count="8">
+      <div style="display:flex; flex-direction:column">
+        <div style="background:#FFFFFF; border:1px solid #E3E0D8; border-radius:8px; padding:12px 18px; display:grid; grid-template-columns:220px 1fr auto auto; gap:16px; align-items:center">
+          <div style="font-size:14px; font-weight:600">{{ n.screen }}</div>
+          <div style="font-size:12.5px; color:#4A5568; line-height:17px">{{ n.what }}</div>
+          <div style="font-size:11px; color:#6B7280">{{ n.branch }}</div>
+          <span style="display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:3px 10px; font-size:11.5px; font-weight:500; background:{{ n.bg }}; color:{{ n.fg }}; border:1px solid {{ n.bd }}">{{ n.status }}</span>
+        </div>
+        <sc-if value="{{ n.arrow }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex; align-items:center; gap:10px; padding:6px 0 6px 28px">
+            <span style="width:16px; height:16px; border-radius:50%; background:{{ n.arrowBg }}; color:#fff; font-size:10px; font-weight:700; display:inline-flex; align-items:center; justify-content:center">{{ n.who }}</span>
+            <span style="font-size:11.5px; color:#6B7280">{{ n.arrow }}</span>
+            <span style="color:#9AA1AC">↓</span>
+          </div>
+        </sc-if>
+      </div>
+    </sc-for>
+  </section>
+
+  <!-- ============ C. BRANCH & ERROR PATHS ============ -->
+  <section data-screen-label="Branch and error paths" style="margin-bottom:24px">
+    <h2 style="font-size:20px; font-weight:600; margin:0 0 6px; padding-bottom:10px; border-bottom:2px solid #1E3A5F">C · Branch &amp; error paths — each designed</h2>
+    <p style="font-size:12.5px; color:#6B7280; margin:10px 0 20px">The quoted line in each card is the exact copy the user reads at that moment. Money honesty is the constant: nothing is charged before confirmation, and every failure restores the entitlement visibly.</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px">
+      <sc-for list="{{ branches }}" as="b" hint-placeholder-count="10">
+        <div style="background:#FFFFFF; border:1px solid #E3E0D8; border-radius:10px; padding:18px 20px; display:flex; flex-direction:column; gap:10px">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px">
+            <div style="font-size:14px; font-weight:600">{{ b.name }}</div>
+            <span style="display:inline-flex; align-items:center; border-radius:999px; padding:2px 9px; font-size:11px; font-weight:500; background:{{ b.bg }}; color:{{ b.fg }}; border:1px solid {{ b.bd }}; white-space:nowrap">{{ b.status }}</span>
+          </div>
+          <div style="font-size:12px; color:#4A5568; line-height:17px"><strong style="color:#6B7280; font-weight:600">Path:</strong> {{ b.path }}</div>
+          <div style="font-family:'Source Serif 4',Georgia,serif; font-size:13px; line-height:19px; color:#1A2430; background:#FAF9F5; border:1px solid #EDEAE2; border-left:3px solid #1E3A5F; border-radius:0 6px 6px 0; padding:10px 14px">“{{ b.copy }}”</div>
+          <div style="font-size:11.5px; color:#6B7280; line-height:16px">{{ b.trust }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <div style="font-size:12px; color:#6B7280">Key interaction states (entity confirmation ×5, generation stages ×7 + retry_wait) are designed in <strong>Product Screens</strong>. Clickable prototype: next deliverable.</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const AMBER = { bg:'#FBF3E0', fg:'#7A5410', bd:'#E8D5A4' };
+    const GREY  = { bg:'#F1EFE9', fg:'#4A5568', bd:'#D8D5CC' };
+    const BLUE  = { bg:'#E9F0F8', fg:'#1E4E79', bd:'#C5D7EA' };
+    const GREEN = { bg:'#E7F2EA', fg:'#1F5B33', bd:'#BFDCC8' };
+    const CLAY  = { bg:'#F7EDE9', fg:'#7C382A', bd:'#E4C6BA' };
+    const NONE  = { bg:'#FFFFFF', fg:'#6B7280', bd:'#E3E0D8' };
+    const U = '#1E3A5F', S = '#8C6D3F';
+    const n = (screen, what, status, c, who, arrow, branch) => ({
+      screen, what, status, bg:c.bg, fg:c.fg, bd:c.bd,
+      who, arrow, arrowBg: who === 'U' ? U : S, branch: branch || ''
+    });
+    const flow = [
+      n('Landing', 'Positioning, sample Mandate Brief, three-step flow, pricing, not-legal-advice statement.', 'signed out', NONE, 'U', 'clicks "Sign in with Google / Microsoft"'),
+      n('Sign-in', 'OAuth only — no passwords to manage.', 'signed out', NONE, 'S', 'first login detected → profile; else → dashboard'),
+      n('First-login profile', 'Name, firm, role, city. One screen, once.', '—', NONE, 'U', 'saves profile'),
+      n('Dashboard', 'All Mandate Briefs with status; entitlement balance (available · reserved).', 'all ten statuses', NONE, 'U', 'clicks "New Mandate Brief"'),
+      n('New Mandate Brief', 'Website or Legal name tab + mandatory confidentiality confirmation.', 'not yet created', NONE, 'U', 'submits — "Find the company" (no charge)', '⑂ C7 outage'),
+      n('Entity discovery', 'System searches public records; user watches or leaves.', 'Entity confirmation required', AMBER, 'S', 'presents candidates (0, 1, or many)', '⑂ C1 none found'),
+      n('Entity confirmation', 'Evidence-first candidate cards; confidence labels; "None of these".', 'Entity confirmation required', AMBER, 'U', 'confirms "This is the company"', '⑂ C2 refine loop'),
+      n('Clarification', 'Mandatory client-role question with "why this matters" explainer.', 'Clarification required', AMBER, 'U', 'answers and continues', '⑂ C3 sparse data'),
+      n('Entitlement reserve', 'Plain statement: this reserves 1 Mandate Brief (2 available → 1).', 'Clarification required', AMBER, 'U', 'confirms reservation', '⑂ C4 zero balance'),
+      n('Generation progress', 'Seven-stage truthful checklist with timestamps; email on completion.', 'Queued → Researching → Verifying → Drafting → Preparing Mandate Brief', BLUE, 'S', 'completes all stages → notifies by email + dashboard', '⑂ C5 retry · C6 failure · C9 cancel'),
+      n('Ready', 'Email + dashboard row turn green.', 'Ready', GREEN, 'U', 'opens the Mandate Brief'),
+      n('Brief editor', 'Paginated A4 canvas + source/confidence panel + versions.', 'Ready', GREEN, 'U', 'optionally applies letterhead', '⑂ C8 re-render · C10 issue'),
+      n('Letterhead', 'Upload; margin & continuation preview; re-render without re-research.', 'Ready', GREEN, 'U', 'proceeds to download'),
+      n('Download', 'Version, entity/CIN, research date, annex toggle, disclaimer.', 'Ready', GREEN, 'U', 'downloads PDF · returns to dashboard · buys next pack'),
+      n('Repeat purchase', 'Packs of 1 / 5 / 10 Mandate Briefs from dashboard or account.', 'Ready', GREEN, null, null)
+    ];
+    const b = (name, status, c, path, copy, trust) => ({ name, status, bg:c.bg, fg:c.fg, bd:c.bd, path, copy, trust });
+    const branches = [
+      b('C1 · No entity found', 'Entity confirmation required', AMBER,
+        'Discovery returns zero candidates → confirmation screen shows the empty-evidence state → user enters legal name or CIN → discovery re-runs.',
+        'We could not identify a company from meridianagro.in. Try the exact legal name or CIN — nothing has been charged.',
+        'The empty state asks for better input instead of guessing. Entitlement untouched, and it says so.'),
+      b('C2 · Ambiguous candidates — "None of these"', 'Entity confirmation required', AMBER,
+        '2–5 look-alike candidates → user rejects all → refine form (legal name + optional CIN, state) → new candidate set. Loop until confirmed or abandoned.',
+        'None of these is the company? Add the legal name or CIN and we will search again. You can repeat this as often as needed — confirmation is what starts the work.',
+        'Rejection is a first-class button, styled equal to acceptance. The loop is free and unlimited.'),
+      b('C3 · Sparse public data — disclosed before commitment', 'Clarification required', AMBER,
+        'Preliminary research finds thin coverage → disclosure interstitial before the reserve step → user proceeds or cancels at no cost.',
+        'Public information on this company is limited. This Mandate Brief will likely run one page instead of two, with more items marked “not publicly established.” Nothing has been reserved yet — you may proceed or stop here.',
+        'The bad news arrives before the money moves. That ordering is the product\u2019s trust promise in miniature.'),
+      b('C4 · Zero entitlements at generate', 'Clarification required', AMBER,
+        'Reserve attempted with balance 0 → purchase sheet (₹999 / ₹3,499 / ₹5,999 packs) → payment → return to the exact reserve step with context intact.',
+        'You have no Mandate Briefs available. Choose a pack to continue — your confirmed entity and answers are saved and will be right here.',
+        'Interception, not dead end. Everything entered survives the round-trip to payment.'),
+      b('C5 · Retryable failure — honest progress', 'Researching', BLUE,
+        'A source times out mid-stage → the stage row switches to retry_wait with the scheduled time → resumes automatically. No status regression.',
+        'Registry source unavailable — retry scheduled for 14:32. The checklist resumes automatically; you do not need to do anything.',
+        'The wait is named and timestamped, never hidden behind a spinner. The stage list keeps its history.'),
+      b('C6 · Terminal failure — entitlement restored', 'Failed — entitlement restored', CLAY,
+        'Retries exhausted → job ends → entitlement returned in the same moment the status changes → dashboard row explains, offers retry as a new attempt.',
+        'We could not complete this Mandate Brief. Your entitlement has been restored — nothing was used. The attempt log is kept; you can start again whenever you choose.',
+        'Clay, not alarm red. The row reads like kept trust: the product failed, the user lost nothing, the evidence remains.'),
+      b('C7 · Provider outage at intake', 'not created', GREY,
+        'Research providers down → banner on New Mandate Brief → intake and entity confirmation still work → generation queues when service resumes.',
+        'Research sources are temporarily unavailable. You can still confirm the company now; nothing will be reserved until generation can actually begin.',
+        'Degrade honestly: let the user do the free parts, never take money into an outage.'),
+      b('C8 · PDF re-render — no re-research', 'Ready', GREEN,
+        'Letterhead change, annex toggle, or version switch → server re-renders the PDF from the stored research → seconds, free, research date unchanged.',
+        'Re-rendered with your letterhead. Research date unchanged: 12 July 2026 — content is not refreshed by re-rendering.',
+        'Makes explicit that formatting is free and research is the thing that costs — the pricing story stays coherent.'),
+      b('C9 · Cancelled job', 'Deleted', GREY,
+        'User cancels while Queued or Researching → confirmation modal states the refund rule → entitlement restored → row marked Deleted.',
+        'Cancel this Mandate Brief? Work has not gone past research, so your entitlement will be restored in full.',
+        'The refund rule is stated in the moment of decision, not buried in terms.'),
+      b('C10 · Account deletion', 'Deleted', GREY,
+        'Account settings → delete → explicit list of what is purged (briefs, research, letterhead) and what is retained (invoices, as required by law) → 14-day grace.',
+        'Deleting your account removes every Mandate Brief and uploaded letterhead within 14 days. Tax invoices are retained as required by law. Unused entitlements are refunded to the original payment method.',
+        'Deletion copy is concrete — named artefacts, named timelines — because vagueness here would undo everything.')
+    ];
+    return { flow, branches };
+  }
+}
+</script>
+</body>
+</html>

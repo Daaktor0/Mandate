@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Mandate — Clickable Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#D8D5CC; font-family:"IBM Plex Sans",system-ui,sans-serif; color:#1A2430; }
+  a { color:#1D4E89; } a:hover { color:#163C6A; }
+  * { box-sizing:border-box; }
+  button { font-family:inherit; cursor:pointer; }
+</style>
+</helmet>
+
+<div style="min-height:100vh; display:flex; flex-direction:column; align-items:safe center; min-width:1160px; padding:28px 20px 64px">
+
+  <!-- prototype control bar -->
+  <div style="width:1120px; display:flex; justify-content:space-between; align-items:center; margin-bottom:18px">
+    <div>
+      <span style="font-family:'Source Serif 4',Georgia,serif; font-size:18px; font-weight:600; color:#1E3A5F">Mandate<span style="color:#A63D2F">.</span></span>
+      <span style="font-size:12px; color:#4A5568; margin-left:10px">Clickable prototype — happy path · wrong entity · failed generation</span>
+    </div>
+    <div style="display:flex; gap:8px; align-items:center">
+      <span style="font-size:11px; color:#6B7280">Jump:</span>
+      <button onClick="{{ goDashboard }}" style="background:#fff; border:1px solid #C9C4B8; border-radius:6px; padding:5px 12px; font-size:11.5px; font-weight:600">Dashboard</button>
+      <button onClick="{{ goIntake }}" style="background:#fff; border:1px solid #C9C4B8; border-radius:6px; padding:5px 12px; font-size:11.5px; font-weight:600">Start over</button>
+    </div>
+  </div>
+
+  <!-- ====================== APP FRAME ====================== -->
+  <div style="width:1120px; background:#FAF9F5; border:1px solid #C9C4B8; border-radius:12px; overflow:hidden; box-shadow:0 12px 40px rgba(26,36,48,.18); min-height:640px; display:flex; flex-direction:column">
+    <!-- top nav -->
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:0 28px; height:56px; background:#FFFFFF; border-bottom:1px solid #E3E0D8; flex:none">
+      <div style="display:flex; align-items:center; gap:28px">
+        <span style="font-family:'Source Serif 4',Georgia,serif; font-size:19px; font-weight:600; color:#1E3A5F">Mandate<span style="color:#A63D2F">.</span></span>
+        <span onClick="{{ goDashboard }}" style="font-size:13px; color:#4A5568; cursor:pointer">Mandate Briefs</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:14px">
+        <span style="font-size:12px; color:#4A5568; background:#F1EFE9; border:1px solid #E3E0D8; border-radius:999px; padding:4px 12px">{{ balanceLabel }}</span>
+        <span style="width:30px; height:30px; border-radius:50%; background:#1E3A5F; color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:600">AR</span>
+      </div>
+    </div>
+
+    <div style="flex:1; display:flex; flex-direction:column">
+
+    <!-- ============ DASHBOARD ============ -->
+    <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
+      <div data-screen-label="P-Dashboard" style="padding:28px 32px">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px">
+          <div style="font-family:'Source Serif 4',Georgia,serif; font-size:23px; font-weight:600">Mandate Briefs</div>
+          <button onClick="{{ goIntake }}" style="background:#1E3A5F; color:#fff; border:none; border-radius:6px; padding:10px 18px; font-size:13.5px; font-weight:600">New Mandate Brief</button>
+        </div>
+        <div style="background:#FFFFFF; border:1px solid #E3E0D8; border-radius:10px; overflow:hidden">
+          <sc-for list="{{ dashRows }}" as="r" hint-placeholder-count="3">
+            <div style="display:grid; grid-template-columns:2.2fr 1.6fr 1.7fr auto; gap:16px; padding:14px 22px; border-bottom:1px solid #EDEAE2; align-items:center">
+              <div><div style="font-size:13.5px; font-weight:600">{{ r.name }}</div><div style="font-size:11.5px; color:#6B7280">{{ r.sub }}</div></div>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#4A5568">{{ r.cin }}</span>
+              <span><span style="display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:3px 10px; font-size:11.5px; font-weight:500; background:{{ r.bg }}; color:{{ r.fg }}; border:1px solid {{ r.bd }}"><span style="font-weight:700">{{ r.glyph }}</span>{{ r.status }}</span></span>
+              <button onClick="{{ r.onOpen }}" style="width:80px; background:#fff; color:#1E3A5F; border:1px solid #C9C4B8; border-radius:6px; padding:6px 0; font-size:12px; font-weight:600">{{ r.action }}</button>
+            </div>
+          </sc-for>
+        </div>
+        <div style="font-size:11.5px; color:#6B7280; margin-top:10px">Failed attempts restore your entitlement automatically.</div>
+      </div>
+    </sc-if>
+
+    <!-- ============ INTAKE ============ -->
+    <sc-if value="{{ isIntake }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="P-Intake" style="max-width:560px; margin:0 auto; padding:40px 0">
+        <div style="font-family:'Source Serif 4',Georgia,serif; font-size:23px; font-weight:600; margin-bottom:4px">New Mandate Brief</div>
+        <div style="font-size:12.5px; color:#6B7280; margin-bottom:20px">Nothing is charged until you confirm the entity.</div>
+        <div style="display:flex; border-bottom:1px solid #E3E0D8; margin-bottom:20px">
+          <span style="padding:9px 16px; font-size:13.5px; font-weight:600; border-bottom:2px solid #1E3A5F; margin-bottom:-1px">Website</span>
+          <span style="padding:9px 16px; font-size:13.5px; color:#4A5568">Legal name</span>
+        </div>
+        <label style="display:block; font-size:12.5px; font-weight:600; margin-bottom:6px">Company website</label>
+        <div style="border:1px solid #C9C4B8; border-radius:6px; padding:11px 14px; font-size:14px; font-family:'IBM Plex Mono',monospace; background:#fff">meridianagro.in</div>
+        <div onClick="{{ toggleConfirm }}" style="display:flex; gap:12px; align-items:flex-start; background:#FFFFFF; border:1.5px solid {{ confirmBorder }}; border-radius:8px; padding:14px 16px; margin:20px 0; cursor:pointer">
+          <span style="width:19px; height:19px; border-radius:4px; flex:none; margin-top:1px; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; background:{{ confirmBg }}; color:#fff; border:{{ confirmBoxBorder }}">{{ confirmGlyph }}</span>
+          <span style="font-size:12.5px; line-height:18px"><strong>I confirm that I am not submitting confidential information.</strong><br><span style="color:#4A5568; font-size:11.5px">Company names and public websites only.</span></span>
+        </div>
+        <button onClick="{{ submitIntake }}" disabled="{{ intakeDisabled }}" style="width:100%; background:{{ intakeBtnBg }}; color:#fff; border:none; border-radius:6px; padding:12px 0; font-size:14px; font-weight:600">Find the company</button>
+        <div style="text-align:center; font-size:11.5px; color:#6B7280; margin-top:8px">{{ intakeHint }}</div>
+      </div>
+    </sc-if>
+
+    <!-- ============ SEARCHING ============ -->
+    <sc-if value="{{ isSearching }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="P-Searching" style="max-width:560px; margin:0 auto; padding:56px 0; text-align:center">
+        <div style="font-family:'Source Serif 4',Georgia,serif; font-size:21px; font-weight:600; margin-bottom:8px">Searching public records…</div>
+        <div style="font-size:13px; color:#4A5568; margin-bottom:24px">MCA master data · domain registration · company site</div>
+        <div style="height:56px; border:1px solid #E3E0D8; border-radius:8px; background:#F1EFE9; margin-bottom:10px"></div>
+        <div style="height:56px; border:1px solid #E3E0D8; border-radius:8px; background:#F1EFE9; opacity:.6; margin-bottom:10px"></div>
+        <div style="height:56px; border:1px solid #E3E0D8; border-radius:8px; background:#F1EFE9; opacity:.3"></div>
+      </div>
+    </sc-if>
+
+    <!-- ============ ENTITY CONFIRMATION ============ -->
+    <sc-if value="{{ isEntity }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="P-Entity confirmation" style="max-width:760px; margin:0 auto; padding:32px 0; width:100%">
+        <div style="font-family:'Source Serif 4',Georgia,serif; font-size:22px; font-weight:600">Which company is this?</div>
+        <div style="font-size:12.5px; color:#4A5568; margin:5px 0 18px">{{ entityIntro }}</div>
+        <sc-for list="{{ entityCards }}" as="c" hint-placeholder-count="3">
+          <div style="background:#FFFFFF; border:1px solid #E3E0D8; border-radius:10px; padding:18px 22px; margin-bottom:12px; display:grid; grid-template-columns:1fr auto; gap:18px; align-items:center">
+            <div>
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px">
+                <span style="font-size:14.5px; font-weight:600">{{ c.name }}</span>
+                <span style="display:inline-flex; align-items:center; gap:6px; border-radius:6px; padding:2px 9px; font-size:11.5px; font-weight:500; background:{{ c.bg }}; color:{{ c.fg }}; border:1px solid {{ c.bd }}"><span style="width:8px; height:8px; border-radius:50%; background:{{ c.dotFill }}; border:{{ c.dotBorder }}"></span>{{ c.conf }}</span>
+              </div>
+              <div style="display:flex; gap:18px; font-size:11.5px; color:#4A5568; margin-bottom:6px"><span style="font-family:'IBM Plex Mono',monospace; font-size:11px">{{ c.cin }}</span><span>{{ c.office }}</span></div>
+              <div style="font-size:11.5px; line-height:16px; color:#4A5568; font-style:italic">“{{ c.snippet }}”</div>
+            </div>
+            <button onClick="{{ c.onPick }}" style="background:{{ c.btnBg }}; color:{{ c.btnFg }}; border:{{ c.btnBorder }}; border-radius:6px; padding:9px 18px; font-size:12.5px; font-weight:600; white-space:nowrap">This is the company</button>
+          </div>
+        </sc-for>
+        <div style="display:flex; gap:12px; align-items:center; margin-top:14px">
+          <button onClick="{{ noneOfThese }}" style="background:#FFFFFF; color:#1A2430; border:1px solid #C9C4B8; border-radius:6px; padding:9px 16px; font-size:12.5px; font-weight:600">None of these</button>
+          <span style="margin-left:auto; font-size:11.5px; color:#6B7280">Nothing has been charged.</span>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ============ REFINE (wrong-entity branch) ============ -->
+    <sc-if value="{{ isRefine }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="P-Refine" style="max-width:560px; margin:0 auto; padding:40px 0">
+        <div style="font-family:'Source Serif 4',Georgia,serif; font-size:22px; font-weight:600; margin-bottom:6px">Let's find the right one</div>
+        <div style="font-size:13px; line-height:19px; color:#4A5568; margin-bottom:20px">Add the legal name or CIN and we will search again. You can repeat this as often as needed — <strong style="color:#1A2430">confirmation is what starts the work</strong>, and nothing has been charged.</div>
+        <label style="display:block; font-size:12.5px; font-weight:600; margin-bottom:6px">Registered legal name</label>
+        <div style="border:1px solid #C9C4B8; border-radius:6px; padding:11px 14px; font-size:13.5px; background:#fff; margin-bottom:14px">Meridian Agrotech Private Limited</div>
+        <label style="display:block; font-size:12.5px; font-weight:600; margin-bottom:6px">CIN <span style="font-weight:400; color:#6B7280">(removes all ambiguity)</span></label>
+        <div style="border:1px solid #C9C4B8; border-radius:6px; padding:11px 14px; font-size:13px; font-family:'IBM Plex Mono',monospace; background:#fff; margin-bottom:22px">U01100MH2019PTC324867</div>
+        <button onClick="{{ refineSearch }}" style="width:100%; background:#1E3A5F; color:#fff; border:none; border-radius:6px; padding:12px 0; font-size:14px; font-weight:600">Search again</button>
+      </div>
+    </sc-if>
+
+    <!-- ============ CLARIFICATION ============ -->
+    <sc-if value="{{ isClarify }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="P-Clarification" style="max-width:560px; margin:0 auto; padding:36px 0">
+        <div style="font-size:11.5px; color:#6B7280; margin-bottom:4px">Meridian Agrotech Private Limited · <span style="font-family:'IBM Plex Mono',monospace; font-size:11px">U01100MH2019PTC324867</span></div>
+        <div style="font-family:'Source Serif 4',Georgia,serif; font-size:22px; font-weight:600; margin-bottom:16px">Where does your client stand?</div>
+        <sc-for list="{{ roles }}" as="r" hint-placeholder-count="4">
+          <div onClick="{{ r.onPick }}" style="display:flex; align-items:center; gap:12px; background:#FFFFFF; border:{{ r.border }}; border-radius:8px; padding:13px 16px; cursor:pointer; margin-bottom:9px">
+            <span style="width:17px; height:17px; border-radius:50%; border:{{ r.radio }}; background:#fff; flex:none"></span>
+            <span style="font-size:13.5px; font-weight:{{ r.weight }}">{{ r.label }}</span>
+          </div>
+        </sc-for>
+        <div style="background:#F1EFE9; border-radius:8px; padding:12px 16px; font-size:11.5px; line-height:17px; color:#4A5568; margin:14px 0 20px"><strong style="color:#1A2430">Why this matters.</strong> Your answer shapes the regulatory lens and kickoff questions. It is never shared and never appears in the Mandate Brief.</div>
+        <button onClick="{{ goReserve }}" style="width:100%; background:#1E3A5F; color:#fff; border:none; border-radius:6px; padding:12px 0; font-size:14px; font-weight:600">Continue</button>
+      </div>
+    </sc-if>
+
+    <!-- ============ RESERVE ============ -->
+    <sc-if value="{{ isReserve }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="P-Reserve" style="max-width:560px; margin:0 auto; padding:40px 0">
+        <div style="font-family:'Source Serif 4',Georgia,serif; font-size:22px; font-weight:600; margin-bottom:6px">Ready to prepare</div>
+        <div style="font-size:13px; line-height:19px; color:#4A5568; margin-bottom:18px">Generating will reserve <strong style="color:#1A2430">1 Mandate Brief</strong>. If generation fails, it is restored automatically.</div>
+        <div style="display:flex; align-items:center; gap:12px; background:#FFFFFF; border:1px solid #E3E0D8; border-radius:8px; padding:14px 18px; margin-bottom:20px; font-size:13px">
+          <span style="color:#4A5568">Balance</span><strong>2 available</strong><span style="color:#9AA1AC">→</span><strong>1 available · 1 reserved</strong>
+        </div>
+        <button onClick="{{ startGeneration }}" style="width:100%; background:#1E3A5F; color:#fff; border:none; border-radius:6px; padding:12px 0; font-size:14px; font-weight:600">Reserve and generate</button>
+        <div style="text-align:center; font-size:11.5px; color:#6B7280; margin-top:8px">Prototype: generation plays through the seven stages in fast-forward.</div>
+      </div>
+    </sc-if>
+
+    <!-- ============ PROGRESS ============ -->
+    <sc-if value="{{ isProgress }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="P-Progress" style="max-width:600px; margin:0 auto; padding:32px 0; width:100%">
+        <div style="font-size:11.5px; color:#6B7280; margin-bottom:4px">Meridian Agrotech Private Limited</div>
+        <div style="font-family:'Source Serif 4',Georgia,serif; font-size:22px; font-weight:600; margin-bottom:4px">Preparing your Mandate Brief</div>
+        <div style="font-size:12.5px; color:#4A5568; margin-bottom:18px">Each line is a real stage with its real time. You can close this page; we will email you.</div>
+        <div style="background:#FFFFFF; border:1px solid #E3E0D8; border-radius:10px; padding:6px 0; margin-bottom:14px">
+          <sc-for list="{{ protoStages }}" as="s" hint-placeholder-count="7">
+            <div style="display:flex; align-items:center; gap:13px; padding:10px 20px; border-bottom:1px solid #F1EFE9">
+              <span style="width:21px; height:21px; border-radius:50%; flex:none; display:inline-flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:700; background:{{ s.cBg }}; color:{{ s.cFg }}; border:{{ s.cBorder }}">{{ s.glyph }}</span>
+              <span style="flex:1; font-size:13px; font-weight:{{ s.weight }}; color:{{ s.txt }}">{{ s.name }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#6B7280">{{ s.time }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ showRetryBanner }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; gap:12px; background:#FBF3E0; border:1px solid #E8D5A4; border-radius:8px; padding:11px 15px; margin-bottom:14px">
+            <span style="font-size:13px">⏲</span>
+            <span style="font-size:12px; line-height:17px; color:#7A5410"><strong>Registry source unavailable — retry scheduled for 14:32.</strong> The checklist resumes automatically; your entitlement stays reserved, not spent.</span>
+          </div>
+        </sc-if>
+        <div style="display:flex; gap:10px">
+          <button onClick="{{ simulateFailure }}" style="background:#fff; color:#7C382A; border:1px solid #E4C6BA; border-radius:6px; padding:8px 14px; font-size:11.5px; font-weight:600">Prototype: simulate terminal failure</button>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ============ FAILED ============ -->
+    <sc-if value="{{ isFailed }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="P-Failed" style="max-width:560px; margin:0 auto; padding:44px 0">
+        <span style="display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:3px 11px; font-size:12px; font-weight:500; background:#F7EDE9; color:#7C382A; border:1px solid #E4C6BA"><span style="font-weight:700">↩</span>Failed — entitlement restored</span>
+        <div style="font-family:'Source Serif 4',Georgia,serif; font-size:21px; font-weight:600; margin:14px 0 8px">We could not complete this Mandate Brief</div>
+        <div style="font-size:13px; line-height:19px; color:#4A5568; margin-bottom:16px">Your entitlement has been restored — <strong style="color:#1A2430">nothing was used</strong>. The attempt log is preserved, and you can start again whenever you choose.</div>
+        <div style="display:flex; align-items:center; gap:12px; background:#FFFFFF; border:1px solid #E3E0D8; border-radius:8px; padding:12px 16px; margin-bottom:18px; font-size:12.5px">
+          <span style="color:#4A5568">Balance</span><strong>1 reserved → 2 available</strong><span style="font-size:11px; color:#1F5B33; font-weight:600; margin-left:auto">✓ restored 14:41</span>
+        </div>
+        <div style="display:flex; gap:10px">
+          <button onClick="{{ startGeneration }}" style="background:#1E3A5F; color:#fff; border:none; border-radius:6px; padding:10px 18px; font-size:13px; font-weight:600">Try again</button>
+          <button onClick="{{ goDashboard }}" style="background:#fff; color:#1A2430; border:1px solid #C9C4B8; border-radius:6px; padding:10px 18px; font-size:13px; font-weight:600">Back to dashboard</button>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ============ READY / EDITOR ============ -->
+    <sc-if value="{{ isReady }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="P-Ready" style="max-width:640px; margin:0 auto; padding:40px 0; text-align:center">
+        <span style="display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:4px 13px; font-size:12.5px; font-weight:500; background:#E7F2EA; color:#1F5B33; border:1px solid #BFDCC8">✓ Ready</span>
+        <div style="font-family:'Source Serif 4',Georgia,serif; font-size:24px; font-weight:600; margin:16px 0 6px">Your Mandate Brief is ready</div>
+        <div style="font-size:13px; color:#4A5568; margin-bottom:24px">Meridian Agrotech Private Limited · research current to 12 July 2026 · 2 pages + source annex</div>
+        <div style="width:300px; margin:0 auto 24px; background:#FFFFFF; box-shadow:0 8px 28px rgba(26,36,48,.16); padding:26px 28px; text-align:left; font-family:'Source Serif 4',Georgia,serif">
+          <div style="border-bottom:2px solid #1E3A5F; padding-bottom:6px; margin-bottom:8px">
+            <div style="font-family:'IBM Plex Sans',sans-serif; font-size:6px; font-weight:600; letter-spacing:.16em; color:#6B7280">MANDATE BRIEF</div>
+            <div style="font-size:11.5px; font-weight:600; margin-top:2px">Meridian Agrotech Private Limited</div>
+          </div>
+          <div style="font-size:7px; line-height:1.6; color:#4A5568">· Bio-fertiliser manufacturer, ~4,000 outlets, six states<br>· The company states 24,000 MT p.a. capacity<br><span style="color:#A63D2F">· Open ₹12 cr charge on Nashik plant — confirm at kickoff</span></div>
+        </div>
+        <div style="display:flex; gap:10px; justify-content:center">
+          <button style="background:#1E3A5F; color:#fff; border:none; border-radius:6px; padding:11px 20px; font-size:13.5px; font-weight:600">Open in editor</button>
+          <button style="background:#fff; color:#1A2430; border:1px solid #C9C4B8; border-radius:6px; padding:11px 20px; font-size:13.5px; font-weight:600">Download PDF</button>
+          <button onClick="{{ goDashboard }}" style="background:transparent; color:#1D4E89; border:none; padding:11px 12px; font-size:13.5px; font-weight:500">Back to dashboard</button>
+        </div>
+        <div style="font-size:11px; color:#6B7280; margin-top:20px">Full editor design: see <strong>Product Screens</strong> · full document: see <strong>Mandate Brief Specimen</strong>.</div>
+      </div>
+    </sc-if>
+
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { screen: 'dashboard', confirmed: false, refined: false, role: 0, stageIdx: -1, retry: false };
+
+  componentWillUnmount() { clearInterval(this._t); }
+
+  startStages = () => {
+    clearInterval(this._t);
+    this.setState({ screen: 'progress', stageIdx: 0, retry: false });
+    this._t = setInterval(() => {
+      this.setState(s => {
+        if (s.screen !== 'progress') { clearInterval(this._t); return null; }
+        // honest retry moment at stage 2
+        if (s.stageIdx === 1 && !s.retry) return { retry: true, stageIdx: 2 };
+        const next = s.stageIdx + 1;
+        if (next >= 7) { clearInterval(this._t); return { screen: 'ready', stageIdx: 7 }; }
+        return { stageIdx: next, retry: s.retry && next < 4 };
+      });
+    }, 1600);
+  };
+
+  renderVals() {
+    const S = this.state;
+    const AMBER = { bg:'#FBF3E0', fg:'#7A5410', bd:'#E8D5A4' };
+    const BLUE  = { bg:'#E9F0F8', fg:'#1E4E79', bd:'#C5D7EA' };
+    const GREEN = { bg:'#E7F2EA', fg:'#1F5B33', bd:'#BFDCC8' };
+    const CLAY  = { bg:'#F7EDE9', fg:'#7C382A', bd:'#E4C6BA' };
+    const go = scr => () => { clearInterval(this._t); this.setState({ screen: scr }); };
+
+    const dashRows = [
+      { name:'Meridian Agrotech Private Limited', sub:'meridianagro.in · investor side', cin:'U01100MH2019PTC324867',
+        status: S.screen==='ready'?'Ready':'Entity confirmation required',
+        glyph: S.screen==='ready'?'✓':'◇', action: S.screen==='ready'?'Open':'Resume',
+        onOpen: go(S.screen==='ready'?'ready':'entity'), ...(S.screen==='ready'?GREEN:AMBER) },
+      { name:'Kestrel Logistics Private Limited', sub:'kestrel.co.in · acquirer side', cin:'U63030DL2016PTC301442',
+        status:'Verifying', glyph:'◔', action:'View', onOpen: go('dashboard'), ...BLUE },
+      { name:'Banwari Textiles Private Limited', sub:'banwaritextiles.in · seller side', cin:'U17120GJ2011PTC067884',
+        status:'Failed — entitlement restored', glyph:'↩', action:'Retry', onOpen: go('failed'), ...CLAY }
+    ];
+
+    const mkCard = (name, conf, c, dotFill, dotBorder, cin, office, snippet, strong) => ({
+      name, conf, ...c, dotFill, dotBorder, cin, office, snippet,
+      btnBg: strong ? '#1E3A5F' : '#FFFFFF', btnFg: strong ? '#FFFFFF' : '#1A2430',
+      btnBorder: strong ? 'none' : '1px solid #C9C4B8', onPick: go('clarify')
+    });
+    const entityCards = S.refined ? [
+      mkCard('Meridian Agrotech Private Limited', 'Strong match', GREEN, '#1F5B33', 'none',
+        'U01100MH2019PTC324867', 'Nashik, Maharashtra',
+        'CIN entered matches exactly; domain registrant confirms the same entity', true)
+    ] : [
+      mkCard('Meridian Agrotech Private Limited', 'Probable match', BLUE, 'transparent', '4.5px solid #1E4E79',
+        'U01100MH2019PTC324867', 'Nashik, Maharashtra',
+        'Site footer names this entity; domain registrant partially redacted', true),
+      mkCard('Meridian Agro Industries Limited', 'Ambiguous', AMBER, 'transparent', '2px solid #7A5410',
+        'U01403PB1998PLC021553', 'Ludhiana, Punjab',
+        'Similar name; older agri-processing company with no web presence', false),
+      mkCard('Meridian Agrotech LLP', 'Ambiguous', AMBER, 'transparent', '2px solid #7A5410',
+        'AAX-4471 (LLPIN)', 'Pune, Maharashtra',
+        'Name and state overlap; different constitution (LLP)', false)
+    ];
+
+    const roleLabels = ['We act for the investor / acquirer', 'We act for the company / promoters', 'We act for a seller / transferor', 'Other / prefer not to say'];
+    const roles = roleLabels.map((label, i) => ({
+      label, weight: S.role === i ? 600 : 400,
+      border: S.role === i ? '1.5px solid #1E3A5F' : '1px solid #C9C4B8',
+      radio: S.role === i ? '5px solid #1E3A5F' : '2px solid #9AA1AC',
+      onPick: () => this.setState({ role: i })
+    }));
+
+    const stageNames = ['Entity locked — Meridian Agrotech Private Limited', 'Collecting public sources', 'Reading and extracting claims', 'Verifying claims across sources', 'Drafting sections', 'Assembling kickoff questions', 'Preparing Mandate Brief — layout and annex'];
+    const times = ['14:02','14:09','14:17','14:21','14:26','14:31','14:36'];
+    const protoStages = stageNames.map((name, i) => {
+      if (i < S.stageIdx) return { name, time: times[i], cBg:'#E7F2EA', cFg:'#1F5B33', cBorder:'none', glyph:'✓', weight:400, txt:'#1A2430' };
+      if (i === S.stageIdx) return { name, time: 'started ' + times[i], cBg:'#1E3A5F', cFg:'#fff', cBorder:'none', glyph:'●', weight:600, txt:'#1A2430' };
+      return { name, time:'', cBg:'#FFFFFF', cFg:'#9AA1AC', cBorder:'1.5px solid #D8D5CC', glyph:'', weight:400, txt:'#6B7280' };
+    });
+
+    return {
+      isDashboard: S.screen==='dashboard', isIntake: S.screen==='intake', isSearching: S.screen==='searching',
+      isEntity: S.screen==='entity', isRefine: S.screen==='refine', isClarify: S.screen==='clarify',
+      isReserve: S.screen==='reserve', isProgress: S.screen==='progress', isFailed: S.screen==='failed', isReady: S.screen==='ready',
+      balanceLabel: S.screen==='progress' ? '1 available · 1 reserved' : (S.screen==='failed' ? '2 available — restored' : '2 available'),
+      dashRows, entityCards, roles, protoStages,
+      entityIntro: S.refined
+        ? 'With the CIN added, one exact match remains. Confirmation is still yours to make.'
+        : 'For meridianagro.in we found three registered companies. Confirm the right one — the Mandate Brief is only reserved after you confirm.',
+      confirmed: S.confirmed,
+      confirmBorder: S.confirmed ? '#1E3A5F' : '#C9C4B8',
+      confirmBg: S.confirmed ? '#1E3A5F' : '#FFFFFF',
+      confirmBoxBorder: S.confirmed ? 'none' : '2px solid #9AA1AC',
+      confirmGlyph: S.confirmed ? '✓' : '',
+      intakeDisabled: !S.confirmed,
+      intakeBtnBg: S.confirmed ? '#1E3A5F' : '#C9C4B8',
+      intakeHint: S.confirmed ? 'Free until you confirm the company on the next step.' : 'Button enables once the confirmation is ticked.',
+      showRetryBanner: S.retry && S.screen==='progress',
+      goDashboard: go('dashboard'),
+      goIntake: () => { clearInterval(this._t); this.setState({ screen:'intake', confirmed:false, refined:false, stageIdx:-1, retry:false }); },
+      toggleConfirm: () => this.setState(s => ({ confirmed: !s.confirmed })),
+      submitIntake: () => { if (!this.state.confirmed) return; this.setState({ screen:'searching' }); setTimeout(() => this.setState(s => s.screen==='searching' ? { screen:'entity' } : null), 1400); },
+      noneOfThese: go('refine'),
+      refineSearch: () => { this.setState({ refined:true, screen:'searching' }); setTimeout(() => this.setState(s => s.screen==='searching' ? { screen:'entity' } : null), 1200); },
+      goReserve: go('reserve'),
+      startGeneration: this.startStages,
+      simulateFailure: () => { clearInterval(this._t); this.setState({ screen:'failed' }); }
+    };
+  }
+}
+</script>
+</body>
+</html>
