@@ -13,7 +13,7 @@ import os
 from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Final, Protocol, Self
+from typing import Final, Literal, Protocol, Self
 from urllib.parse import urlsplit, urlunsplit
 
 import httpx
@@ -306,7 +306,7 @@ class _FixtureResponse(BaseModel):
 class _SearchFixture(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, populate_by_name=True)
 
-    fixture_version: int = Field(alias="fixtureVersion")
+    fixture_version: Literal[1] = Field(alias="fixtureVersion")
     request: _FixtureRequest
     response: _FixtureResponse
 
@@ -322,8 +322,6 @@ class FixtureSearchProvider:
     def from_catalog(cls, catalog: FixtureCatalog) -> FixtureSearchProvider:
         try:
             fixture = _SearchFixture.model_validate(catalog.payload(AdapterCapability.SEARCH))
-            if fixture.fixture_version != 1:
-                raise ValueError("unsupported search fixture version")
             results = tuple(
                 SearchResult(
                     title=item.title,
@@ -338,7 +336,11 @@ class FixtureSearchProvider:
         return cls(fixture_query=fixture.request.query, fixture_results=results)
 
     async def search(self, request: SearchRequest) -> SearchResponse:
-        results = self.fixture_results[: request.limit] if request.query == self.fixture_query else ()
+        results = (
+            self.fixture_results[: request.limit]
+            if request.query == self.fixture_query
+            else ()
+        )
         return SearchResponse(
             request=request,
             provider="fixture",
@@ -378,7 +380,9 @@ class ExaSearchProvider:
 
     transport: ExaTransport
     retry_delay: Callable[[float], Awaitable[None]] = field(
-        default=asyncio.sleep, repr=False, compare=False
+        default=asyncio.sleep,
+        repr=False,
+        compare=False,
     )
 
     async def search(self, request: SearchRequest) -> SearchResponse:
@@ -390,7 +394,10 @@ class ExaSearchProvider:
                 response = await self.transport.post_json(payload)
             except SearchTransportError as error:
                 if not error.retryable or attempt + 1 >= MAX_PROVIDER_CALLS:
-                    raise SearchProviderError(error.code, retryable=error.retryable) from error
+                    raise SearchProviderError(
+                        error.code,
+                        retryable=error.retryable,
+                    ) from error
                 await self.retry_delay(0.05)
                 continue
 
@@ -401,14 +408,14 @@ class ExaSearchProvider:
                 await self.retry_delay(0.05)
                 continue
 
-            parsed = _parse_exa_response(response.body, request.limit)
+            results, cost = _parse_exa_response(response.body, request.limit)
             return SearchResponse(
                 request=request,
                 provider="exa",
                 fixture=False,
                 provider_calls=provider_calls,
-                cost_usd=parsed[1],
-                results=parsed[0],
+                cost_usd=cost,
+                results=results,
             )
         raise SearchProviderError("search_unavailable", retryable=True)
 
