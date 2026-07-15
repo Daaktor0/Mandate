@@ -1,0 +1,65 @@
+
+===== pnpm lint =====
+$ pnpm --filter @mandate/web lint && uv run ruff check services/worker scripts tests packages/shared-schemas/python
+$ eslint . --max-warnings=0
+All checks passed!
+exit_status=0
+
+===== pnpm format:check =====
+$ pnpm exec prettier --check package.json pnpm-workspace.yaml tsconfig.base.json apps/web packages/shared-schemas && uv run ruff format --check services/worker scripts tests packages/shared-schemas/python
+Checking formatting...
+All matched files use Prettier code style!
+62 files already formatted
+exit_status=0
+
+===== pnpm typecheck =====
+$ pnpm --filter @mandate/web typecheck && pnpm --filter @mandate/shared-schemas typecheck && uv run mypy services/worker/mandate_worker packages/shared-schemas/python/mandate_schemas scripts/generate_traceability_report.py tests
+$ tsc --noEmit
+$ tsc --noEmit
+Success: no issues found in 44 source files
+exit_status=0
+
+===== pnpm test =====
+$ pnpm --filter @mandate/web test && pnpm --filter @mandate/shared-schemas test && uv run pytest -q
+$ vitest run
+
+[1m[46m RUN [49m[22m [36mv3.2.7 [39m[90m/home/runner/work/Mandate/Mandate/apps/web[39m
+
+ [32m✓[39m tests/intake.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m tests/entity-confirmation.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32m✓[39m tests/entity-resolution.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m tests/supabase-intake-repository.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m tests/toolchain.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/runtime-config.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m6 passed[39m[22m[90m (6)[39m
+[2m      Tests [22m [1m[32m52 passed[39m[22m[90m (52)[39m
+[2m   Start at [22m 15:18:04
+[2m   Duration [22m 2.20s[2m (transform 242ms, setup 0ms, collect 495ms, tests 89ms, environment 1ms, prepare 793ms)[22m
+
+$ vitest run
+
+[1m[46m RUN [49m[22m [36mv3.2.7 [39m[90m/home/runner/work/Mandate/Mandate/packages/shared-schemas[39m
+
+ [32m✓[39m tests/schemas.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m   Start at [22m 15:18:07
+[2m   Duration [22m 435ms[2m (transform 95ms, setup 0ms, collect 111ms, tests 9ms, environment 0ms, prepare 168ms)[22m
+
+........................................................................ [ 34%]
+........................................................................ [ 68%]
+..................................................................       [100%]
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /home/runner/work/Mandate/Mandate/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+210 passed, 1 warning in 3.55s
+exit_status=0
+
+===== pnpm audit --audit-level=high =====
+No known vulnerabilities found
+exit_status=0
