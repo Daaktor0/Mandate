@@ -1,4 +1,4 @@
-name: pnpm 11 audit diagnostic
+name: pnpm 11 lockfile and audit diagnostic
 
 on:
   pull_request:
@@ -34,25 +34,28 @@ jobs:
           corepack enable
           corepack prepare pnpm@11.13.0 --activate
           test "$(pnpm --version)" = "11.13.0"
-      - name: Validate existing lockfile and capture audit
+      - name: Regenerate candidate lockfile and capture audit
         run: |
-          pnpm install --frozen-lockfile
           mkdir -p .diagnostics
           set +e
+          pnpm install --lockfile-only > /tmp/pnpm-install.txt 2>&1
+          install_status=$?
+          audit_status=99
+          pnpm audit --audit-level=high --json > /tmp/pnpm-audit.txt 2>&1
+          audit_status=$?
           {
-            printf '{"candidate_pnpm":"'
-            pnpm --version | tr -d '\n'
-            printf '","audit":'
-            pnpm audit --audit-level=high --json
-            status=$?
-            printf ',"audit_exit_status":%s}\n' "$status"
-          } > .diagnostics/pnpm-audit.json 2>&1
+            printf 'candidate_pnpm=%s\n' "$(pnpm --version)"
+            printf 'install_status=%s\n' "$install_status"
+            cat /tmp/pnpm-install.txt
+            printf '\naudit_status=%s\n' "$audit_status"
+            cat /tmp/pnpm-audit.txt
+          } > .diagnostics/pnpm-audit.txt
           set -e
-          git restore package.json
-      - name: Commit candidate audit result
+          git restore package.json pnpm-lock.yaml
+      - name: Commit candidate result
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add .diagnostics/pnpm-audit.json
-          git commit -m "Temporary: force pnpm 11 audit candidate"
+          git add .diagnostics/pnpm-audit.txt
+          git commit -m "Temporary: test regenerated pnpm 11 lockfile"
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
