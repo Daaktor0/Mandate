@@ -1,4 +1,4 @@
-name: pnpm 11 migration
+name: pnpm 11 validation diagnostic
 
 on:
   pull_request:
@@ -8,12 +8,8 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  group: pnpm-11-migration
-  cancel-in-progress: true
-
 jobs:
-  migrate:
+  diagnose:
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
@@ -23,7 +19,13 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 22.16.0
-      - name: Update permanent pnpm pins and workspace settings
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff
+        with:
+          version: 0.7.19
+      - name: Prepare complete candidate migration
         run: |
           python - <<'PY'
           import json
@@ -31,12 +33,6 @@ jobs:
 
           package_path = Path("package.json")
           package = json.loads(package_path.read_text())
-          if package.get("packageManager") != "pnpm@10.13.1":
-              raise SystemExit("unexpected packageManager pin")
-          if package.get("engines", {}).get("pnpm") != "10.13.x":
-              raise SystemExit("unexpected pnpm engine pin")
-          if package.get("pnpm") != {"overrides": {"postcss": "8.5.10"}}:
-              raise SystemExit("unexpected package.json pnpm settings")
           package["packageManager"] = "pnpm@11.13.0"
           package["engines"]["pnpm"] = "11.13.x"
           del package["pnpm"]
@@ -58,8 +54,6 @@ jobs:
           }
           for path, (old, new) in replacements.items():
               content = path.read_text()
-              if content.count(old) != 1:
-                  raise SystemExit(f"expected one pin in {path}")
               path.write_text(content.replace(old, new))
 
           test_path = Path("tests/test_toolchain_pins.py")
@@ -68,8 +62,6 @@ jobs:
               '        self.assertEqual("0.28.1", '
               'package_json["optionalDependencies"]["@esbuild/linux-x64"])\n'
           )
-          if tests.count(old_optional) != 1:
-              raise SystemExit("unexpected optional-dependency assertion")
           tests = tests.replace(
               old_optional,
               old_optional + '        self.assertNotIn("pnpm", package_json)\n',
@@ -87,21 +79,17 @@ jobs:
               '        self.assertNotIn("onlyBuiltDependencies", workspace)\n'
               '        self.assertNotIn("ignoredBuiltDependencies", workspace)\n'
           )
-          if tests.count(old_build_assertions) != 1:
-              raise SystemExit("unexpected build-script assertions")
           test_path.write_text(tests.replace(old_build_assertions, new_build_assertions))
 
           workspace_path = Path("pnpm-workspace.yaml")
           workspace = workspace_path.read_text()
           old_header = 'packages:\n  - "apps/*"\n  - "packages/*"\n\n'
-          new_header = (
+          workspace = workspace.replace(
+              old_header,
               old_header
-              + '# Root dependency-resolution override retained from the pnpm 10 package.json setting.\n'
-              + 'overrides:\n  postcss: "8.5.10"\n\n'
+              + '# Root dependency-resolution override retained from package.json.\n'
+              + 'overrides:\n  postcss: "8.5.10"\n\n',
           )
-          if workspace.count(old_header) != 1:
-              raise SystemExit("unexpected workspace header")
-          workspace = workspace.replace(old_header, new_header)
           old_build_settings = (
               '# pnpm 10 blocks dependency lifecycle scripts by default. Esbuild\'s reviewed\n'
               '# installer is required to select the lockfile-pinned native binary for Vitest.\n'
@@ -121,31 +109,34 @@ jobs:
               '  sharp: false\n'
               '  unrs-resolver: false\n'
           )
-          if workspace.count(old_build_settings) != 1:
-              raise SystemExit("unexpected workspace build-script settings")
           workspace_path.write_text(workspace.replace(old_build_settings, new_build_settings))
           PY
-      - name: Activate pnpm 11 and regenerate lockfile
-        run: |
           corepack enable
           corepack prepare pnpm@11.13.0 --activate
-          test "$(pnpm --version)" = "11.13.0"
+          uv sync --locked --all-groups
           pnpm install --lockfile-only
           pnpm install --frozen-lockfile
-      - name: Validate toolchain and audit
+      - name: Capture each validation command
         run: |
-          pnpm lint
-          pnpm format:check
-          pnpm typecheck
-          pnpm test
-          pnpm audit --audit-level=high
-      - name: Remove migration artifacts and commit
+          mkdir -p .diagnostics
+          set +e
+          : > .diagnostics/pnpm11-validation.txt
+          for command in \
+            "pnpm lint" \
+            "pnpm format:check" \
+            "pnpm typecheck" \
+            "pnpm test" \
+            "pnpm audit --audit-level=high"; do
+            printf '\n===== %s =====\n' "$command" >> .diagnostics/pnpm11-validation.txt
+            sh -c "$command" >> .diagnostics/pnpm11-validation.txt 2>&1
+            printf 'exit_status=%s\n' "$?" >> .diagnostics/pnpm11-validation.txt
+          done
+          set -e
+          git restore package.json pnpm-workspace.yaml pnpm-lock.yaml Makefile .github/workflows/ci.yml tests/test_toolchain_pins.py
+      - name: Commit validation diagnostic
         run: |
-          rm -rf .diagnostics
-          rm .github/workflows/pnpm-11-migration.yml
-          git diff --check
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add -A
-          git commit -m "Upgrade pinned pnpm toolchain to 11.13.0"
+          git add .diagnostics/pnpm11-validation.txt
+          git commit -m "Temporary: diagnose pnpm 11 validation commands"
           git push origin HEAD:agent/pnpm-11-audit-repair
