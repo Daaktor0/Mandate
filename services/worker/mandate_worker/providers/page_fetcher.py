@@ -18,6 +18,15 @@ from urllib.parse import urlsplit, urlunsplit
 from urllib.robotparser import RobotFileParser
 
 from bs4 import BeautifulSoup, Tag
+from mandate_worker.fetch import (
+    SafeFetcher,
+    SafeFetcherConfig,
+    SafeFetchError,
+    SafeFetchResult,
+)
+from mandate_worker.fetch.policy import SafeFetchPolicyError, canonicalize_url
+from mandate_worker.fixtures import AdapterCapability, FixtureCatalog
+from mandate_worker.runtime import RuntimeAdapterPlan
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -26,16 +35,6 @@ from pydantic import (
     field_validator,
     model_validator,
 )
-
-from mandate_worker.fetch import (
-    SafeFetchError,
-    SafeFetchResult,
-    SafeFetcher,
-    SafeFetcherConfig,
-)
-from mandate_worker.fetch.policy import SafeFetchPolicyError, canonicalize_url
-from mandate_worker.fixtures import AdapterCapability, FixtureCatalog
-from mandate_worker.runtime import RuntimeAdapterPlan
 
 PAGE_FETCHER_VERSION = "page-fetcher-v1"
 ROBOTS_USER_AGENT = "Mandate-SafeFetcher"
@@ -126,9 +125,7 @@ class PageDocument(BaseModel):
     title: str = Field(min_length=1, max_length=500)
     text: str = Field(min_length=1, max_length=MAX_EXTRACTED_CHARACTERS)
     content_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
-    redirect_chain: tuple[str, ...] = Field(
-        default=(), max_length=MAX_REDIRECTS_RECORDED
-    )
+    redirect_chain: tuple[str, ...] = Field(default=(), max_length=MAX_REDIRECTS_RECORDED)
     robots_status: PageRobotsStatus
     prompt_injection_suspected: bool
     extraction_version: Literal["page-fetcher-v1"] = PAGE_FETCHER_VERSION
@@ -200,9 +197,7 @@ class SafePageFetcher:
         try:
             result = await self.fetcher.fetch(request.url)
         except SafeFetchError as error:
-            raise PageFetcherError(
-                f"page_{error.code}", retryable=error.retryable
-            ) from error
+            raise PageFetcherError(f"page_{error.code}", retryable=error.retryable) from error
         document = _document_from_safe_result(result, robots.status)
         return PageFetchResponse(
             request=request,
@@ -347,9 +342,7 @@ def build_page_fetcher(
         return FixturePageFetcher.from_catalog(plan.catalog)
     if binding == "safe_fetcher":
         if safe_fetcher is None:
-            safe_fetcher = SafeFetcher(
-                config=SafeFetcherConfig(max_response_bytes=MAX_PAGE_BYTES)
-            )
+            safe_fetcher = SafeFetcher(config=SafeFetcherConfig(max_response_bytes=MAX_PAGE_BYTES))
         return SafePageFetcher(safe_fetcher)
     if binding == "unconfigured":
         raise PageFetcherConfigurationError("page_fetcher_unconfigured")
