@@ -1,0 +1,42 @@
+candidate_pnpm=11.13.0
+install_status=0
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.overrides". See https://pnpm.io/settings for the new home of each setting.
+Scope: all 3 workspace projects
+? Verifying lockfile against supply-chain policies (475 entries)...
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Progress: resolved 8, reused 0, downloaded 0, added 0
+Progress: resolved 12, reused 0, downloaded 0, added 0
+Progress: resolved 14, reused 0, downloaded 0, added 0
+Progress: resolved 17, reused 0, downloaded 0, added 0
+✓ Lockfile passes supply-chain policies (475 entries in 5.7s)
+Progress: resolved 18, reused 0, downloaded 0, added 0
+Progress: resolved 19, reused 0, downloaded 0, added 0
+Progress: resolved 101, reused 0, downloaded 0, added 0
+Progress: resolved 111, reused 0, downloaded 0, added 0
+Progress: resolved 118, reused 0, downloaded 0, added 0
+Progress: resolved 163, reused 0, downloaded 0, added 0
+Progress: resolved 251, reused 0, downloaded 0, added 0
+Progress: resolved 256, reused 0, downloaded 0, added 0
+Progress: resolved 380, reused 0, downloaded 0, added 0
+Progress: resolved 476, reused 0, downloaded 0, added 0, done
+
+Done in 15.5s using pnpm v11.13.0
+
+audit_status=0
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.overrides". See https://pnpm.io/settings for the new home of each setting.
+{
+  "advisories": {},
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 1,
+      "high": 0,
+      "critical": 0
+    },
+    "dependencies": 27,
+    "devDependencies": 412,
+    "optionalDependencies": 123,
+    "totalDependencies": 476
+  }
+}
