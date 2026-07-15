@@ -1,18 +1,15 @@
-name: PageFetcher mypy diagnostic
+name: PageFetcher literal typing repair
 
 on:
   pull_request:
     paths:
-      - services/worker/mandate_worker/providers/page_fetcher.py
-      - services/worker/mandate_worker/providers/__init__.py
-      - services/worker/tests/test_page_fetcher.py
       - .github/workflows/page-fetcher-mypy.yml
 
 permissions:
   contents: write
 
 jobs:
-  diagnose:
+  repair:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -27,18 +24,29 @@ jobs:
           version: 0.7.19
       - name: Install locked dependencies
         run: uv sync --locked --all-groups
-      - name: Capture exact mypy diagnostics
+      - name: Apply exact literal annotation and self-clean
         run: |
-          mkdir -p .diagnostics
-          set +e
-          uv run mypy services/worker/mandate_worker packages/shared-schemas/python/mandate_schemas scripts/generate_traceability_report.py tests > .diagnostics/page-fetcher-mypy.txt 2>&1
-          status=$?
-          printf '\nexit_status=%s\n' "$status" >> .diagnostics/page-fetcher-mypy.txt
-          set -e
-      - name: Commit diagnostic output
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("services/worker/mandate_worker/providers/page_fetcher.py")
+          content = path.read_text()
+          old = 'PAGE_FETCHER_VERSION = "page-fetcher-v1"'
+          new = 'PAGE_FETCHER_VERSION: Literal["page-fetcher-v1"] = "page-fetcher-v1"'
+          if content.count(old) != 1:
+              raise SystemExit("expected PageFetcher version assignment exactly once")
+          path.write_text(content.replace(old, new))
+          PY
+          rm -f .diagnostics/page-fetcher-mypy.txt
+          rm -f .github/workflows/page-fetcher-mypy.yml
+          uv run ruff check services/worker/mandate_worker/providers/page_fetcher.py
+          uv run ruff format --check services/worker/mandate_worker/providers/page_fetcher.py
+          uv run mypy services/worker/mandate_worker/providers/page_fetcher.py
+          git diff --check
+      - name: Commit repair and remove diagnostics
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add .diagnostics/page-fetcher-mypy.txt
-          git commit -m "Temporary: capture PageFetcher mypy diagnostics"
+          git add -A
+          git commit -m "Fix PageFetcher version literal typing"
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
