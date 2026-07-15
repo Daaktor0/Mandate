@@ -1,4 +1,0 @@
-services/worker/mandate_worker/providers/page_fetcher.py:132: error: Incompatible types in assignment (expression has type "str", variable has type "Literal['page-fetcher-v1']")  [assignment]
-Found 1 error in 1 file (checked 45 source files)
-
-exit_status=1

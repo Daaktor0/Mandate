@@ -37,7 +37,7 @@ from mandate_worker.fetch.policy import SafeFetchPolicyError, canonicalize_url
 from mandate_worker.fixtures import AdapterCapability, FixtureCatalog
 from mandate_worker.runtime import RuntimeAdapterPlan
 
-PAGE_FETCHER_VERSION = "page-fetcher-v1"
+PAGE_FETCHER_VERSION: Literal["page-fetcher-v1"] = "page-fetcher-v1"
 ROBOTS_USER_AGENT = "Mandate-SafeFetcher"
 MAX_PAGE_BYTES = 2 * 1024 * 1024
 MAX_ROBOTS_BYTES = 256 * 1024
