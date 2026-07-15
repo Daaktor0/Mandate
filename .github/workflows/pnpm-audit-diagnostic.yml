@@ -19,11 +19,21 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 22.16.0
-      - name: Activate candidate pnpm
+      - name: Temporarily pin candidate pnpm
         run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("package.json")
+          package = json.loads(path.read_text())
+          package["packageManager"] = "pnpm@11.13.0"
+          package["engines"]["pnpm"] = "11.13.x"
+          path.write_text(json.dumps(package, indent=2) + "\n")
+          PY
           corepack enable
           corepack prepare pnpm@11.13.0 --activate
-          pnpm --version
+          test "$(pnpm --version)" = "11.13.0"
       - name: Validate existing lockfile and capture audit
         run: |
           pnpm install --frozen-lockfile
@@ -38,10 +48,11 @@ jobs:
             printf ',"audit_exit_status":%s}\n' "$status"
           } > .diagnostics/pnpm-audit.json 2>&1
           set -e
+          git restore package.json
       - name: Commit candidate audit result
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add .diagnostics/pnpm-audit.json
-          git commit -m "Temporary: test pnpm 11 audit client"
+          git commit -m "Temporary: force pnpm 11 audit candidate"
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
