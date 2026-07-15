@@ -84,9 +84,34 @@ closed without fallback.
 
 Every returned URL remains untrusted discovery metadata. Credentials and non-default
 ports are rejected, fragments are stripped and duplicate canonical URLs are removed.
-Before any result can support a claim, a later `PageFetcher` stage must retrieve it
-through `SafeFetcher`, capture provenance and pass source-tier and evidence validation.
+Before any result can support a claim, the PageFetcher stage must retrieve it through
+`SafeFetcher`; source-tier classification and evidence admission still occur later.
 Exa is not a company-master-data or MCA-filing provider.
+
+## PageFetcher boundary
+
+`mandate_worker.providers.PageFetcher` turns one public URL into bounded extracted text
+and provenance without admitting the result as evidence. `PageFetchRequest` accepts only
+the canonical URL. User identity, firm, billing, prompts, answers, letterhead and
+confidential matter narrative have no input field.
+
+The live `SafePageFetcher` retrieves and evaluates `robots.txt` before fetching the page,
+respects published crawl delays up to five seconds and delegates every network operation
+to the DNS/IP-pinned `SafeFetcher`. Robots denial or unavailability, off-site robots
+redirects, excessive delays, CAPTCHA, paywall and explicit automation restrictions stop
+the operation without a bypass attempt. Fixture mode is deterministic and zero-network;
+unknown or unconfigured bindings fail closed.
+
+For bounded HTML, XHTML, XML and plain text, extraction removes scripts, styles,
+`noscript`, templates, SVG, iframes and hidden markup. Prompt-injection patterns are
+checked against the raw bounded source before stripping. The response retains canonical
+requested/final URLs, redirects, content type, title, extracted text, SHA-256 digest,
+robots status and extraction version, but never returns raw bytes or the resolved IP.
+Every result is explicitly `evidence_admitted=false`.
+
+PDF responses fail with `page_binary_scan_required`. No binary text extraction is
+reachable until the reusable malware-scan and sandbox-parser boundary exists. This
+adapter has no route to a model, `evidence`/`claims` tables or the report composer.
 
 ## Company-data provider boundary
 
