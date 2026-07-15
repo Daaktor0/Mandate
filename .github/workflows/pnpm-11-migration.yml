@@ -1,0 +1,125 @@
+name: pnpm 11 migration
+
+on:
+  push:
+    branches:
+      - agent/pnpm-11-audit-repair
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pnpm-11-migration
+  cancel-in-progress: true
+
+jobs:
+  migrate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: agent/pnpm-11-audit-repair
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.16.0
+      - name: Update permanent pins and settings
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          package_path = Path("package.json")
+          package = json.loads(package_path.read_text())
+          if package.get("packageManager") != "pnpm@10.13.1":
+              raise SystemExit("unexpected packageManager pin")
+          if package.get("engines", {}).get("pnpm") != "10.13.x":
+              raise SystemExit("unexpected pnpm engine pin")
+          if package.get("pnpm") != {"overrides": {"postcss": "8.5.10"}}:
+              raise SystemExit("unexpected package.json pnpm settings")
+          package["packageManager"] = "pnpm@11.13.0"
+          package["engines"]["pnpm"] = "11.13.x"
+          del package["pnpm"]
+          package_path.write_text(json.dumps(package, indent=2) + "\n")
+
+          replacements = {
+              Path("Makefile"): (
+                  "corepack prepare pnpm@10.13.1 --activate",
+                  "corepack prepare pnpm@11.13.0 --activate",
+              ),
+              Path(".github/workflows/ci.yml"): (
+                  "PNPM_VERSION: 10.13.1",
+                  "PNPM_VERSION: 11.13.0",
+              ),
+              Path("tests/test_toolchain_pins.py"): (
+                  'self.assertEqual("pnpm@10.13.1", package_json["packageManager"])',
+                  'self.assertEqual("pnpm@11.13.0", package_json["packageManager"])',
+              ),
+          }
+          for path, (old, new) in replacements.items():
+              content = path.read_text()
+              if content.count(old) != 1:
+                  raise SystemExit(f"expected one pin in {path}")
+              path.write_text(content.replace(old, new))
+
+          test_path = Path("tests/test_toolchain_pins.py")
+          tests = test_path.read_text()
+          old_optional = (
+              '        self.assertEqual("0.28.1", '
+              'package_json["optionalDependencies"]["@esbuild/linux-x64"])\n'
+          )
+          new_optional = old_optional + '        self.assertNotIn("pnpm", package_json)\n'
+          if tests.count(old_optional) != 1:
+              raise SystemExit("unexpected optional-dependency assertion")
+          tests = tests.replace(old_optional, new_optional)
+          old_workspace_assertion = (
+              '        self.assertEqual(["esbuild"], workspace["onlyBuiltDependencies"])\n'
+          )
+          new_workspace_assertion = (
+              '        self.assertEqual({"postcss": "8.5.10"}, workspace["overrides"])\n'
+              + old_workspace_assertion
+          )
+          if tests.count(old_workspace_assertion) != 1:
+              raise SystemExit("unexpected workspace assertion")
+          test_path.write_text(tests.replace(old_workspace_assertion, new_workspace_assertion))
+
+          workspace_path = Path("pnpm-workspace.yaml")
+          workspace = workspace_path.read_text()
+          old_header = 'packages:\n  - "apps/*"\n  - "packages/*"\n\n'
+          new_header = (
+              old_header
+              + '# Root dependency-resolution override retained from the pnpm 10 package.json setting.\n'
+              + 'overrides:\n  postcss: "8.5.10"\n\n'
+          )
+          if workspace.count(old_header) != 1:
+              raise SystemExit("unexpected workspace header")
+          workspace = workspace.replace(old_header, new_header)
+          workspace = workspace.replace(
+              "# pnpm 10 blocks dependency lifecycle scripts by default.",
+              "# pnpm blocks dependency lifecycle scripts by default.",
+          )
+          workspace_path.write_text(workspace)
+          PY
+      - name: Activate pnpm 11 and regenerate lockfile
+        run: |
+          corepack enable
+          corepack prepare pnpm@11.13.0 --activate
+          test "$(pnpm --version)" = "11.13.0"
+          pnpm install --lockfile-only
+          pnpm install --frozen-lockfile
+      - name: Validate toolchain and security audit
+        run: |
+          pnpm lint
+          pnpm format:check
+          pnpm typecheck
+          pnpm test
+          pnpm audit --audit-level=high
+      - name: Remove migration workflow and commit
+        run: |
+          rm .github/workflows/pnpm-11-migration.yml
+          git diff --check
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m "Upgrade pinned pnpm toolchain to 11.13.0"
+          git push origin HEAD:agent/pnpm-11-audit-repair
