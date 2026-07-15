@@ -18,6 +18,15 @@ from urllib.parse import urlsplit, urlunsplit
 from urllib.robotparser import RobotFileParser
 
 from bs4 import BeautifulSoup, Tag
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+    field_validator,
+    model_validator,
+)
+
 from mandate_worker.fetch import (
     SafeFetcher,
     SafeFetcherConfig,
@@ -27,14 +36,6 @@ from mandate_worker.fetch import (
 from mandate_worker.fetch.policy import SafeFetchPolicyError, canonicalize_url
 from mandate_worker.fixtures import AdapterCapability, FixtureCatalog
 from mandate_worker.runtime import RuntimeAdapterPlan
-from pydantic import (
-    BaseModel,
-    ConfigDict,
-    Field,
-    ValidationError,
-    field_validator,
-    model_validator,
-)
 
 PAGE_FETCHER_VERSION = "page-fetcher-v1"
 ROBOTS_USER_AGENT = "Mandate-SafeFetcher"
