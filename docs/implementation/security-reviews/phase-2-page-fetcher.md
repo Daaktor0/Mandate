@@ -2,7 +2,7 @@
 
 **Review date:** 2026-07-15  
 **Scope:** `mandate_worker.providers.page_fetcher`, provider exports and focused tests  
-**Status:** implementation complete; full repository CI pending on this review commit
+**Status:** implementation and focused tests complete; final full repository CI required
 
 ## Security conclusion
 
@@ -79,5 +79,5 @@ Focused tests cover:
 - explicit non-admission as evidence.
 
 Full linting, typing, security scans, unit suites, ephemeral database/container integration
-and requirements traceability must pass on the final branch head before the PR is promoted
-or merged.
+and requirements traceability must pass on the final branch head against the repaired pnpm
+11 CI base before the PR is promoted or merged.
