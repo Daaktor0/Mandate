@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 22.16.0
-      - name: Apply permanent pnpm 11 migration
+      - name: Apply non-workflow pnpm 11 migration files
         run: |
           python - <<'PY'
           import json
@@ -38,28 +38,22 @@ jobs:
           del package["pnpm"]
           package_path.write_text(json.dumps(package, indent=2) + "\n")
 
-          replacements = {
-              Path("Makefile"): (
-                  "corepack prepare pnpm@10.13.1 --activate",
-                  "corepack prepare pnpm@11.13.0 --activate",
-              ),
-              Path(".github/workflows/ci.yml"): (
-                  "PNPM_VERSION: 10.13.1",
-                  "PNPM_VERSION: 11.13.0",
-              ),
-              Path("tests/test_toolchain_pins.py"): (
-                  'self.assertEqual("pnpm@10.13.1", package_json["packageManager"])',
-                  'self.assertEqual("pnpm@11.13.0", package_json["packageManager"])',
-              ),
-          }
-          for path, (old, new) in replacements.items():
-              content = path.read_text()
-              if content.count(old) != 1:
-                  raise SystemExit(f"expected one toolchain pin in {path}")
-              path.write_text(content.replace(old, new))
+          makefile = Path("Makefile")
+          content = makefile.read_text()
+          old = "corepack prepare pnpm@10.13.1 --activate"
+          if content.count(old) != 1:
+              raise SystemExit("unexpected Makefile pnpm pin")
+          makefile.write_text(content.replace(old, "corepack prepare pnpm@11.13.0 --activate"))
 
           test_path = Path("tests/test_toolchain_pins.py")
           tests = test_path.read_text()
+          old_pin = 'self.assertEqual("pnpm@10.13.1", package_json["packageManager"])'
+          if tests.count(old_pin) != 1:
+              raise SystemExit("unexpected test pnpm pin")
+          tests = tests.replace(
+              old_pin,
+              'self.assertEqual("pnpm@11.13.0", package_json["packageManager"])',
+          )
           old_optional = (
               '        self.assertEqual("0.28.1", '
               'package_json["optionalDependencies"]["@esbuild/linux-x64"])\n'
@@ -89,12 +83,12 @@ jobs:
 
           workspace_path = Path("pnpm-workspace.yaml")
           workspace = workspace_path.read_text()
-          old_header = 'packages:\n  - "apps/*"\n  - "packages/*"\n\n'
-          if workspace.count(old_header) != 1:
+          header = 'packages:\n  - "apps/*"\n  - "packages/*"\n\n'
+          if workspace.count(header) != 1:
               raise SystemExit("unexpected workspace header")
           workspace = workspace.replace(
-              old_header,
-              old_header
+              header,
+              header
               + '# Root dependency-resolution override retained from package.json.\n'
               + 'overrides:\n  postcss: "8.5.10"\n\n',
           )
@@ -128,11 +122,11 @@ jobs:
           test "$(pnpm --version)" = "11.13.0"
           pnpm install --lockfile-only
           pnpm install --frozen-lockfile
-      - name: Commit permanent files only
+      - name: Commit permanent non-workflow files
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add package.json pnpm-lock.yaml pnpm-workspace.yaml Makefile .github/workflows/ci.yml tests/test_toolchain_pins.py
+          git add package.json pnpm-lock.yaml pnpm-workspace.yaml Makefile tests/test_toolchain_pins.py
           git status --short
           git commit -m "Upgrade pinned pnpm toolchain to 11.13.0"
           git push origin HEAD:agent/pnpm-11-audit-repair
