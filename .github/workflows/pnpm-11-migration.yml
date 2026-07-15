@@ -1,4 +1,4 @@
-name: pnpm 11 migration diagnostic
+name: pnpm 11 frozen install diagnostic
 
 on:
   pull_request:
@@ -44,21 +44,27 @@ jobs:
           PY
           corepack enable
           corepack prepare pnpm@11.13.0 --activate
-      - name: Capture lockfile migration output
+      - name: Capture lockfile and frozen install output
         run: |
           mkdir -p .diagnostics
           set +e
+          pnpm install --lockfile-only > /tmp/lockfile.txt 2>&1
+          lock_status=$?
+          pnpm install --frozen-lockfile > /tmp/frozen.txt 2>&1
+          frozen_status=$?
           {
             printf 'pnpm=%s\n' "$(pnpm --version)"
-            pnpm install --lockfile-only
-            printf '\nexit_status=%s\n' "$?"
-          } > .diagnostics/pnpm11-migration.txt 2>&1
+            printf 'lock_status=%s\n' "$lock_status"
+            cat /tmp/lockfile.txt
+            printf '\nfrozen_status=%s\n' "$frozen_status"
+            cat /tmp/frozen.txt
+          } > .diagnostics/pnpm11-frozen-install.txt
           set -e
           git restore package.json pnpm-workspace.yaml pnpm-lock.yaml
       - name: Commit diagnostic
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add .diagnostics/pnpm11-migration.txt
-          git commit -m "Temporary: capture pnpm 11 migration error"
+          git add .diagnostics/pnpm11-frozen-install.txt
+          git commit -m "Temporary: capture pnpm 11 frozen install"
           git push origin HEAD:agent/pnpm-11-audit-repair
