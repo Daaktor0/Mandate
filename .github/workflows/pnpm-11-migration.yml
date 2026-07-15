@@ -19,12 +19,6 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 22.16.0
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
-        with:
-          python-version: "3.12"
-      - uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff
-        with:
-          version: 0.7.19
       - name: Apply permanent pnpm 11 migration
         run: |
           python - <<'PY'
@@ -127,20 +121,20 @@ jobs:
               raise SystemExit("unexpected workspace build-script settings")
           workspace_path.write_text(workspace.replace(old_build_settings, new_build_settings))
           PY
-      - name: Regenerate lockfile and smoke-check migrated install
+      - name: Regenerate lockfile and verify frozen install
         run: |
           corepack enable
           corepack prepare pnpm@11.13.0 --activate
           test "$(pnpm --version)" = "11.13.0"
           pnpm install --lockfile-only
           pnpm install --frozen-lockfile
-      - name: Remove temporary artifacts and commit
+      - name: Commit permanent files only
         run: |
           rm -rf .diagnostics
-          rm .github/workflows/pnpm-11-migration.yml
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add -A
+          git add package.json pnpm-lock.yaml pnpm-workspace.yaml Makefile .github/workflows/ci.yml tests/test_toolchain_pins.py
+          git add -A .diagnostics
           git status --short
           git commit -m "Upgrade pinned pnpm toolchain to 11.13.0"
           git push origin HEAD:agent/pnpm-11-audit-repair
