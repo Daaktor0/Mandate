@@ -1,0 +1,42 @@
+name: pnpm audit diagnostic
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/pnpm-audit-diagnostic.yml
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.16.0
+      - name: Activate pinned pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.13.1 --activate
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Capture audit result
+        run: |
+          mkdir -p .diagnostics
+          set +e
+          pnpm audit --audit-level=high --json > .diagnostics/pnpm-audit.json 2>&1
+          status=$?
+          printf '\n{"audit_exit_status":%s}\n' "$status" >> .diagnostics/pnpm-audit.json
+          set -e
+      - name: Commit audit diagnostic
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add .diagnostics/pnpm-audit.json
+          git commit -m "Temporary: capture pnpm audit advisory"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
