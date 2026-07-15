@@ -1,0 +1,22 @@
+pnpm=11.13.0
+Scope: all 3 workspace projects
+? Verifying lockfile against supply-chain policies (475 entries)...
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Progress: resolved 9, reused 0, downloaded 0, added 0
+Progress: resolved 12, reused 0, downloaded 0, added 0
+Progress: resolved 14, reused 0, downloaded 0, added 0
+Progress: resolved 17, reused 0, downloaded 0, added 0
+✓ Lockfile passes supply-chain policies (475 entries in 5.1s)
+Progress: resolved 19, reused 0, downloaded 0, added 0
+Progress: resolved 106, reused 0, downloaded 0, added 0
+Progress: resolved 118, reused 0, downloaded 0, added 0
+Progress: resolved 196, reused 0, downloaded 0, added 0
+Progress: resolved 249, reused 0, downloaded 0, added 0
+Progress: resolved 254, reused 0, downloaded 0, added 0
+Progress: resolved 338, reused 0, downloaded 0, added 0
+Progress: resolved 475, reused 0, downloaded 0, added 0
+Progress: resolved 475, reused 0, downloaded 0, added 0, done
+
+Done in 13.9s using pnpm v11.13.0
+
+exit_status=0
