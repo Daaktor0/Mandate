@@ -1,9 +1,9 @@
 name: pnpm 11 migration
 
 on:
-  push:
-    branches:
-      - agent/pnpm-11-audit-repair
+  pull_request:
+    paths:
+      - .github/workflows/pnpm-11-migration.yml
 
 permissions:
   contents: write
