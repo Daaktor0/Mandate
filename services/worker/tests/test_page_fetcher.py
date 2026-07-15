@@ -9,9 +9,9 @@ from mandate_worker.fetch import SafeFetchError, SafeFetchResult
 from mandate_worker.fixtures import AdapterCapability, FixtureCatalog
 from mandate_worker.providers.page_fetcher import (
     FixturePageFetcher,
-    PageFetchRequest,
     PageFetcherConfigurationError,
     PageFetcherError,
+    PageFetchRequest,
     PageRobotsStatus,
     SafePageFetcher,
     build_page_fetcher,
@@ -90,9 +90,12 @@ async def test_NFR_03_fixture_page_fetcher_is_deterministic_and_zero_spend() -> 
     assert response.document.robots_status is PageRobotsStatus.FIXTURE
     assert response.document.evidence_admitted is False
     assert "body" not in response.document.model_dump()
-    assert response.document.content_sha256 == hashlib.sha256(
-        b"<main><h1>Mandate Demo Company</h1><p>Synthetic fixture content.</p></main>"
-    ).hexdigest()
+    assert (
+        response.document.content_sha256
+        == hashlib.sha256(
+            b"<main><h1>Mandate Demo Company</h1><p>Synthetic fixture content.</p></main>"
+        ).hexdigest()
+    )
 
 
 @pytest.mark.asyncio
@@ -189,9 +192,7 @@ async def test_SEC_03_robots_denial_stops_before_page_fetch() -> None:
 async def test_SEC_03_robots_failure_is_fail_closed_and_retryable() -> None:
     page_url = "https://example.com/about"
     robots_url = "https://example.com/robots.txt"
-    fetcher = StubSafeFetcher(
-        {robots_url: SafeFetchError("transport_failed", retryable=True)}
-    )
+    fetcher = StubSafeFetcher({robots_url: SafeFetchError("transport_failed", retryable=True)})
 
     with pytest.raises(PageFetcherError) as captured:
         await SafePageFetcher(fetcher).fetch(PageFetchRequest(url=page_url))
