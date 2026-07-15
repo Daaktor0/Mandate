@@ -1,4 +1,4 @@
-name: pnpm audit diagnostic
+name: pnpm 11 audit diagnostic
 
 on:
   pull_request:
@@ -19,24 +19,29 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 22.16.0
-      - name: Activate pinned pnpm
+      - name: Activate candidate pnpm
         run: |
           corepack enable
-          corepack prepare pnpm@10.13.1 --activate
-      - name: Install locked dependencies
-        run: pnpm install --frozen-lockfile
-      - name: Capture audit result
+          corepack prepare pnpm@11.13.0 --activate
+          pnpm --version
+      - name: Validate existing lockfile and capture audit
         run: |
+          pnpm install --frozen-lockfile
           mkdir -p .diagnostics
           set +e
-          pnpm audit --audit-level=high --json > .diagnostics/pnpm-audit.json 2>&1
-          status=$?
-          printf '\n{"audit_exit_status":%s}\n' "$status" >> .diagnostics/pnpm-audit.json
+          {
+            printf '{"candidate_pnpm":"'
+            pnpm --version | tr -d '\n'
+            printf '","audit":'
+            pnpm audit --audit-level=high --json
+            status=$?
+            printf ',"audit_exit_status":%s}\n' "$status"
+          } > .diagnostics/pnpm-audit.json 2>&1
           set -e
-      - name: Commit audit diagnostic
+      - name: Commit candidate audit result
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add .diagnostics/pnpm-audit.json
-          git commit -m "Temporary: capture pnpm audit advisory"
+          git commit -m "Temporary: test pnpm 11 audit client"
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
