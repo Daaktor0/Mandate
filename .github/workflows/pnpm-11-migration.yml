@@ -130,11 +130,9 @@ jobs:
           pnpm install --frozen-lockfile
       - name: Commit permanent files only
         run: |
-          rm -rf .diagnostics
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add package.json pnpm-lock.yaml pnpm-workspace.yaml Makefile .github/workflows/ci.yml tests/test_toolchain_pins.py
-          git add -A .diagnostics
           git status --short
           git commit -m "Upgrade pinned pnpm toolchain to 11.13.0"
           git push origin HEAD:agent/pnpm-11-audit-repair
