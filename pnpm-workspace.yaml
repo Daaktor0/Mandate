@@ -2,14 +2,17 @@ packages:
   - "apps/*"
   - "packages/*"
 
-# pnpm 10 blocks dependency lifecycle scripts by default. Esbuild's reviewed
-# installer is required to select the lockfile-pinned native binary for Vitest.
-# The other currently reported lifecycle scripts are intentionally denied.
-onlyBuiltDependencies:
-  - esbuild
-ignoredBuiltDependencies:
-  - sharp
-  - unrs-resolver
+# Root dependency-resolution override retained from package.json.
+overrides:
+  postcss: "8.5.10"
+
+# pnpm 11 blocks dependency lifecycle scripts unless explicitly classified.
+# Esbuild's reviewed installer is required for the pinned native binary; the
+# other currently reported lifecycle scripts remain intentionally denied.
+allowBuilds:
+  esbuild: true
+  sharp: false
+  unrs-resolver: false
 
 # Lock Linux x64 native artifacts even when a contributor refreshes the
 # lockfile from macOS or ARM; CI, Vercel, and the worker host are Linux x64.
