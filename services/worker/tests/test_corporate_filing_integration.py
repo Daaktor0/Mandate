@@ -89,10 +89,7 @@ async def test_ENTITY_03_live_manual_acquisition_requires_confirmed_command() ->
     assert isinstance(provider, ManualMcaVpdProvider)
     assert result.report_request_id == command.report_request_id
     assert result.confirmed_entity_id == command.confirmed_entity_id
-    assert (
-        result.acquisition.status
-        is CorporateFilingAcquisitionStatus.HUMAN_ACTION_REQUIRED
-    )
+    assert result.acquisition.status is CorporateFilingAcquisitionStatus.HUMAN_ACTION_REQUIRED
     assert result.acquisition.provider_calls == 0
 
 
