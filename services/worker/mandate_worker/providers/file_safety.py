@@ -20,11 +20,11 @@ from enum import StrEnum
 from io import BytesIO
 from pathlib import Path
 from typing import Final, Literal, Protocol, Self
-from zipfile import BadZipFile, LargeZipFile, ZIP_DEFLATED, ZIP_STORED, ZipFile, ZipInfo
+from zipfile import ZIP_DEFLATED, ZIP_STORED, BadZipFile, LargeZipFile, ZipFile, ZipInfo
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
-from mandate_worker.fixtures import AdapterCapability, FixtureCatalog
+from mandate_worker.fixtures import AdapterCapability
 from mandate_worker.runtime import RuntimeAdapterPlan
 
 from .corporate_filings import CorporateFilingReference
@@ -122,7 +122,12 @@ class UnixClamdTransport:
                 writer.write(struct.pack(">I", 0))
                 await writer.drain()
                 reply = await reader.readuntil(b"\0")
-        except (OSError, TimeoutError, asyncio.IncompleteReadError, asyncio.LimitOverrunError) as error:
+        except (
+            OSError,
+            TimeoutError,
+            asyncio.IncompleteReadError,
+            asyncio.LimitOverrunError,
+        ) as error:
             raise FileSafetyError("malware_scanner_unavailable", retryable=True) from error
         finally:
             if writer is not None:
@@ -376,7 +381,10 @@ class _MalwareFixture(BaseModel):
     @model_validator(mode="after")
     def validate_hashes(self) -> Self:
         all_hashes = self.clean_sha256s | set(self.infected_sha256s)
-        if any(len(value) != 64 or any(character not in "0123456789abcdef" for character in value) for value in all_hashes):
+        if any(
+            len(value) != 64 or any(character not in "0123456789abcdef" for character in value)
+            for value in all_hashes
+        ):
             raise ValueError("malware fixture contains an invalid SHA-256")
         if self.clean_sha256s & set(self.infected_sha256s):
             raise ValueError("malware fixture hashes cannot be both clean and infected")
