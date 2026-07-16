@@ -81,9 +81,9 @@ class _FixtureDocument(BaseModel):
     financial_year: str | None = Field(default=None, alias="financialYear")
     filed_on: date | None = Field(default=None, alias="filedOn")
     source_locator: str = Field(alias="sourceLocator", min_length=1, max_length=500)
-    media_type: Literal[
-        "application/pdf", "application/zip", "application/octet-stream"
-    ] = Field(alias="mediaType")
+    media_type: Literal["application/pdf", "application/zip", "application/octet-stream"] = Field(
+        alias="mediaType"
+    )
     body_utf8: str = Field(alias="bodyUtf8", min_length=1, max_length=100_000)
 
     @model_validator(mode="after")
@@ -166,9 +166,7 @@ def build_corporate_filing_provider(
     binding = plan.bindings[AdapterCapability.CORPORATE_FILINGS]
     if binding == "fixture":
         if not plan.demo_mode or plan.catalog is None:
-            raise CorporateFilingConfigurationError(
-                "corporate_filing_fixture_requires_demo_mode"
-            )
+            raise CorporateFilingConfigurationError("corporate_filing_fixture_requires_demo_mode")
         return fixture_corporate_filing_provider(plan.catalog)
     if binding == "manual_mca_vpd":
         return ManualMcaVpdProvider()
