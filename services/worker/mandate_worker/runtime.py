@@ -25,6 +25,7 @@ SELECTOR_ENV: Final[Mapping[AdapterCapability, str]] = MappingProxyType(
         AdapterCapability.SEARCH: "PROVIDER_SEARCH",
         AdapterCapability.PAGE_FETCHER: "PROVIDER_PAGE_FETCHER",
         AdapterCapability.COMPANY_DATA: "PROVIDER_COMPANY_DATA",
+        AdapterCapability.CORPORATE_FILINGS: "PROVIDER_CORPORATE_FILINGS",
         AdapterCapability.REGULATORY: "PROVIDER_REGULATORY",
         AdapterCapability.LITIGATION: "PROVIDER_LITIGATION",
         AdapterCapability.MODEL: "PROVIDER_MODEL",
