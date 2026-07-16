@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixtureSetId": "phase-0-smoke-v1",
-  "revision": "2026-07-13.2",
+  "revision": "2026-07-17.1",
   "records": [
     {
       "id": "company_data.smoke",
@@ -10,6 +10,14 @@
       "path": "company_data/smoke.json",
       "classification": "synthetic",
       "sha256": "cc69c0b0f6c45af31a0b3b651c24bf6aa4216f25c493c314e22158fd865d7485"
+    },
+    {
+      "id": "corporate_filings.smoke",
+      "capability": "corporate_filings",
+      "backend": "fixture",
+      "path": "corporate_filings/smoke.json",
+      "classification": "synthetic",
+      "sha256": "5426d35cda1cd2ed40966a0b235c5e18c3bd4c3ca7b089bda1fa932f07831ed7"
     },
     {
       "id": "email.smoke",
