@@ -6,7 +6,14 @@ from datetime import date, datetime
 from typing import Literal, Self
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+    field_validator,
+    model_validator,
+)
 
 from mandate_worker.fixtures import AdapterCapability, FixtureCatalog
 from mandate_worker.runtime import RuntimeAdapterPlan
@@ -74,9 +81,9 @@ class _FixtureDocument(BaseModel):
     financial_year: str | None = Field(default=None, alias="financialYear")
     filed_on: date | None = Field(default=None, alias="filedOn")
     source_locator: str = Field(alias="sourceLocator", min_length=1, max_length=500)
-    media_type: Literal["application/pdf", "application/zip", "application/octet-stream"] = Field(
-        alias="mediaType"
-    )
+    media_type: Literal[
+        "application/pdf", "application/zip", "application/octet-stream"
+    ] = Field(alias="mediaType")
     body_utf8: str = Field(alias="bodyUtf8", min_length=1, max_length=100_000)
 
     @model_validator(mode="after")
@@ -118,7 +125,9 @@ class _CorporateFilingsFixture(BaseModel):
         return self
 
 
-def fixture_corporate_filing_provider(catalog: FixtureCatalog) -> FixtureCorporateFilingProvider:
+def fixture_corporate_filing_provider(
+    catalog: FixtureCatalog,
+) -> FixtureCorporateFilingProvider:
     """Build deterministic scan-pending filing references from the fixture catalog."""
 
     try:
