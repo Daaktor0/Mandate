@@ -1,0 +1,17 @@
+{
+  "fixtureVersion": 1,
+  "sandboxProfile": "networkless_readonly_v1",
+  "parserVersion": "fixture-pdf-parser-1",
+  "documents": [
+    {
+      "sha256": "4489e0cf062a70e6860b0d5d4e083d1699eb67148e2af0e757d070ea7962681b",
+      "pageCount": 1,
+      "text": "Synthetic AOC-4 filing text for Mandate demo mode."
+    },
+    {
+      "sha256": "97590d8b41724199b6c057470c1df6368c46d711f01e3596e338e5147230f653",
+      "pageCount": 1,
+      "text": "Synthetic MGT-7 filing text for Mandate demo mode."
+    }
+  ]
+}
