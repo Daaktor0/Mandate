@@ -1,0 +1,26 @@
+{
+  "fixtureVersion": 1,
+  "acquiredAt": "2026-07-15T00:00:00Z",
+  "documents": [
+    {
+      "documentId": "fixture:aoc-4:2024-25",
+      "cin": "U62099MH2024PTC123456",
+      "filingType": "aoc_4",
+      "financialYear": "2024-25",
+      "filedOn": "2025-09-30",
+      "sourceLocator": "fixture/corporate-filings/aoc-4/2024-25",
+      "mediaType": "application/pdf",
+      "bodyUtf8": "Synthetic AOC-4 filing fixture for Mandate demo mode."
+    },
+    {
+      "documentId": "fixture:mgt-7:2024-25",
+      "cin": "U62099MH2024PTC123456",
+      "filingType": "mgt_7",
+      "financialYear": "2024-25",
+      "filedOn": "2025-11-29",
+      "sourceLocator": "fixture/corporate-filings/mgt-7/2024-25",
+      "mediaType": "application/pdf",
+      "bodyUtf8": "Synthetic MGT-7 filing fixture for Mandate demo mode."
+    }
+  ]
+}
