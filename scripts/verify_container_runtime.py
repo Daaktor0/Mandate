@@ -10,6 +10,7 @@ from typing import Any, cast
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 COMPOSE_FILE = REPOSITORY_ROOT / "infra" / "compose" / "local.yml"
 COMPOSE = ["docker", "compose", "--file", str(COMPOSE_FILE)]
+FIXTURE_MANIFEST = REPOSITORY_ROOT / "fixtures" / "demo" / "manifest.json"
 
 
 def command(*arguments: str) -> str:
@@ -34,13 +35,20 @@ def assert_common_sandbox(container: dict[str, Any]) -> None:
     assert any(str(option).startswith("no-new-privileges") for option in host["SecurityOpt"])
 
 
+def expected_fixture_revision() -> str:
+    manifest = cast(dict[str, Any], json.loads(FIXTURE_MANIFEST.read_text()))
+    revision = manifest["revision"]
+    assert isinstance(revision, str) and revision
+    return revision
+
+
 def assert_demo_fixture_runtime() -> None:
     probe = (
         "from mandate_worker.fixtures import AdapterCapability; "
         "from mandate_worker.main import app; "
         "plan = app.state.runtime_adapter_plan; "
         "assert plan.zero_spend; "
-        "assert plan.fixture_revision == '2026-07-13.2'; "
+        f"assert plan.fixture_revision == {expected_fixture_revision()!r}; "
         "assert set(plan.bindings) == set(AdapterCapability)"
     )
     subprocess.check_call([*COMPOSE, "exec", "--no-TTY", "worker", "python", "-c", probe])

@@ -10,7 +10,7 @@ The current product, research, technical, security, pricing and build specificat
 
 ## Implementation status
 
-Implementation follows [`docs/implementation/BUILD-CHECKLIST.md`](docs/implementation/BUILD-CHECKLIST.md) in strict phase order. Phase 0 has started with the repository scaffold; no product behaviour is represented as complete until its checklist item and requirement traceability status say so.
+Implementation follows [`docs/implementation/BUILD-CHECKLIST.md`](docs/implementation/BUILD-CHECKLIST.md) in strict dependency order. Phase 0 and Gate G0 are complete. Phase 1 implementation is complete except for the blocked live 30-company master-data benchmark. Phase 2, the evidence pipeline, is in progress. No product behaviour should be treated as complete unless its checklist item and requirement-traceability status say so.
 
 ## Repository layout
 

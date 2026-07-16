@@ -2,7 +2,7 @@
 
 **Status header (update after every tested phase):**
 
-> **Current phase:** 2 — Evidence pipeline (2/13 tasks complete) · **Phase 1 live benchmark:** blocked at 8/9 · **Last gate passed:** G0 · **Updated:** 2026-07-15
+> **Current phase:** 2 — Evidence pipeline (3/13 tasks complete) · **Phase 1 live benchmark:** blocked at 8/9 · **Last gate passed:** G0 · **Updated:** 2026-07-17
 
 **Sources:** product-specification doc 13 (authoritative phase order and gates); master prompt ("follow the build roadmap exactly; use vertical slices; update the checklist after every tested phase")
 **Related:** [REQUIREMENTS-TRACEABILITY.md](REQUIREMENTS-TRACEABILITY.md), [TEST-PLAN.md](TEST-PLAN.md), [ARCHITECTURE-DECISIONS.md](ARCHITECTURE-DECISIONS.md) (blockers B1–B14)
@@ -47,7 +47,7 @@ B5's architecture is resolved: Exa is search-only; company master data and MCA/R
 
 - [x] `SearchProvider` adapter: fixture + bounded Exa implementation behind flag; extractive highlights only; discovery results remain untrusted; live B4 benchmark pending ([review](security-reviews/phase-2-exa-search-provider.md))
 - [x] `PageFetcher` adapter: fixture + robots-aware SafeFetcher implementation; bounded extraction/provenance and injection flags; outputs remain unadmitted; binary parsing still scan-gated ([review](security-reviews/phase-2-page-fetcher.md))
-- [ ] `CorporateFilingDocumentProvider` integration after entity confirmation: fixture + manual MCA VPD state + one verified licensed vendor behind flag; no credential/CAPTCHA automation (ADR-017)
+- [x] `CorporateFilingDocumentProvider` integration after entity confirmation: fixture + manual MCA VPD state; unverified licensed vendors fail closed; acquired files remain quarantined and non-parseable ([review](security-reviews/phase-2-corporate-filing-integration.md))
 - [ ] Reusable malware-scan, archive-limit and sandbox parser boundary before any acquired PDF/ZIP becomes parseable evidence
 - [ ] ModelGateway (ADR-005): routing config, ZDR/allowlist params, payload allowlist, schema validation + repair retry, `agent_runs` logging, cost caps (needs B3 for live; fixture ModelRouter for CI)
 - [ ] `evidence`, `claims`, `job_checkpoints`, `agent_runs`, `provider_cost_events` migrations

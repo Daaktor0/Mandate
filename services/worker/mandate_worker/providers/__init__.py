@@ -11,6 +11,14 @@ from .company_data import (
     FixtureCompanyDataProvider,
     build_company_data_provider,
 )
+from .corporate_filing_integration import (
+    ConfirmedCorporateFilingCommand,
+    ConfirmedCorporateFilingResult,
+    CorporateFilingConfigurationError,
+    acquire_confirmed_corporate_filings,
+    build_corporate_filing_provider,
+    fixture_corporate_filing_provider,
+)
 from .corporate_filings import (
     CorporateFilingAcquisitionMethod,
     CorporateFilingAcquisitionResult,
@@ -57,10 +65,13 @@ __all__ = [
     "CompanyDataRecord",
     "CompanyDataResponse",
     "CompanyDataTransportError",
+    "ConfirmedCorporateFilingCommand",
+    "ConfirmedCorporateFilingResult",
     "CorporateFilingAcquisitionMethod",
     "CorporateFilingAcquisitionResult",
     "CorporateFilingAcquisitionStatus",
     "CorporateFilingActionCode",
+    "CorporateFilingConfigurationError",
     "CorporateFilingDocumentProvider",
     "CorporateFilingReference",
     "CorporateFilingRequest",
@@ -86,8 +97,11 @@ __all__ = [
     "SearchResponse",
     "SearchResult",
     "SearchTransportError",
+    "acquire_confirmed_corporate_filings",
     "build_company_data_provider",
+    "build_corporate_filing_provider",
     "build_page_fetcher",
     "build_search_provider",
+    "fixture_corporate_filing_provider",
     "register_untrusted_corporate_filing",
 ]
