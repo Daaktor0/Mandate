@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixtureSetId": "phase-0-smoke-v1",
-  "revision": "2026-07-17.1",
+  "revision": "2026-07-17.2",
   "records": [
     {
       "id": "company_data.smoke",
@@ -17,7 +17,7 @@
       "backend": "fixture",
       "path": "corporate_filings/smoke.json",
       "classification": "synthetic",
-      "sha256": "5426d35cda1cd2ed40966a0b235c5e18c3bd4c3ca7b089bda1fa932f07831ed7"
+      "sha256": "e3f2aed639ae8c4e340d90525df39f732234510d56ef711b96cb2cdf217ab5fb"
     },
     {
       "id": "email.smoke",
@@ -28,12 +28,28 @@
       "sha256": "67f589524bad19df2ac7f41199a99dfae70d777261bd54c1e6acf68696d1498e"
     },
     {
+      "id": "file_parser.smoke",
+      "capability": "file_parser",
+      "backend": "fixture",
+      "path": "file_parser/smoke.json",
+      "classification": "synthetic",
+      "sha256": "0ab3dbb0bfcee1967f53a4ac30f94698751e8448931bc4a0fbef1278f7162619"
+    },
+    {
       "id": "litigation.smoke",
       "capability": "litigation",
       "backend": "fixture",
       "path": "litigation/smoke.json",
       "classification": "synthetic",
       "sha256": "918e8151ff1224a9bc6eb31e32994d26bfd74cf8a92426294b342dec95652f98"
+    },
+    {
+      "id": "malware_scanner.smoke",
+      "capability": "malware_scanner",
+      "backend": "fixture",
+      "path": "malware_scanner/smoke.json",
+      "classification": "synthetic",
+      "sha256": "5e625d8345d30fe07952fb197f02c3edd01c5cdc3d0604e4886b677256d7170e"
     },
     {
       "id": "model.smoke",
