@@ -41,7 +41,9 @@ async def test_RUN_06_demo_provider_returns_only_quarantined_fixture_documents()
 
     assert result.status is CorporateFilingAcquisitionStatus.READY
     assert len(result.documents) == 2
-    assert all(document.quarantine_status == "pending_malware_scan" for document in result.documents)
+    assert all(
+        document.quarantine_status == "pending_malware_scan" for document in result.documents
+    )
     assert all(document.parse_allowed is False for document in result.documents)
 
 
@@ -87,7 +89,10 @@ async def test_ENTITY_03_live_manual_acquisition_requires_confirmed_command() ->
     assert isinstance(provider, ManualMcaVpdProvider)
     assert result.report_request_id == command.report_request_id
     assert result.confirmed_entity_id == command.confirmed_entity_id
-    assert result.acquisition.status is CorporateFilingAcquisitionStatus.HUMAN_ACTION_REQUIRED
+    assert (
+        result.acquisition.status
+        is CorporateFilingAcquisitionStatus.HUMAN_ACTION_REQUIRED
+    )
     assert result.acquisition.provider_calls == 0
 
 
