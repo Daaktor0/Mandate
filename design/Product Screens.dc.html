@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<title>Mandate — Product Screens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#E4E1D8; font-family:"IBM Plex Sans",system-ui,sans-serif; color:#1A2430; }
+  a { color:#1D4E89; } a:hover { color:#163C6A; }
+  * { box-sizing:border-box; }
+</style>
+</helmet>
+
+<section style="padding:48px; display:flex; flex-direction:column; gap:56px">
+
+  <!-- ================= DASHBOARD ================= -->
+  <div id="scr-dashboard">
+    <div style="font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#6B7280; margin-bottom:10px">01 · Dashboard</div>
+    <div data-screen-label="Dashboard" style="width:1360px; background:#FAF9F5; border:1px solid #C9C4B8; border-radius:12px; overflow:hidden; box-shadow:0 8px 28px rgba(26,36,48,.14)">
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:0 32px; height:60px; background:#FFFFFF; border-bottom:1px solid #E3E0D8">
+        <div style="display:flex; align-items:center; gap:36px">
+          <div style="font-family:'Source Serif 4',Georgia,serif; font-size:21px; font-weight:600; color:#1E3A5F">Mandate<span style="color:#A63D2F">.</span></div>
+          <div style="display:flex; gap:24px; font-size:13.5px">
+            <span style="font-weight:600; color:#1A2430; border-bottom:2px solid #1E3A5F; padding:19px 0">Mandate Briefs</span>
+            <span style="color:#4A5568; padding:19px 0">Account</span>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:16px">
+          <span style="font-size:12.5px; color:#4A5568; background:#F1EFE9; border:1px solid #E3E0D8; border-radius:999px; padding:5px 14px"><strong style="color:#1A2430">3 available</strong> · 1 reserved</span>
+          <span style="width:34px; height:34px; border-radius:50%; background:#1E3A5F; color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:600">AR</span>
+        </div>
+      </div>
+      <div style="padding:32px 32px 40px">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:22px">
+          <div>
+            <div style="font-family:'Source Serif 4',Georgia,serif; font-size:26px; font-weight:600">Mandate Briefs</div>
+            <div style="font-size:13px; color:#6B7280; margin-top:2px">Prepared from public information · never confidential input</div>
+          </div>
+          <button style="background:#1E3A5F; color:#fff; border:none; border-radius:6px; padding:11px 20px; font-size:14px; font-weight:600; font-family:inherit; cursor:pointer" style-hover="background:#16304F">New Mandate Brief</button>
+        </div>
+        <div style="background:#FFFFFF; border:1px solid #E3E0D8; border-radius:10px; overflow:hidden">
+          <div style="display:grid; grid-template-columns:2.4fr 1.6fr 1.5fr 1fr auto; gap:16px; padding:10px 24px; background:#F7F5EF; border-bottom:1px solid #E3E0D8; font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#6B7280">
+            <span>Company</span><span>CIN</span><span>Status</span><span>Research date</span><span style="width:84px"></span>
+          </div>
+          <sc-for list="{{ rows }}" as="r" hint-placeholder-count="5">
+            <div style="display:grid; grid-template-columns:2.4fr 1.6fr 1.5fr 1fr auto; gap:16px; padding:15px 24px; border-bottom:1px solid #EDEAE2; align-items:center" style-hover="background:#FCFBF8">
+              <div><div style="font-size:14px; font-weight:600">{{ r.name }}</div><div style="font-size:12px; color:#6B7280; margin-top:1px">{{ r.sub }}</div></div>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#4A5568">{{ r.cin }}</span>
+              <span><span style="display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:3px 11px; font-size:12px; font-weight:500; background:{{ r.bg }}; color:{{ r.fg }}; border:1px solid {{ r.bd }}"><span style="font-weight:700">{{ r.glyph }}</span>{{ r.status }}</span></span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#4A5568">{{ r.date }}</span>
+              <button style="width:84px; background:#FFFFFF; color:#1E3A5F; border:1px solid #C9C4B8; border-radius:6px; padding:7px 0; font-size:12.5px; font-weight:600; font-family:inherit; cursor:pointer" style-hover="border-color:#1E3A5F">{{ r.action }}</button>
+            </div>
+          </sc-for>
+        </div>
+        <div style="font-size:12px; color:#6B7280; margin-top:12px">Failed attempts restore your entitlement automatically — the balance above already reflects it.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= NEW MANDATE BRIEF ================= -->
+  <div id="scr-intake" style="display:flex; gap:40px; align-items:flex-start">
+    <div>
+      <div style="font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#6B7280; margin-bottom:10px">02 · New Mandate Brief — Website tab</div>
+      <div data-screen-label="New Mandate Brief — Website" style="width:660px; background:#FAF9F5; border:1px solid #C9C4B8; border-radius:12px; box-shadow:0 8px 28px rgba(26,36,48,.14); padding:40px 48px">
+        <div style="font-family:'Source Serif 4',Georgia,serif; font-size:24px; font-weight:600; margin-bottom:4px">New Mandate Brief</div>
+        <div style="font-size:13px; color:#6B7280; margin-bottom:24px">Point Mandate at the company. Nothing is charged until you confirm the entity.</div>
+        <div style="display:flex; border-bottom:1px solid #E3E0D8; margin-bottom:24px">
+          <span style="padding:10px 18px; font-size:14px; font-weight:600; color:#1A2430; border-bottom:2px solid #1E3A5F; margin-bottom:-1px">Website</span>
+          <span style="padding:10px 18px; font-size:14px; color:#4A5568">Legal name</span>
+        </div>
+        <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px">Company website</label>
+        <input value="meridianagro.in" style="width:100%; border:1px solid #C9C4B8; border-radius:6px; padding:12px 14px; font-size:15px; font-family:'IBM Plex Mono',monospace; color:#1A2430; background:#fff; outline:none" style-focus="border-color:#1D4E89; box-shadow:0 0 0 2px rgba(29,78,137,.18)">
+        <div style="font-size:12px; color:#6B7280; margin-top:6px">We use only publicly available information about this company.</div>
+        <div style="display:flex; gap:12px; align-items:flex-start; background:#FFFFFF; border:1.5px solid #1E3A5F; border-radius:8px; padding:16px 18px; margin:24px 0">
+          <span style="width:20px; height:20px; border-radius:4px; background:#1E3A5F; color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex:none; margin-top:1px">✓</span>
+          <span style="font-size:13.5px; line-height:19px"><strong>I confirm that I am not submitting confidential information.</strong><br><span style="color:#4A5568; font-size:12.5px">Company names and public websites only — never client documents, instructions or deal terms.</span></span>
+        </div>
+        <button style="width:100%; background:#1E3A5F; color:#fff; border:none; border-radius:6px; padding:13px 0; font-size:15px; font-weight:600; font-family:inherit; cursor:pointer" style-hover="background:#16304F">Find the company</button>
+        <div style="text-align:center; font-size:12px; color:#6B7280; margin-top:10px">Free until you confirm the company on the next step.</div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#6B7280; margin-bottom:10px">02b · Legal name tab</div>
+      <div data-screen-label="New Mandate Brief — Legal name" style="width:660px; background:#FAF9F5; border:1px solid #C9C4B8; border-radius:12px; box-shadow:0 8px 28px rgba(26,36,48,.14); padding:40px 48px">
+        <div style="font-family:'Source Serif 4',Georgia,serif; font-size:24px; font-weight:600; margin-bottom:4px">New Mandate Brief</div>
+        <div style="font-size:13px; color:#6B7280; margin-bottom:24px">Use the exact registered name for the fastest match.</div>
+        <div style="display:flex; border-bottom:1px solid #E3E0D8; margin-bottom:24px">
+          <span style="padding:10px 18px; font-size:14px; color:#4A5568">Website</span>
+          <span style="padding:10px 18px; font-size:14px; font-weight:600; color:#1A2430; border-bottom:2px solid #1E3A5F; margin-bottom:-1px">Legal name</span>
+        </div>
+        <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px">Registered legal name</label>
+        <input value="Meridian Agrotech Private Limited" style="width:100%; border:1px solid #C9C4B8; border-radius:6px; padding:12px 14px; font-size:15px; font-family:inherit; background:#fff; outline:none" style-focus="border-color:#1D4E89; box-shadow:0 0 0 2px rgba(29,78,137,.18)">
+        <label style="display:block; font-size:13px; font-weight:600; margin:16px 0 6px">CIN <span style="font-weight:400; color:#6B7280">(optional — removes all ambiguity)</span></label>
+        <input placeholder="U01100MH2019PTC324867" style="width:100%; border:1px solid #C9C4B8; border-radius:6px; padding:12px 14px; font-size:14px; font-family:'IBM Plex Mono',monospace; background:#fff; outline:none" style-focus="border-color:#1D4E89; box-shadow:0 0 0 2px rgba(29,78,137,.18)">
+        <div style="display:flex; gap:12px; align-items:flex-start; background:#FFFFFF; border:1.5px solid #C9C4B8; border-radius:8px; padding:16px 18px; margin:24px 0">
+          <span style="width:20px; height:20px; border-radius:4px; border:2px solid #4A5568; background:#fff; flex:none; margin-top:1px"></span>
+          <span style="font-size:13.5px; line-height:19px"><strong>I confirm that I am not submitting confidential information.</strong><br><span style="color:#4A5568; font-size:12.5px">Company names and public websites only — never client documents, instructions or deal terms.</span></span>
+        </div>
+        <button disabled style="width:100%; background:#C9C4B8; color:#FFFFFF; border:none; border-radius:6px; padding:13px 0; font-size:15px; font-weight:600; font-family:inherit">Find the company</button>
+        <div style="text-align:center; font-size:12px; color:#6B7280; margin-top:10px">Button enables once the confirmation is ticked.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ENTITY CONFIRMATION ================= -->
+  <div id="scr-entity">
+    <div style="font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#6B7280; margin-bottom:10px">03 · Entity confirmation — multi-candidate · status: Entity confirmation required</div>
+    <div data-screen-label="Entity confirmation" style="width:1360px; background:#FAF9F5; border:1px solid #C9C4B8; border-radius:12px; box-shadow:0 8px 28px rgba(26,36,48,.14); padding:40px 48px">
+      <div style="max-width:920px; margin:0 auto">
+        <div style="font-family:'Source Serif 4',Georgia,serif; font-size:24px; font-weight:600">Which company is this?</div>
+        <div style="font-size:13.5px; color:#4A5568; margin:6px 0 24px">For <span style="font-family:'IBM Plex Mono',monospace; font-size:12.5px; background:#F1EFE9; border-radius:4px; padding:2px 7px">meridianagro.in</span> we found three registered companies. Confirm the right one — the Mandate Brief is only reserved after you confirm.</div>
+        <sc-for list="{{ candidates }}" as="c" hint-placeholder-count="3">
+          <div style="background:#FFFFFF; border:1px solid #E3E0D8; border-radius:10px; padding:22px 26px; margin-bottom:14px; display:grid; grid-template-columns:1fr auto; gap:20px" style-hover="border-color:#1E3A5F; box-shadow:0 2px 8px rgba(26,36,48,.08)">
+            <div>
+              <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px">
+                <span style="font-size:16px; font-weight:600">{{ c.name }}</span>
+                <span style="display:inline-flex; align-items:center; gap:7px; border-radius:6px; padding:3px 10px; font-size:12px; font-weight:500; background:{{ c.bg }}; color:{{ c.fg }}; border:1px solid {{ c.bd }}"><span style="width:9px; height:9px; border-radius:50%; background:{{ c.dotFill }}; border:{{ c.dotBorder }}"></span>{{ c.conf }}</span>
+              </div>
+              <div style="display:flex; gap:22px; font-size:12.5px; color:#4A5568; margin-bottom:10px; flex-wrap:wrap">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:12px">{{ c.cin }}</span>
+                <span>{{ c.type }}</span>
+                <span>{{ c.office }}</span>
+              </div>
+              <div style="font-size:12.5px; line-height:18px; color:#1A2430; background:#FAF9F5; border-left:3px solid #C9C4B8; padding:8px 12px; margin-bottom:8px"><strong style="color:#6B7280; font-weight:600">Domain:</strong> {{ c.domain }}</div>
+              <div style="font-size:12.5px; line-height:18px; color:#4A5568; font-style:italic">“{{ c.snippet }}” <span style="font-style:normal; color:#6B7280">— {{ c.source }}</span></div>
+            </div>
+            <div style="display:flex; flex-direction:column; justify-content:center">
+              <button style="background:{{ c.btnBg }}; color:{{ c.btnFg }}; border:{{ c.btnBorder }}; border-radius:6px; padding:11px 22px; font-size:13.5px; font-weight:600; font-family:inherit; cursor:pointer; white-space:nowrap">This is the company</button>
+            </div>
+          </div>
+        </sc-for>
+        <div style="display:flex; gap:14px; align-items:center; margin-top:20px">
+          <button style="background:#FFFFFF; color:#1A2430; border:1px solid #C9C4B8; border-radius:6px; padding:11px 20px; font-size:13.5px; font-weight:600; font-family:inherit; cursor:pointer" style-hover="border-color:#1E3A5F">None of these</button>
+          <button style="background:transparent; color:#1D4E89; border:none; padding:11px 8px; font-size:13.5px; font-weight:500; font-family:inherit; cursor:pointer">Enter legal name instead</button>
+          <button style="background:transparent; color:#1D4E89; border:none; padding:11px 8px; font-size:13.5px; font-weight:500; font-family:inherit; cursor:pointer">Add CIN</button>
+          <span style="margin-left:auto; font-size:12px; color:#6B7280">Nothing has been charged.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- entity states strip -->
+    <div style="font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#6B7280; margin:28px 0 10px">03s · Entity confirmation — key states</div>
+    <div style="display:flex; gap:20px">
+      <div data-screen-label="Entity — loading" style="width:430px; background:#FAF9F5; border:1px solid #C9C4B8; border-radius:12px; padding:26px 30px">
+        <div style="font-size:11px; font-weight:600; color:#6B7280; letter-spacing:.05em; text-transform:uppercase; margin-bottom:14px">Loading</div>
+        <div style="font-size:14px; font-weight:600; margin-bottom:12px">Searching public records…</div>
+        <div style="font-size:12.5px; color:#4A5568; margin-bottom:16px">MCA master data · domain registration · company site. Usually under a minute.</div>
+        <div style="height:64px; border:1px solid #E3E0D8; border-radius:8px; background:linear-gradient(90deg,#F1EFE9 25%,#FAF9F5 50%,#F1EFE9 75%); background-size:400px 100%; margin-bottom:10px"></div>
+        <div style="height:64px; border:1px solid #E3E0D8; border-radius:8px; background:#F1EFE9; opacity:.6"></div>
+      </div>
+      <div data-screen-label="Entity — single strong" style="width:430px; background:#FAF9F5; border:1px solid #C9C4B8; border-radius:12px; padding:26px 30px">
+        <div style="font-size:11px; font-weight:600; color:#6B7280; letter-spacing:.05em; text-transform:uppercase; margin-bottom:14px">Single strong candidate</div>
+        <div style="background:#FFFFFF; border:1.5px solid #1F5B33; border-radius:10px; padding:16px 18px">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px"><span style="font-size:14px; font-weight:600">Meridian Agrotech Private Limited</span></div>
+          <span style="display:inline-flex; align-items:center; gap:7px; border-radius:6px; padding:3px 10px; font-size:12px; font-weight:500; background:#E7F2EA; color:#1F5B33; border:1px solid #BFDCC8"><span style="width:9px; height:9px; border-radius:50%; background:#1F5B33"></span>Strong match</span>
+          <div style="font-size:12px; color:#4A5568; margin-top:8px; line-height:17px">Domain registered to this entity; site footer names it verbatim.</div>
+          <button style="margin-top:12px; width:100%; background:#1E3A5F; color:#fff; border:none; border-radius:6px; padding:10px 0; font-size:13px; font-weight:600; font-family:inherit; cursor:pointer">This is the company</button>
+        </div>
+        <div style="font-size:11.5px; color:#6B7280; margin-top:10px">Still requires explicit confirmation — never auto-confirmed.</div>
+      </div>
+      <div data-screen-label="Entity — insufficient evidence" style="width:430px; background:#FAF9F5; border:1px solid #C9C4B8; border-radius:12px; padding:26px 30px">
+        <div style="font-size:11px; font-weight:600; color:#6B7280; letter-spacing:.05em; text-transform:uppercase; margin-bottom:14px">Insufficient evidence</div>
+        <div style="border:1px dashed #C9C4B8; border-radius:10px; padding:20px; text-align:center">
+          <span style="display:inline-flex; align-items:center; gap:7px; border-radius:6px; padding:3px 10px; font-size:12px; font-weight:500; background:#EFEEE9; color:#5A6270; border:1px solid #D8D5CC"><span style="width:9px; height:9px; border-radius:50%; border:2px dashed #5A6270"></span>Insufficient evidence</span>
+          <div style="font-size:13px; line-height:19px; color:#1A2430; margin:12px 0">We could not identify a company from that website with confidence.</div>
+          <div style="display:flex; gap:10px; justify-content:center">
+            <button style="background:#1E3A5F; color:#fff; border:none; border-radius:6px; padding:9px 16px; font-size:12.5px; font-weight:600; font-family:inherit; cursor:pointer">Enter legal name</button>
+            <button style="background:#fff; color:#1A2430; border:1px solid #C9C4B8; border-radius:6px; padding:9px 16px; font-size:12.5px; font-weight:600; font-family:inherit; cursor:pointer">Add CIN</button>
+          </div>
+          <div style="font-size:11.5px; color:#6B7280; margin-top:10px">Nothing has been charged.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= CLARIFICATION + RESERVE ================= -->
+  <div id="scr-clarify" style="display:flex; gap:40px; align-items:flex-start">
+    <div>
+      <div style="font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#6B7280; margin-bottom:10px">04 · Clarification · status: Clarification required</div>
+      <div data-screen-label="Clarification" style="width:660px; background:#FAF9F5; border:1px solid #C9C4B8; border-radius:12px; box-shadow:0 8px 28px rgba(26,36,48,.14); padding:40px 48px">
+        <div style="font-size:12px; color:#6B7280; margin-bottom:4px">Meridian Agrotech Private Limited · <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px">U01100MH2019PTC324867</span></div>
+        <div style="font-family:'Source Serif 4',Georgia,serif; font-size:24px; font-weight:600; margin-bottom:6px">Where does your client stand?</div>
+        <div style="font-size:13px; color:#4A5568; margin-bottom:20px">One question — it shapes the regulatory lens and the kickoff questions.</div>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:18px">
+          <label style="display:flex; align-items:center; gap:12px; background:#FFFFFF; border:1.5px solid #1E3A5F; border-radius:8px; padding:14px 18px; cursor:pointer"><span style="width:18px; height:18px; border-radius:50%; border:5.5px solid #1E3A5F; background:#fff; flex:none"></span><span style="font-size:14px; font-weight:600">We act for the investor / acquirer</span></label>
+          <label style="display:flex; align-items:center; gap:12px; background:#FFFFFF; border:1px solid #C9C4B8; border-radius:8px; padding:14px 18px; cursor:pointer" style-hover="border-color:#1E3A5F"><span style="width:18px; height:18px; border-radius:50%; border:2px solid #9AA1AC; background:#fff; flex:none"></span><span style="font-size:14px">We act for the company / promoters</span></label>
+          <label style="display:flex; align-items:center; gap:12px; background:#FFFFFF; border:1px solid #C9C4B8; border-radius:8px; padding:14px 18px; cursor:pointer" style-hover="border-color:#1E3A5F"><span style="width:18px; height:18px; border-radius:50%; border:2px solid #9AA1AC; background:#fff; flex:none"></span><span style="font-size:14px">We act for a seller / transferor</span></label>
+          <label style="display:flex; align-items:center; gap:12px; background:#FFFFFF; border:1px solid #C9C4B8; border-radius:8px; padding:14px 18px; cursor:pointer" style-hover="border-color:#1E3A5F"><span style="width:18px; height:18px; border-radius:50%; border:2px solid #9AA1AC; background:#fff; flex:none"></span><span style="font-size:14px">Other / prefer not to say</span></label>
+        </div>
+        <div style="background:#F1EFE9; border-radius:8px; padding:14px 18px; font-size:12.5px; line-height:18px; color:#4A5568; margin-bottom:22px">
+          <strong style="color:#1A2430">Why this matters.</strong> An investor-side reading emphasises FEMA/FDI entry routes and diligence readiness; a company-side reading emphasises disclosure posture and housekeeping. Your answer is never shared and never appears in the Mandate Brief.
+        </div>
+        <button style="width:100%; background:#1E3A5F; color:#fff; border:none; border-radius:6px; padding:13px 0; font-size:15px; font-weight:600; font-family:inherit; cursor:pointer" style-hover="background:#16304F">Continue</button>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#6B7280; margin-bottom:10px">05 · Entitlement reserve + zero-balance interception</div>
+      <div data-screen-label="Reserve" style="width:660px; background:#FAF9F5; border:1px solid #C9C4B8; border-radius:12px; box-shadow:0 8px 28px rgba(26,36,48,.14); padding:40px 48px">
+        <div style="font-family:'Source Serif 4',Georgia,serif; font-size:24px; font-weight:600; margin-bottom:6px">Ready to prepare</div>
+        <div style="font-size:13.5px; line-height:20px; color:#4A5568; margin-bottom:20px">Generating will reserve <strong style="color:#1A2430">1 Mandate Brief</strong> from your balance. If generation fails, it is restored automatically.</div>
+        <div style="display:flex; align-items:center; gap:14px; background:#FFFFFF; border:1px solid #E3E0D8; border-radius:8px; padding:16px 20px; margin-bottom:22px">
+          <span style="font-size:13px; color:#4A5568">Balance</span>
+          <span style="font-size:14px; font-weight:600">2 available</span>
+          <span style="color:#9AA1AC">→</span>
+          <span style="font-size:14px; font-weight:600">1 available · 1 reserved</span>
+        </div>
+        <button style="width:100%; background:#1E3A5F; color:#fff; border:none; border-radius:6px; padding:13px 0; font-size:15px; font-weight:600; font-family:inherit; cursor:pointer" style-hover="background:#16304F">Reserve and generate</button>
+        <div style="border-top:1px dashed #C9C4B8; margin:28px 0 20px"></div>
+        <div style="font-size:11px; font-weight:600; color:#6B7280; letter-spacing:.05em; text-transform:uppercase; margin-bottom:12px">If the balance is zero — purchase interception</div>
+        <div style="background:#FFFFFF; border:1px solid #E3E0D8; border-radius:10px; padding:20px 22px">
+          <div style="font-size:13.5px; line-height:19px; margin-bottom:14px"><strong>You have no Mandate Briefs available.</strong> Choose a pack to continue — your confirmed entity and answers are saved and will be right here.</div>
+          <div style="display:flex; gap:10px">
+            <div style="flex:1; border:1px solid #C9C4B8; border-radius:8px; padding:12px; text-align:center"><div style="font-size:13px; font-weight:600">1 Mandate Brief</div><div style="font-family:'IBM Plex Mono',monospace; font-size:14px; margin-top:3px">₹999</div></div>
+            <div style="flex:1; border:1.5px solid #1E3A5F; border-radius:8px; padding:12px; text-align:center; position:relative"><div style="position:absolute; top:-9px; left:50%; transform:translateX(-50%); background:#1E3A5F; color:#fff; font-size:9.5px; font-weight:600; letter-spacing:.05em; border-radius:999px; padding:2px 8px">MOST CHOSEN</div><div style="font-size:13px; font-weight:600">5 Mandate Briefs</div><div style="font-family:'IBM Plex Mono',monospace; font-size:14px; margin-top:3px">₹3,499</div></div>
+            <div style="flex:1; border:1px solid #C9C4B8; border-radius:8px; padding:12px; text-align:center"><div style="font-size:13px; font-weight:600">10 Mandate Briefs</div><div style="font-family:'IBM Plex Mono',monospace; font-size:14px; margin-top:3px">₹5,999</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= GENERATION PROGRESS ================= -->
+  <div id="scr-progress" style="display:flex; gap:40px; align-items:flex-start">
+    <div>
+      <div style="font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#6B7280; margin-bottom:10px">06 · Generation progress — truthful checklist · status: Verifying</div>
+      <div data-screen-label="Generation progress" style="width:660px; background:#FAF9F5; border:1px solid #C9C4B8; border-radius:12px; box-shadow:0 8px 28px rgba(26,36,48,.14); padding:40px 48px">
+        <div style="font-size:12px; color:#6B7280; margin-bottom:4px">Meridian Agrotech Private Limited</div>
+        <div style="font-family:'Source Serif 4',Georgia,serif; font-size:24px; font-weight:600; margin-bottom:6px">Preparing your Mandate Brief</div>
+        <div style="font-size:13px; color:#4A5568; margin-bottom:24px">This checklist reflects actual progress — each line is a real stage with its real time. You can close this page; we will email you when it is ready.</div>
+        <div style="background:#FFFFFF; border:1px solid #E3E0D8; border-radius:10px; padding:8px 0">
+          <sc-for list="{{ stages }}" as="s" hint-placeholder-count="7">
+            <div style="display:flex; align-items:center; gap:14px; padding:11px 22px; border-bottom:1px solid #F1EFE9">
+              <span style="width:22px; height:22px; border-radius:50%; flex:none; display:inline-flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; background:{{ s.cBg }}; color:{{ s.cFg }}; border:{{ s.cBorder }}">{{ s.glyph }}</span>
+              <span style="flex:1; font-size:13.5px; font-weight:{{ s.weight }}; color:{{ s.txt }}">{{ s.name }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#6B7280">{{ s.time }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="font-size:12px; color:#6B7280; margin-top:12px">No percentages, no animation for its own sake — a stage is either done (with its timestamp), in progress, or not started.</div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:24px">
+      <div>
+        <div style="font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#6B7280; margin-bottom:10px">06b · retry_wait — shown honestly</div>
+        <div data-screen-label="Progress — retry" style="width:560px; background:#FAF9F5; border:1px solid #C9C4B8; border-radius:12px; padding:26px 30px">
+          <div style="display:flex; align-items:center; gap:14px; padding:11px 0">
+            <span style="width:22px; height:22px; border-radius:50%; flex:none; display:inline-flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; background:#E7F2EA; color:#1F5B33; border:none">✓</span>
+            <span style="flex:1; font-size:13.5px; color:#1A2430">Collecting public sources</span>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#6B7280">14:09</span>
+          </div>
+          <div style="display:flex; align-items:flex-start; gap:14px; background:#FBF3E0; border:1px solid #E8D5A4; border-radius:8px; padding:12px 16px">
+            <span style="width:22px; height:22px; border-radius:50%; flex:none; display:inline-flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; background:#fff; color:#7A5410; border:2px solid #E8D5A4">⏲</span>
+            <span style="font-size:13px; line-height:19px; color:#7A5410"><strong>Registry source unavailable — retry scheduled for 14:32.</strong><br><span style="font-size:12px">The checklist resumes automatically. Your entitlement stays reserved, not spent.</span></span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#6B7280; margin-bottom:10px">06c · Terminal failure — kept trust · status: Failed — entitlement restored</div>
+        <div data-screen-label="Progress — failed" style="width:560px; background:#FAF9F5; border:1px solid #C9C4B8; border-radius:12px; padding:26px 30px">
+          <span style="display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:3px 11px; font-size:12px; font-weight:500; background:#F7EDE9; color:#7C382A; border:1px solid #E4C6BA"><span style="font-weight:700">↩</span>Failed — entitlement restored</span>
+          <div style="font-family:'Source Serif 4',Georgia,serif; font-size:19px; font-weight:600; margin:12px 0 8px">We could not complete this Mandate Brief</div>
+          <div style="font-size:13px; line-height:19px; color:#4A5568; margin-bottom:16px">Your entitlement has been restored — nothing was used. The attempt log below is preserved, and you can start again whenever you choose.</div>
+          <div style="display:flex; align-items:center; gap:12px; background:#FFFFFF; border:1px solid #E3E0D8; border-radius:8px; padding:12px 16px; margin-bottom:16px">
+            <span style="font-size:12.5px; color:#4A5568">Balance</span><span style="font-size:13.5px; font-weight:600">1 reserved → 2 available</span><span style="font-size:11.5px; color:#1F5B33; font-weight:600; margin-left:auto">✓ restored 14:41</span>
+          </div>
+          <div style="display:flex; gap:10px">
+            <button style="background:#1E3A5F; color:#fff; border:none; border-radius:6px; padding:10px 18px; font-size:13px; font-weight:600; font-family:inherit; cursor:pointer">Try again</button>
+            <button style="background:#fff; color:#1A2430; border:1px solid #C9C4B8; border-radius:6px; padding:10px 18px; font-size:13px; font-weight:600; font-family:inherit; cursor:pointer">View attempt log</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= EDITOR ================= -->
+  <div id="scr-editor">
+    <div style="font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#6B7280; margin-bottom:10px">07 · Mandate Brief editor · status: Ready</div>
+    <div data-screen-label="Brief editor" style="width:1360px; background:#FAF9F5; border:1px solid #C9C4B8; border-radius:12px; overflow:hidden; box-shadow:0 8px 28px rgba(26,36,48,.14)">
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:0 24px; height:56px; background:#FFFFFF; border-bottom:1px solid #E3E0D8">
+        <div style="display:flex; align-items:center; gap:18px">
+          <span style="font-family:'Source Serif 4',Georgia,serif; font-size:18px; font-weight:600; color:#1E3A5F">Mandate<span style="color:#A63D2F">.</span></span>
+          <span style="color:#C9C4B8">/</span>
+          <span style="font-size:13.5px; font-weight:600">Meridian Agrotech Private Limited</span>
+          <span style="display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:2px 10px; font-size:11.5px; font-weight:500; background:#E7F2EA; color:#1F5B33; border:1px solid #BFDCC8">✓ Ready</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px">
+          <span style="font-size:12.5px; color:#4A5568; border:1px solid #C9C4B8; border-radius:6px; padding:6px 12px; background:#fff">v2 · research 12 Jul 2026 ▾</span>
+          <button style="background:#fff; color:#1A2430; border:1px solid #C9C4B8; border-radius:6px; padding:7px 14px; font-size:12.5px; font-weight:600; font-family:inherit; cursor:pointer">Letterhead</button>
+          <button style="background:#fff; color:#1A2430; border:1px solid #C9C4B8; border-radius:6px; padding:7px 14px; font-size:12.5px; font-weight:600; font-family:inherit; cursor:pointer">Report an issue</button>
+          <button style="background:#fff; color:#1A2430; border:1px solid #C9C4B8; border-radius:6px; padding:7px 14px; font-size:12.5px; font-weight:600; font-family:inherit; cursor:pointer">Save</button>
+          <button style="background:#1E3A5F; color:#fff; border:none; border-radius:6px; padding:7px 16px; font-size:12.5px; font-weight:600; font-family:inherit; cursor:pointer">Download</button>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 360px; gap:0">
+        <div style="padding:32px; display:flex; justify-content:center; background:#E9E6DD">
+          <div style="width:560px; background:#FFFFFF; box-shadow:0 2px 12px rgba(26,36,48,.12); padding:44px 48px; font-family:'Source Serif 4',Georgia,serif">
+            <div style="display:flex; justify-content:space-between; border-bottom:2px solid #1E3A5F; padding-bottom:10px; margin-bottom:14px">
+              <div>
+                <div style="font-family:'IBM Plex Sans',sans-serif; font-size:8px; font-weight:600; letter-spacing:.14em; color:#6B7280">MANDATE BRIEF</div>
+                <div style="font-size:16px; font-weight:600; margin-top:2px">Meridian Agrotech Private Limited</div>
+              </div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:7.5px; color:#4A5568; text-align:right; line-height:1.6">U01100MH2019PTC324867<br>Research current to 12 Jul 2026</div>
+            </div>
+            <div style="font-size:10px; font-weight:600; margin-bottom:6px">Executive snapshot</div>
+            <div style="font-size:9px; line-height:1.55; color:#1A2430">
+              <div style="margin-bottom:3px">· Agri-inputs company selling bio-fertilisers to ~4,000 retail outlets across six states.</div>
+              <div style="margin-bottom:3px; background:#E9F0F8; border-radius:2px; padding:1px 3px; outline:1.5px solid #1D4E89">· The company states a manufacturing capacity of 24,000 MT per annum at its Nashik facility.</div>
+              <div style="margin-bottom:3px">· Series B funded; Elevar Agri Partners holds a board seat.</div>
+              <div style="margin-bottom:3px; background:#FFFBEF; border-bottom:2px dotted #D9A93F; padding:1px 3px">· The Nashik facility is fully compliant with all environmental norms. <span style="font-family:'IBM Plex Sans',sans-serif; font-size:7px; color:#7A5410; font-weight:600">⚠ added by you — not supported by cited sources</span></div>
+              <div>· Fertiliser Control Order licensing must be confirmed at kickoff.</div>
+            </div>
+            <div style="font-size:10px; font-weight:600; margin:12px 0 4px">1 · Business and operating footprint</div>
+            <div style="font-size:9px; line-height:1.55; color:#4A5568">Meridian Agrotech manufactures and distributes bio-fertilisers and micronutrient blends. Its site lists two production units (Nashik, Indore) and a network of…</div>
+            <div style="margin-top:16px; text-align:center; font-family:'IBM Plex Sans',sans-serif; font-size:8px; color:#9AA1AC">Page 1 of 2 · ‹ ›</div>
+          </div>
+        </div>
+        <div style="background:#FFFFFF; border-left:1px solid #E3E0D8; padding:20px 22px">
+          <div style="display:flex; border-bottom:1px solid #E3E0D8; margin-bottom:16px">
+            <span style="padding:8px 14px; font-size:13px; font-weight:600; border-bottom:2px solid #1E3A5F; margin-bottom:-1px">Sources</span>
+            <span style="padding:8px 14px; font-size:13px; color:#4A5568">Confidence</span>
+          </div>
+          <div style="font-size:11px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:#6B7280; margin-bottom:8px">Selected sentence</div>
+          <div style="font-family:'Source Serif 4',Georgia,serif; font-size:13px; line-height:19px; background:#E9F0F8; border-radius:6px; padding:10px 12px; margin-bottom:14px">“The company states a manufacturing capacity of 24,000 MT per annum at its Nashik facility.”</div>
+          <span style="display:inline-flex; align-items:center; gap:7px; color:#1E4E79; font-size:12.5px; font-weight:500; margin-bottom:14px"><span style="width:18px; height:18px; border-radius:4px; background:#E9F0F8; border:1px solid #C5D7EA; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:700">“”</span>Company claim — stated by the company, not independently verified</span>
+          <div style="border:1px solid #E3E0D8; border-radius:8px; padding:12px 14px; margin-bottom:10px">
+            <div style="font-size:12.5px; font-weight:600; margin-bottom:3px">meridianagro.in — Manufacturing</div>
+            <div style="font-size:11.5px; color:#6B7280; margin-bottom:6px">Company website · captured 12 Jul 2026 · Annex ref 7</div>
+            <div style="font-size:12px; line-height:17px; color:#4A5568; font-style:italic">“…our Nashik plant has an installed capacity of 24,000 MT per annum…”</div>
+          </div>
+          <div style="font-size:11.5px; color:#6B7280; line-height:16px">Editing this sentence beyond its sources will flag it as unsupported — the flag appears in the editor only, never in the downloaded PDF.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= LETTERHEAD + DOWNLOAD + ISSUE ================= -->
+  <div id="scr-final" style="display:flex; gap:40px; align-items:flex-start">
+    <div>
+      <div style="font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#6B7280; margin-bottom:10px">08 · Letterhead — margins &amp; continuation preview</div>
+      <div data-screen-label="Letterhead" style="width:620px; background:#FAF9F5; border:1px solid #C9C4B8; border-radius:12px; box-shadow:0 8px 28px rgba(26,36,48,.14); padding:32px 36px">
+        <div style="font-family:'Source Serif 4',Georgia,serif; font-size:21px; font-weight:600; margin-bottom:6px">Firm letterhead</div>
+        <div style="font-size:12.5px; color:#4A5568; margin-bottom:18px">Upload a PDF or PNG. The Mandate Brief keeps a 32 mm header zone and 18 mm margins clear — your letterhead is never overprinted.</div>
+        <div style="border:1.5px dashed #C9C4B8; border-radius:8px; padding:18px; text-align:center; font-size:13px; color:#4A5568; margin-bottom:18px; background:#fff">Drop letterhead here or <span style="color:#1D4E89; font-weight:600">browse</span> · PDF, PNG · A4</div>
+        <div style="display:flex; gap:16px">
+          <div style="flex:1">
+            <div style="font-size:11px; font-weight:600; color:#6B7280; margin-bottom:6px">PAGE 1</div>
+            <div style="height:240px; background:#fff; border:1px solid #E3E0D8; position:relative; border-radius:4px; overflow:hidden">
+              <div style="height:52px; background:#F1EFE9; border-bottom:1px dashed #C9A84C; display:flex; align-items:center; justify-content:center; font-size:10px; color:#8C6D3F">firm letterhead zone · 32 mm</div>
+              <div style="position:absolute; top:52px; bottom:0; left:22px; right:22px; border-left:1px dashed #C5D7EA; border-right:1px dashed #C5D7EA; padding:8px 10px">
+                <div style="height:7px; background:#E3E0D8; width:70%; margin-bottom:5px"></div>
+                <div style="height:4px; background:#EDEAE2; width:95%; margin-bottom:3px"></div>
+                <div style="height:4px; background:#EDEAE2; width:88%; margin-bottom:3px"></div>
+                <div style="height:4px; background:#EDEAE2; width:92%"></div>
+              </div>
+            </div>
+          </div>
+          <div style="flex:1">
+            <div style="font-size:11px; font-weight:600; color:#6B7280; margin-bottom:6px">CONTINUATION PAGES</div>
+            <div style="height:240px; background:#fff; border:1px solid #E3E0D8; position:relative; border-radius:4px; overflow:hidden">
+              <div style="height:24px; border-bottom:1px dashed #C9A84C; display:flex; align-items:center; justify-content:center; font-size:10px; color:#8C6D3F">reduced zone · 14 mm</div>
+              <div style="position:absolute; top:24px; bottom:0; left:22px; right:22px; border-left:1px dashed #C5D7EA; border-right:1px dashed #C5D7EA; padding:8px 10px">
+                <div style="height:4px; background:#EDEAE2; width:95%; margin-bottom:3px"></div>
+                <div style="height:4px; background:#EDEAE2; width:90%; margin-bottom:3px"></div>
+                <div style="height:4px; background:#EDEAE2; width:93%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button style="margin-top:18px; width:100%; background:#1E3A5F; color:#fff; border:none; border-radius:6px; padding:12px 0; font-size:14px; font-weight:600; font-family:inherit; cursor:pointer">Apply letterhead — re-renders in seconds, research unchanged</button>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:24px">
+      <div>
+        <div style="font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#6B7280; margin-bottom:10px">09 · Download</div>
+        <div data-screen-label="Download" style="width:560px; background:#FFFFFF; border:1px solid #C9C4B8; border-radius:14px; box-shadow:0 16px 48px rgba(26,36,48,.20); padding:30px 34px">
+          <div style="font-family:'Source Serif 4',Georgia,serif; font-size:20px; font-weight:600; margin-bottom:16px">Download Mandate Brief</div>
+          <div style="display:grid; grid-template-columns:auto 1fr; gap:8px 18px; font-size:13px; margin-bottom:16px">
+            <span style="color:#6B7280">Version</span><span style="font-weight:600">v2 · edited 13 Jul 2026 ▾</span>
+            <span style="color:#6B7280">Entity</span><span style="font-weight:600">Meridian Agrotech Private Limited</span>
+            <span style="color:#6B7280">CIN</span><span style="font-family:'IBM Plex Mono',monospace; font-size:12.5px">U01100MH2019PTC324867</span>
+            <span style="color:#6B7280">Research date</span><span style="font-family:'IBM Plex Mono',monospace; font-size:12.5px">12 Jul 2026</span>
+          </div>
+          <label style="display:flex; align-items:center; gap:10px; font-size:13px; margin-bottom:16px; cursor:pointer"><span style="width:18px; height:18px; border-radius:4px; background:#1E3A5F; color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:700">✓</span>Include source annex <span style="color:#6B7280">(recommended — outside the page count)</span></label>
+          <div style="font-size:11px; line-height:16px; color:#6B7280; background:#FAF9F5; border:1px solid #EDEAE2; border-radius:6px; padding:10px 12px; margin-bottom:16px">This Mandate Brief is an AI-assisted transaction preparation brief based solely on publicly available information identified as of the research date. It is not legal advice, a legal opinion, a due-diligence report, or a representation that the information is complete or current.</div>
+          <button style="width:100%; background:#1E3A5F; color:#fff; border:none; border-radius:6px; padding:12px 0; font-size:14px; font-weight:600; font-family:inherit; cursor:pointer">Download PDF</button>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#6B7280; margin-bottom:10px">10 · Issue reporting</div>
+        <div data-screen-label="Issue reporting" style="width:560px; background:#FFFFFF; border:1px solid #C9C4B8; border-radius:14px; box-shadow:0 16px 48px rgba(26,36,48,.20); padding:30px 34px">
+          <div style="font-family:'Source Serif 4',Georgia,serif; font-size:20px; font-weight:600; margin-bottom:4px">Report an issue</div>
+          <div style="font-size:12.5px; color:#4A5568; margin-bottom:16px">Reports go to a reviewer with this exact version attached (v2).</div>
+          <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px">
+            <span style="border:1.5px solid #1E3A5F; background:#E9F0F8; border-radius:999px; padding:6px 14px; font-size:12.5px; font-weight:600; color:#1E3A5F">Incorrect fact</span>
+            <span style="border:1px solid #C9C4B8; border-radius:999px; padding:6px 14px; font-size:12.5px; color:#4A5568">Wrong entity</span>
+            <span style="border:1px solid #C9C4B8; border-radius:999px; padding:6px 14px; font-size:12.5px; color:#4A5568">Missing source</span>
+            <span style="border:1px solid #C9C4B8; border-radius:999px; padding:6px 14px; font-size:12.5px; color:#4A5568">Formatting</span>
+            <span style="border:1px solid #C9C4B8; border-radius:999px; padding:6px 14px; font-size:12.5px; color:#4A5568">Other</span>
+          </div>
+          <div style="border:1px solid #C9C4B8; border-radius:6px; padding:12px 14px; font-size:13px; color:#9AA1AC; height:76px; background:#fff; margin-bottom:14px">Describe what is wrong — reference the section and sentence if you can…</div>
+          <button style="width:100%; background:#1E3A5F; color:#fff; border:none; border-radius:6px; padding:12px 0; font-size:14px; font-weight:600; font-family:inherit; cursor:pointer">Send report</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const AMBER = { bg:'#FBF3E0', fg:'#7A5410', bd:'#E8D5A4' };
+    const GREY  = { bg:'#F1EFE9', fg:'#4A5568', bd:'#D8D5CC' };
+    const BLUE  = { bg:'#E9F0F8', fg:'#1E4E79', bd:'#C5D7EA' };
+    const GREEN = { bg:'#E7F2EA', fg:'#1F5B33', bd:'#BFDCC8' };
+    const CLAY  = { bg:'#F7EDE9', fg:'#7C382A', bd:'#E4C6BA' };
+    const rows = [
+      { name:'Meridian Agrotech Private Limited', sub:'meridianagro.in · investor side', cin:'U01100MH2019PTC324867', status:'Ready', glyph:'✓', date:'12 Jul 2026', action:'Open', ...GREEN },
+      { name:'Kestrel Logistics Private Limited', sub:'kestrel.co.in · acquirer side', cin:'U63030DL2016PTC301442', status:'Verifying', glyph:'◔', date:'—', action:'View', ...BLUE },
+      { name:'Auric Speciality Chemicals Limited', sub:'auricchem.com', cin:'—', status:'Entity confirmation required', glyph:'◇', date:'—', action:'Resume', ...AMBER },
+      { name:'Banwari Textiles Private Limited', sub:'banwaritextiles.in · seller side', cin:'U17120GJ2011PTC067884', status:'Failed — entitlement restored', glyph:'↩', date:'—', action:'Retry', ...CLAY },
+      { name:'Nivara Health Private Limited', sub:'nivarahealth.in', cin:'U85110KA2021PTC148802', status:'Clarification required', glyph:'?', date:'—', action:'Resume', ...AMBER }
+    ];
+    const done = { cBg:'#E7F2EA', cFg:'#1F5B33', cBorder:'none', glyph:'✓', weight:400, txt:'#1A2430' };
+    const cur  = { cBg:'#1E3A5F', cFg:'#FFFFFF', cBorder:'none', glyph:'●', weight:600, txt:'#1A2430' };
+    const todo = { cBg:'#FFFFFF', cFg:'#9AA1AC', cBorder:'1.5px solid #D8D5CC', glyph:'', weight:400, txt:'#6B7280' };
+    const stages = [
+      { ...done, name:'Entity locked — Meridian Agrotech Private Limited', time:'14:02' },
+      { ...done, name:'Collecting public sources', time:'14:09' },
+      { ...done, name:'Reading and extracting claims', time:'14:17' },
+      { ...cur,  name:'Verifying claims across sources', time:'started 14:21' },
+      { ...todo, name:'Drafting sections', time:'' },
+      { ...todo, name:'Assembling kickoff questions', time:'' },
+      { ...todo, name:'Preparing Mandate Brief — layout and annex', time:'' }
+    ];
+    const candidates = [
+      { name:'Meridian Agrotech Private Limited', conf:'Strong match', ...GREEN, dotFill:'#1F5B33', dotBorder:'none',
+        cin:'U01100MH2019PTC324867', type:'Private · Active', office:'Nashik, Maharashtra',
+        domain:'meridianagro.in is registered to this entity (registrant match) — Verified fact',
+        snippet:'Meridian Agrotech Private Limited, CIN U01100MH2019PTC324867, Regd. Office: Nashik', source:'site footer, captured 12 Jul 2026',
+        btnBg:'#1E3A5F', btnFg:'#FFFFFF', btnBorder:'none' },
+      { name:'Meridian Agro Industries Limited', conf:'Ambiguous', ...AMBER, dotFill:'transparent', dotBorder:'2px solid #7A5410',
+        cin:'U01403PB1998PLC021553', type:'Public unlisted · Active', office:'Ludhiana, Punjab',
+        domain:'No relationship with meridianagro.in found',
+        snippet:'Similar name; older agri-processing company with no web presence', source:'MCA master data',
+        btnBg:'#FFFFFF', btnFg:'#1A2430', btnBorder:'1px solid #C9C4B8' },
+      { name:'Meridian Agrotech LLP', conf:'Ambiguous', ...AMBER, dotFill:'transparent', dotBorder:'2px solid #7A5410',
+        cin:'AAX-4471 (LLPIN)', type:'LLP · Active', office:'Pune, Maharashtra',
+        domain:'No relationship with meridianagro.in found',
+        snippet:'Name and state overlap; different constitution (LLP)', source:'MCA master data',
+        btnBg:'#FFFFFF', btnFg:'#1A2430', btnBorder:'1px solid #C9C4B8' }
+    ];
+    return { rows, stages, candidates };
+  }
+}
+</script>
+</body>
+</html>
