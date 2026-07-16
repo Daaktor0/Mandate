@@ -10,7 +10,7 @@
       "filedOn": "2025-09-30",
       "sourceLocator": "fixture/corporate-filings/aoc-4/2024-25",
       "mediaType": "application/pdf",
-      "bodyUtf8": "Synthetic AOC-4 filing fixture for Mandate demo mode."
+      "bodyUtf8": "%PDF-1.4\nSynthetic AOC-4 filing fixture for Mandate demo mode.\n%%EOF"
     },
     {
       "documentId": "fixture:mgt-7:2024-25",
@@ -20,7 +20,7 @@
       "filedOn": "2025-11-29",
       "sourceLocator": "fixture/corporate-filings/mgt-7/2024-25",
       "mediaType": "application/pdf",
-      "bodyUtf8": "Synthetic MGT-7 filing fixture for Mandate demo mode."
+      "bodyUtf8": "%PDF-1.4\nSynthetic MGT-7 filing fixture for Mandate demo mode.\n%%EOF"
     }
   ]
 }
