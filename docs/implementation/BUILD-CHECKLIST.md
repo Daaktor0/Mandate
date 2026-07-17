@@ -2,7 +2,7 @@
 
 **Status header (update after every tested phase):**
 
-> **Current phase:** 2 — Evidence pipeline (4/13 tasks complete) · **Phase 1 live benchmark:** blocked at 8/9 · **Last gate passed:** G0 · **Updated:** 2026-07-17
+> **Current phase:** 2 — Evidence pipeline (5/13 tasks complete) · **Phase 1 live benchmark:** blocked at 8/9 · **Last gate passed:** G0 · **Updated:** 2026-07-17
 
 **Sources:** product-specification doc 13 (authoritative phase order and gates); master prompt ("follow the build roadmap exactly; use vertical slices; update the checklist after every tested phase")
 **Related:** [REQUIREMENTS-TRACEABILITY.md](REQUIREMENTS-TRACEABILITY.md), [TEST-PLAN.md](TEST-PLAN.md), [ARCHITECTURE-DECISIONS.md](ARCHITECTURE-DECISIONS.md) (blockers B1–B14)
@@ -49,7 +49,7 @@ B5's architecture is resolved: Exa is search-only; company master data and MCA/R
 - [x] `PageFetcher` adapter: fixture + robots-aware SafeFetcher implementation; bounded extraction/provenance and injection flags; outputs remain unadmitted; binary parsing still scan-gated ([review](security-reviews/phase-2-page-fetcher.md))
 - [x] `CorporateFilingDocumentProvider` integration after entity confirmation: fixture + manual MCA VPD state; unverified licensed vendors fail closed; acquired files remain quarantined and non-parseable ([review](security-reviews/phase-2-corporate-filing-integration.md))
 - [x] Reusable malware-scan, archive-limit and sandbox parser boundary before any acquired PDF/ZIP becomes parseable evidence: fixture scanner/parser + clamd Unix-socket transport; live parsing stays fail-closed pending an isolated parser service; parsed text remains unadmitted ([review](security-reviews/phase-2-file-safety-boundary.md))
-- [ ] ModelGateway (ADR-005): routing config, ZDR/allowlist params, payload allowlist, schema validation + repair retry, `agent_runs` logging, cost caps (needs B3 for live; fixture ModelRouter for CI)
+- [x] ModelGateway (ADR-005): routing config, ZDR/allowlist params, payload allowlist, schema validation + repair retry, agent_runs logging, cost caps (fixture gateway for CI; live OpenRouter binding fails closed pending B3 vendor-slug pin) ([review](security-reviews/phase-2-model-gateway.md))
 - [ ] `evidence`, `claims`, `job_checkpoints`, `agent_runs`, `provider_cost_events` migrations
 - [ ] Source-tier classification + evidence-object capture (doc 06 fields)
 - [ ] Research stages 2–7 (business, industry, competitors, corporate, regulatory, public-risk) with typed `AgentFinding` outputs, claim drafting, freshness windows (REPORT-08/09)
