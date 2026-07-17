@@ -49,6 +49,37 @@ jobs:
           pnpm format:check
       - name: Typecheck
         run: pnpm typecheck
+      - name: Capture stage 1 diagnostics
+        if: always()
+        run: |
+          set +e
+          output="${RUNNER_TEMP}/stage-1-diagnostics.txt"
+          run_check() {
+            label="$1"
+            shift
+            echo "=== ${label} ==="
+            "$@"
+            echo "exit=$?"
+          }
+          {
+            run_check "node" node --version
+            run_check "pnpm" pnpm --version
+            run_check "python" python --version
+            run_check "uv" uv --version
+            run_check "pnpm install" pnpm install --frozen-lockfile
+            run_check "uv sync" uv sync --locked --all-groups
+            run_check "pnpm lint" pnpm lint
+            run_check "pnpm format:check" pnpm format:check
+            run_check "pnpm typecheck" pnpm typecheck
+          } >"${output}" 2>&1
+          cat "${output}"
+      - name: Upload stage 1 diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: stage-1-diagnostics-${{ github.run_id }}
+          path: ${{ runner.temp }}/stage-1-diagnostics.txt
+          if-no-files-found: error
 
   stage_2_security:
     name: 2 · SEC-10/12 security scans
