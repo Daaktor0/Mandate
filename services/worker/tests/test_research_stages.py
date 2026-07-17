@@ -22,6 +22,7 @@ from mandate_worker.agents.research import (
     ResearchStageRunner,
     TopicStatus,
 )
+from mandate_worker.budgets import BudgetLedger, BudgetProfile
 from mandate_worker.providers.model import ModelBudget
 from mandate_worker.providers.page_fetcher import (
     PageDocument,
@@ -183,6 +184,25 @@ async def test_RUN_04_model_receives_admitted_evidence_only() -> None:
     assert excerpt.evidence_id
     assert excerpt.text == "The company operates in the synthetic sector."
     assert all("untrusted" not in item.text.lower() for item in gateway.payloads[0].excerpts)
+
+
+@pytest.mark.asyncio
+async def test_RUN_07_research_runner_consumes_ledger_before_each_external_boundary() -> None:
+    gateway = StubGateway()
+    ledger = BudgetLedger(BudgetProfile.mvp_standard())
+    await ResearchStageRunner(
+        search=StubSearch(),
+        page_fetcher=StubFetcher(),
+        model_gateway=gateway,
+        budget_ledger=ledger,
+        now=NOW,
+    ).run(_context(), _plan(ResearchStage.BUSINESS))
+
+    assert ledger.usage.searches == 1
+    assert ledger.usage.pages == 1
+    assert ledger.usage.model_calls == 1
+    assert ledger.usage.input_tokens == 0
+    assert ledger.usage.cost_inr == Decimal(0)
 
 
 @pytest.mark.asyncio

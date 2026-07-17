@@ -23,3 +23,8 @@ and later approved findings, but it must never submit claims, evidence IDs,
 freshness metadata or source provenance as client-authored research output.
 Evidence admission and `AgentFinding` validation remain server-side worker
 boundaries.
+
+The worker also owns prompt bundle versions and the mvp-standard research
+budget ledger. The web application may show budget-aware progress or kickoff
+questions later, but it cannot set caps, inject source text, or mark a budget
+as exhausted on behalf of a client.

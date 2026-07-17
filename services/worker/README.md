@@ -32,6 +32,20 @@ must fit the stage plan's freshness window; historical facts cannot predate the
 supplied incorporation floor. Stage-specific safeguards reject unsupported
 competitor, regulatory and public-risk output.
 
+## Prompt safety and budgets
+
+`mandate_worker.prompting` builds the versioned model messages. Every admitted
+excerpt is rendered inside an escaped `<untrusted_source>` envelope with source
+tier, company-control and deterministic `prompt_injection_suspected` metadata;
+the system frame explicitly treats envelope content as data, never instructions.
+
+`mandate_worker.budgets.BudgetProfile.mvp_standard` implements the QUEUE §8
+caps (45 searches, 100 pages, 180 browser seconds, 350k input tokens, 60k
+output tokens, ₹120 model cost and 1,200 seconds). `BudgetLedger` applies the
+job and six research-stage slices before work is attempted. Exhaustion maps to
+bounded kickoff questions when mandatory fields are supported, otherwise to
+retry-wait or restored failure; it never authorises unlimited searching.
+
 ## SafeFetcher boundary
 
 All outbound public-page retrieval must use `mandate_worker.fetch.SafeFetcher`; callers
