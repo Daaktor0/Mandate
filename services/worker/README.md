@@ -21,6 +21,17 @@ The worker is stateless between checkpoints, uses typed provider adapters, and m
 
 The database pool and process supervisor are wired in the later container/deployment tasks. No provider credentials or model routes are required for this slice.
 
+## Research stages 2–7
+
+`mandate_worker.agents.research` runs the six research stages through the
+provider order `SearchProvider → PageFetcher → explicit evidence admission →
+ModelGateway`. It emits a typed `AgentFinding` containing shared `Claim`
+objects, coverage, gaps and bounded `FindingNote` rationale metadata. Material
+claims cannot be emitted without admitted evidence IDs. Current/recent facts
+must fit the stage plan's freshness window; historical facts cannot predate the
+supplied incorporation floor. Stage-specific safeguards reject unsupported
+competitor, regulatory and public-risk output.
+
 ## SafeFetcher boundary
 
 All outbound public-page retrieval must use `mandate_worker.fetch.SafeFetcher`; callers

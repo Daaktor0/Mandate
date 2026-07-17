@@ -38,6 +38,24 @@ task_overrides:
   evidence_synthesis:
     tier: mid
     max_output_tokens: 2000
+  research_business:
+    tier: low
+    max_output_tokens: 1600
+  research_industry:
+    tier: mid
+    max_output_tokens: 1600
+  research_competitors:
+    tier: mid
+    max_output_tokens: 1800
+  research_corporate:
+    tier: low
+    max_output_tokens: 1800
+  research_regulatory:
+    tier: mid
+    max_output_tokens: 1800
+  research_public_risk:
+    tier: mid
+    max_output_tokens: 1800
   final_verifier:
     tier: frontier
     max_output_tokens: 1200
