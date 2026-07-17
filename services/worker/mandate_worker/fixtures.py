@@ -20,6 +20,8 @@ class AdapterCapability(StrEnum):
     PAGE_FETCHER = "page_fetcher"
     COMPANY_DATA = "company_data"
     CORPORATE_FILINGS = "corporate_filings"
+    MALWARE_SCANNER = "malware_scanner"
+    FILE_PARSER = "file_parser"
     REGULATORY = "regulatory"
     LITIGATION = "litigation"
     MODEL = "model"
@@ -34,6 +36,8 @@ DEMO_BACKENDS: Final[Mapping[AdapterCapability, str]] = MappingProxyType(
         AdapterCapability.PAGE_FETCHER: "fixture",
         AdapterCapability.COMPANY_DATA: "fixture",
         AdapterCapability.CORPORATE_FILINGS: "fixture",
+        AdapterCapability.MALWARE_SCANNER: "fixture",
+        AdapterCapability.FILE_PARSER: "fixture",
         AdapterCapability.REGULATORY: "fixture",
         AdapterCapability.LITIGATION: "fixture",
         AdapterCapability.MODEL: "fixture",

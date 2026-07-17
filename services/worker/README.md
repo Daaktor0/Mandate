@@ -148,8 +148,39 @@ storage/display rights, pricing and security are verified.
 
 Every imported PDF/ZIP is SHA-256-addressed, size bounded and registered as
 `pending_malware_scan` with `parse_allowed=false`. No filing text may reach extraction,
-evidence or a model until the reusable malware-scan and sandbox parser boundary is built.
+evidence or a model except through the file-safety boundary below.
 Source locators reject embedded password/token/API-key material.
+
+## File-safety boundary
+
+`mandate_worker.providers.file_safety` is the only route from a quarantined filing
+binary to text. `FileSafetyPipeline.process` enforces one mandatory sequence:
+
+1. **Quarantine integrity** — the submitted bytes must be non-empty, at most 25 MiB and
+   an exact size plus constant-time SHA-256 match for the still-quarantined reference.
+2. **Malware scan** — the outer binary, and every ZIP member individually, must return a
+   clean verdict whose reported digest matches the submitted bytes. `DEMO_MODE=1` uses
+   the SHA-256-allowlisted fixture scanner (unknown binaries fail closed); live mode may
+   explicitly select `PROVIDER_MALWARE_SCANNER=clamd_unix`, a bounded local ClamAV
+   `clamd` INSTREAM Unix-socket transport configured via `CLAMD_SOCKET_PATH`. Scanner
+   errors, timeouts and malformed replies are failures, never clean results.
+3. **Archive limits** — ZIPs are bounded to 50 members, 25 MiB per member, 100 MiB total
+   uncompressed and a 100× compression ratio, with stored/deflated compression only.
+   Traversal, absolute and Windows-style paths, case-folded duplicate names, symlinks,
+   encrypted members, nested archives and non-PDF members are rejected, as are PDF/ZIP
+   polyglots and media-type mismatches.
+4. **Sandbox parse** — parsing requires a `networkless_readonly_v1` attestation
+   (network disabled, read-only filesystem, active content removed) plus matching
+   source and text digests. `DEMO_MODE=1` replays the pinned parser fixture; **no live
+   parser binding is allowlisted**, so live PDF parsing stays fail-closed — even when
+   ClamAV is available — until the parser runs in an isolated networkless, read-only,
+   resource-limited service and returns the required attestation.
+
+Results carry only audit-safe metadata and parsed text marked `untrusted=true` and
+`evidence_admitted=false`. Failures raise stable `FileSafetyError` codes that never
+contain document bytes, raw scanner output or source paths. This module has no route to
+a model, the composer or the `evidence`/`claims` tables; evidence admission remains a
+later, separate step.
 
 ## Candidate-generation and scoring boundary
 
