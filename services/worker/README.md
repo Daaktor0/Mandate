@@ -182,6 +182,30 @@ contain document bytes, raw scanner output or source paths. This module has no r
 a model, the composer or the `evidence`/`claims` tables; evidence admission remains a
 later, separate step.
 
+## Model-gateway boundary
+
+`mandate_worker.providers.ModelGateway` is the only worker boundary that can call a live
+model. `complete(payload, budget, response_model)` accepts only a versioned task payload,
+budget and caller-supplied Pydantic response schema. `ModelTaskPayload` allows task and
+prompt-bundle identifiers, a small allowlist of run identifiers, generic client-role
+context and admitted public-research excerpts. User identity, firm, billing, letterhead,
+account, email and confidential matter narrative fields are structurally rejected.
+
+`DEMO_MODE=1` selects the pinned synthetic model fixture, validates the fixture response
+against the caller schema, emits an `agent_runs` record and makes zero transport calls.
+In live mode, set `PROVIDER_MODEL=openrouter`, point `MODEL_ROUTING_CONFIG` at a private
+versioned routing YAML and supply `OPENROUTER_API_KEY`. Missing config, missing
+credentials, fixture selection outside demo mode, unrouted tasks, `unconfigured` and
+unknown provider bindings fail closed without fallback.
+
+Every OpenRouter request carries `provider.data_collection=deny`, `provider.zdr=true`,
+`provider.only` from the resolved route and `provider.allow_fallbacks=false`; no later
+retry can widen that provider list. The gateway estimates worst-case cost before the
+first call, refuses over-budget work without touching the transport, computes actual INR
+cost from provider usage tokens, allows exactly one schema-repair retry and emits a
+sanitised `AgentRunRecord` with model id, prompt version, routing version, usage, cost,
+ZDR proof and a machine-code result.
+
 ## Candidate-generation and scoring boundary
 
 `mandate_worker.entity_resolution.EntityCandidateGenerator` consumes the typed site

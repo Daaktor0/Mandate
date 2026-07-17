@@ -1,0 +1,43 @@
+# Example only. Point MODEL_ROUTING_CONFIG at a private deployment copy once live
+# vendor model slugs and provider allowlists are pinned.
+version: 2026-07-17.1
+
+# Tiers are policy, not defaults. All three tiers must be present and each primary
+# route must require ZDR plus an explicit provider allowlist.
+tiers:
+  low:
+    primary:
+      model: vendor/example-low-v1
+      zdr: required
+      providers_allow:
+        - example-zdr-provider
+      cost_inr_per_1k_input: "0.10"
+      cost_inr_per_1k_output: "0.20"
+  mid:
+    primary:
+      model: vendor/example-mid-v1
+      zdr: required
+      providers_allow:
+        - example-zdr-provider
+      cost_inr_per_1k_input: "0.50"
+      cost_inr_per_1k_output: "1.00"
+  frontier:
+    primary:
+      model: vendor/example-frontier-v1
+      zdr: required
+      providers_allow:
+        - example-zdr-provider
+      cost_inr_per_1k_input: "2.00"
+      cost_inr_per_1k_output: "4.00"
+
+# Every callable task must be routed explicitly. Unknown tasks fail closed.
+task_overrides:
+  phase0_smoke:
+    tier: low
+    max_output_tokens: 512
+  evidence_synthesis:
+    tier: mid
+    max_output_tokens: 2000
+  final_verifier:
+    tier: frontier
+    max_output_tokens: 1200

@@ -16,7 +16,7 @@ class ToolchainPinTests(unittest.TestCase):
         package_json = json.loads((REPOSITORY_ROOT / "package.json").read_text())
         pyproject = tomllib.loads((REPOSITORY_ROOT / "pyproject.toml").read_text())
 
-        self.assertEqual("pnpm@11.13.0", package_json["packageManager"])
+        self.assertEqual("pnpm@11.13.1", package_json["packageManager"])
         self.assertEqual("22.16.x", package_json["engines"]["node"])
         self.assertEqual("0.28.1", package_json["optionalDependencies"]["@esbuild/linux-x64"])
         self.assertNotIn("pnpm", package_json)

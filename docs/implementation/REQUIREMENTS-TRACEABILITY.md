@@ -1,6 +1,6 @@
 # REQUIREMENTS-TRACEABILITY — Mandate MVP
 
-**Status:** Phase 2 in progress (4/13 tasks complete); Phase 1 live benchmark remains blocked at 8/9; `NFR-03` is `Verified`; `INTAKE-01`, `INTAKE-03`, `INTAKE-05`, `ENTITY-01`, `ENTITY-02`, `ENTITY-03`, `ENTITY-04`, `ENTITY-05` and `ENTITY-07` are `Implemented`; `NFR-01`, `NFR-02`, `NFR-04`, `NFR-05`, `INTAKE-02`, `INTAKE-04`, `INTAKE-06` and `RUN-06` are `In progress`; all other requirements remain `Specified`
+**Status:** Phase 2 in progress (5/13 tasks complete); Phase 1 live benchmark remains blocked at 8/9; `NFR-03` is `Verified`; `INTAKE-01`, `INTAKE-03`, `INTAKE-05`, `ENTITY-01`, `ENTITY-02`, `ENTITY-03`, `ENTITY-04`, `ENTITY-05` and `ENTITY-07` are `Implemented`; `NFR-01`, `NFR-02`, `NFR-04`, `NFR-05`, `NFR-09`, `INTAKE-02`, `INTAKE-04`, `INTAKE-06` and `RUN-06` are `In progress`; all other requirements remain `Specified`
 **Sources:** product-specification doc 02 (requirement IDs are normative and must be preserved in tickets, tests and PRs)
 **Related:** [TEST-PLAN.md](TEST-PLAN.md) (test IDs), [SYSTEM-SPEC.md](SYSTEM-SPEC.md) (component codes C1–C15), [BUILD-CHECKLIST.md](BUILD-CHECKLIST.md) (phases)
 
@@ -139,11 +139,11 @@ Columns: **Component** uses SYSTEM-SPEC §2 codes; **DB / API surface** cites ER
 | NFR-02 | Tenant isolation at database layer | C4 | forced RLS on every current table; owner-join candidate policy; service-only outbox/worker mutations; `auth.uid()`-derived confirmation RPC; private replay records (ERD §4) | AT-NFR-02, SEC-01 (database matrix expands with each table) | 0+ | In progress |
 | NFR-03 | Containerised, Hostinger-independent worker | C6, C8 | `services/worker/Dockerfile`; `infra/compose/local.yml`; `mandate_worker.runtime`; `fixtures/demo` including corporate filings; `.github/workflows/ci.yml`; `scripts/generate_traceability_report.py`; no host coupling | AT-NFR-03 (structural + live portability/sandbox + complete zero-spend catalog check in CI stage 5; passing JUnit evidence enforced in CI stage 7) | 0 | Verified |
 | NFR-04 | Trace ID across API/queue/model/search/payment/PDF | C15 | web-minted trace → validated outbox/light message → worker trace context; sink redaction (DEPLOYMENT §6); provider/model/payment/PDF propagation pending | AT-NFR-04; SEC-09 (route/message/logger coverage) | 0+ | In progress |
-| NFR-05 | Every external cost attributable to a report | C7, C8, C15 | bounded company-data call/query counts, Exa call count/reported `costDollars.total`, PageFetcher call count and filing-provider call count returned for later `provider_cost_events`; report attribution/admin view pending | AT-NFR-05 (provider/candidate/search/page-fetch/filing foundations; persistence pending) | 2 | In progress |
+| NFR-05 | Every external cost attributable to a report | C7, C8, C15 | bounded company-data call/query counts, Exa call count/reported `costDollars.total`, PageFetcher call count and filing-provider call count returned for later `provider_cost_events`; ModelGateway cost-cap enforcement and per-call INR cost capture in agent-run records; report attribution/admin view pending | AT-NFR-05 (provider/candidate/search/page-fetch/filing/model-gateway foundations; persistence pending) | 2 | In progress |
 | NFR-06 | WCAG 2.1 AA target | C1 | axe checks in E2E; manual audit | AT-NFR-06 | 5/7 | Specified |
 | NFR-07 | Interactive requests short; research async | C2, C5 | route-handler budget; queue offload | AT-NFR-07 (latency assertion) | 5 | Specified |
 | NFR-08 | Deletion follows retention policy | C4, C6 | retention jobs (SECURITY §4) | AT-NFR-08, SEC-14 | 7 | Specified |
-| NFR-09 | Store model IDs, prompt versions, parameters, evidence | C7, C4 | `agent_runs`, `claims`, `prompt_bundle_version` | AT-NFR-09 | 2 | Specified |
+| NFR-09 | Store model IDs, prompt versions, parameters, evidence | C7, C4 | agent-run record + prompt-version/model-id capture in code; `agent_runs` table itself pending migrations; `claims` and evidence persistence pending | AT-NFR-09 (gateway unit foundations; persistence pending) | 2 | In progress |
 | NFR-10 | Add workers without redesigning job state | C5, C6 | stateless workers; DB-held state (QUEUE §1) | AT-NFR-10 (two-worker E2E) | 5 | Specified |
 
 ## MVP acceptance criteria (doc 02, composite)
