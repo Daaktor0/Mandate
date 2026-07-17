@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-import json
-from collections.abc import Awaitable, Callable, Mapping
+from collections.abc import Mapping
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any, Final, Literal, Protocol, TypeVar
@@ -11,7 +10,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from mandate_worker.fixtures import AdapterCapability, FixtureCatalog
+from mandate_worker.fixtures import AdapterCapability
 from mandate_worker.runtime import RuntimeAdapterPlan
 
 OutputT = TypeVar("OutputT", bound=BaseModel)
@@ -208,15 +207,16 @@ class ModelGateway:
         if route is None:
             raise ModelGatewayConfigurationError("model_task_not_routed")
         self._validate_payload(route, payload)
-        effective_cap = min(route.max_cost_usd, budget.call_max_cost_usd)
-        if effective_cap > budget.job_remaining_cost_usd:
-            effective_cap = budget.job_remaining_cost_usd
+        effective_cap = min(
+            route.max_cost_usd,
+            budget.call_max_cost_usd,
+            budget.job_remaining_cost_usd,
+        )
         if effective_cap <= 0:
             raise ModelCostCapExceeded("model_budget_exhausted")
 
-        schema = output_type.model_json_schema()
-        repair_attempted = False
         response: ModelProviderResponse | None = None
+        repair_attempted = False
         try:
             for attempt in range(2):
                 repair_attempted = attempt == 1
@@ -226,19 +226,14 @@ class ModelGateway:
                         task=route.task,
                         prompt_bundle_version=route.prompt_bundle_version,
                         payload=dict(payload),
-                        response_schema=schema,
+                        response_schema=output_type.model_json_schema(),
                         max_input_tokens=route.max_input_tokens,
                         max_output_tokens=route.max_output_tokens,
                         provider_allowlist=route.provider_allowlist,
                         repair=repair_attempted,
                     )
                 )
-                if response.cost_usd > effective_cap:
-                    raise ModelCostCapExceeded("model_call_cost_cap_exceeded")
-                if response.input_tokens > route.max_input_tokens:
-                    raise ModelCostCapExceeded("model_input_token_cap_exceeded")
-                if response.output_tokens > route.max_output_tokens:
-                    raise ModelCostCapExceeded("model_output_token_cap_exceeded")
+                self._enforce_response_budget(route, response, effective_cap)
                 try:
                     parsed = output_type.model_validate(response.output)
                 except ValidationError:
@@ -271,14 +266,33 @@ class ModelGateway:
     @staticmethod
     def _validate_payload(route: ModelTaskRoute, payload: Mapping[str, Any]) -> None:
         keys = set(payload)
-        forbidden = keys & FORBIDDEN_PAYLOAD_KEYS
-        unknown = keys - set(route.allowed_payload_fields)
-        if forbidden or unknown:
+        if keys - set(route.allowed_payload_fields):
             raise ModelPayloadRejected("model_payload_not_allowlisted")
-        serialized = json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str)
-        lowered = serialized.casefold()
-        if any(f'"{key}"' in lowered for key in FORBIDDEN_PAYLOAD_KEYS):
-            raise ModelPayloadRejected("nested_model_payload_forbidden")
+
+        def walk(value: object) -> None:
+            if isinstance(value, Mapping):
+                for key, child in value.items():
+                    if str(key).casefold() in FORBIDDEN_PAYLOAD_KEYS:
+                        raise ModelPayloadRejected("nested_model_payload_forbidden")
+                    walk(child)
+            elif isinstance(value, (list, tuple)):
+                for child in value:
+                    walk(child)
+
+        walk(payload)
+
+    @staticmethod
+    def _enforce_response_budget(
+        route: ModelTaskRoute,
+        response: ModelProviderResponse,
+        effective_cap: Decimal,
+    ) -> None:
+        if response.cost_usd > effective_cap:
+            raise ModelCostCapExceeded("model_call_cost_cap_exceeded")
+        if response.input_tokens > route.max_input_tokens:
+            raise ModelCostCapExceeded("model_input_token_cap_exceeded")
+        if response.output_tokens > route.max_output_tokens:
+            raise ModelCostCapExceeded("model_output_token_cap_exceeded")
 
     async def _record(
         self,
@@ -324,22 +338,26 @@ def build_model_gateway(
     *,
     run_sink: AgentRunSink,
     openrouter_transport: OpenRouterTransport | None = None,
+    live_routes: Mapping[str, ModelTaskRoute] | None = None,
 ) -> ModelGateway:
     binding = plan.bindings[AdapterCapability.MODEL]
     if binding == "fixture":
         if not plan.demo_mode or plan.catalog is None:
             raise ModelGatewayConfigurationError("model_fixture_requires_demo_mode")
         fixture = _ModelFixture.model_validate(plan.catalog.payload(AdapterCapability.MODEL))
-        routes = {route.task: route for route in fixture.routes}
         return ModelGateway(
             router=FixtureModelRouter(fixture.responses),
-            routes=routes,
+            routes={route.task: route for route in fixture.routes},
             run_sink=run_sink,
         )
     if binding == "openrouter":
-        if openrouter_transport is None:
-            raise ModelGatewayConfigurationError("openrouter_transport_unconfigured")
-        raise ModelGatewayConfigurationError("live_model_routes_unconfigured")
+        if openrouter_transport is None or not live_routes:
+            raise ModelGatewayConfigurationError("live_model_routes_unconfigured")
+        return ModelGateway(
+            router=OpenRouterModelRouter(openrouter_transport),
+            routes=live_routes,
+            run_sink=run_sink,
+        )
     if binding == "unconfigured":
         raise ModelGatewayConfigurationError("model_provider_unconfigured")
     raise ModelGatewayConfigurationError("model_provider_not_allowlisted")

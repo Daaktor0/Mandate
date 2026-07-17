@@ -1,12 +1,28 @@
 {
   "fixtureVersion": 1,
-  "request": {
-    "task": "phase0_smoke",
-    "promptBundleVersion": "fixture-v1"
-  },
-  "response": {
-    "status": "fixture",
-    "decisions": [],
-    "rationale": "Deterministic synthetic response; no model call was made."
+  "routes": [
+    {
+      "task": "phase2_smoke",
+      "model": "fixture/mandate-v1",
+      "prompt_bundle_version": "phase2-smoke-v1",
+      "allowed_payload_fields": [
+        "report_request_id",
+        "evidence_ids",
+        "admitted_content"
+      ],
+      "provider_allowlist": [
+        "fixture"
+      ],
+      "max_input_tokens": 4000,
+      "max_output_tokens": 1000,
+      "max_cost_usd": "1.00"
+    }
+  ],
+  "responses": {
+    "phase2_smoke": {
+      "status": "fixture",
+      "decisions": [],
+      "rationale": "Deterministic synthetic response; no model call was made."
+    }
   }
 }
