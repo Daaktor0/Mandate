@@ -252,3 +252,18 @@ Run the worker unit suite:
 ```bash
 uv run pytest -q services/worker/tests
 ```
+
+## Evidence-pipeline persistence boundary
+
+The Phase 2 persistence migration adds `report_jobs`, `job_checkpoints`, `evidence`,
+`claims`, `agent_runs` and `provider_cost_events`. These tables are a service-role
+boundary while the worker/API write paths are being built: forced RLS and revoked
+authenticated grants prevent browser or tenant-context writes by default.
+
+Only bounded, admitted evidence objects and normalised claim metadata belong in the
+evidence tables. Page bodies, prompts, model payloads, user identity, firm, billing,
+letterhead and confidential matter narrative are not persistence fields. Checkpoints
+carry a caller-supplied SHA-256 digest, claims enforce same-job evidence references,
+and model/cost records retain identifiers, usage and redacted audit metadata only.
+The admission step, stage orchestration and durable worker sink remain later Phase 2
+slices; these migrations do not make fetched content evidence by themselves.

@@ -84,6 +84,9 @@ def make_zip(*members: tuple[ZipInfo, bytes]) -> bytes:
 
 def member(name: str, *, compress_type: int = ZIP_STORED, **attributes: int) -> ZipInfo:
     info = ZipInfo(name, date_time=ZIP_EPOCH)
+    # Python normalises backslashes in ZipInfo.__init__; restore the raw member
+    # name so the traversal case exercises the archive boundary itself.
+    info.filename = name
     info.compress_type = compress_type
     for key, value in attributes.items():
         setattr(info, key, value)

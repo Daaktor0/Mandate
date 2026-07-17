@@ -583,7 +583,7 @@ def _expand_zip(document_id: str, body: bytes) -> tuple[_ParseCandidate, ...]:
             for member in members:
                 if member.is_dir():
                     continue
-                source_name = _validate_archive_member(member, seen_names)
+                source_name = _validate_archive_member(member, seen_names, body)
                 total_uncompressed += member.file_size
                 if total_uncompressed > MAX_ARCHIVE_UNCOMPRESSED_BYTES:
                     raise FileSafetyError("archive_uncompressed_limit_exceeded")
@@ -605,12 +605,13 @@ def _expand_zip(document_id: str, body: bytes) -> tuple[_ParseCandidate, ...]:
         raise FileSafetyError("archive_invalid") from error
 
 
-def _validate_archive_member(member: ZipInfo, seen_names: set[str]) -> str:
+def _validate_archive_member(member: ZipInfo, seen_names: set[str], archive_body: bytes) -> str:
     filename = member.filename
     if not filename or len(filename) > MAX_ARCHIVE_MEMBER_NAME:
         raise FileSafetyError("archive_member_name_invalid")
     if "\x00" in filename or "\\" in filename or filename.startswith("/"):
         raise FileSafetyError("archive_member_path_unsafe")
+    _reject_raw_windows_member_path(member, archive_body)
     parts = filename.split("/")
     if any(part in {"", ".", ".."} for part in parts):
         raise FileSafetyError("archive_member_path_unsafe")
@@ -640,6 +641,31 @@ def _validate_archive_member(member: ZipInfo, seen_names: set[str]) -> str:
     if suffix != ".pdf":
         raise FileSafetyError("archive_member_type_not_allowlisted")
     return normalised
+
+
+def _reject_raw_windows_member_path(member: ZipInfo, archive_body: bytes) -> None:
+    """Reject backslashes before Python's ZIP reader normalises them to slashes."""
+
+    local_header_offset = member.header_offset
+    local_header_size = 30
+    if local_header_offset < 0 or local_header_offset + local_header_size > len(archive_body):
+        raise FileSafetyError("archive_invalid")
+    if archive_body[local_header_offset : local_header_offset + 4] != b"PK" + bytes((3, 4)):
+        raise FileSafetyError("archive_invalid")
+
+    filename_size = int.from_bytes(
+        archive_body[local_header_offset + 26 : local_header_offset + 28], "little"
+    )
+    extra_size = int.from_bytes(
+        archive_body[local_header_offset + 28 : local_header_offset + 30], "little"
+    )
+    filename_start = local_header_offset + local_header_size
+    filename_end = filename_start + filename_size
+    extra_end = filename_end + extra_size
+    if extra_end > len(archive_body):
+        raise FileSafetyError("archive_invalid")
+    if b"\\" in archive_body[filename_start:filename_end]:
+        raise FileSafetyError("archive_member_path_unsafe")
 
 
 def _read_archive_member(archive: ZipFile, member: ZipInfo) -> bytes:
