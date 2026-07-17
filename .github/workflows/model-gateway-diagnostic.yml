@@ -32,11 +32,17 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
           uv sync --locked --all-groups
-      - name: Run full unit command with compact failure output
+      - name: Run full unit command
+        id: unit
+        continue-on-error: true
         shell: bash
-        run: |
-          set +e
-          pnpm test > /tmp/mandate-unit.log 2>&1
-          status=$?
-          tail -n 220 /tmp/mandate-unit.log
-          exit "$status"
+        run: pnpm test > mandate-unit.log 2>&1
+      - name: Upload diagnostic log
+        uses: actions/upload-artifact@v4
+        with:
+          name: model-gateway-unit-log
+          path: mandate-unit.log
+          retention-days: 1
+      - name: Preserve failure status
+        if: steps.unit.outcome == 'failure'
+        run: exit 1
