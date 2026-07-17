@@ -15,3 +15,11 @@ Evidence admission remains a worker-side operation. The web application may late
 request a research job after entity confirmation, but it must not accept a client-
 supplied source tier, evidence object, prompt-injection flag or raw excerpt as
 authoritative provenance.
+
+## Research-stage boundary
+
+Research stages 2–7 are worker-owned. The web app may display typed progress
+and later approved findings, but it must never submit claims, evidence IDs,
+freshness metadata or source provenance as client-authored research output.
+Evidence admission and `AgentFinding` validation remain server-side worker
+boundaries.
