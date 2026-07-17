@@ -20,6 +20,10 @@ Checkpointed progress is worker-owned. The web application may project completed
 stage identifiers through a reviewed report-job API in a later queue slice, but it
 cannot mark a stage complete, submit checkpoint payloads, or alter a retry attempt.
 
+Verifier output is also worker-owned. The web app may display approved claim
+statuses, disclosed conflicts and coverage gaps through a reviewed API later, but
+it cannot resolve a contradiction, promote a rejected claim or mark a topic covered.
+
 ## Research-stage boundary
 
 Research stages 2–7 are worker-owned. The web app may display typed progress
