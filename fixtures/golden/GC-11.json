@@ -1,0 +1,22 @@
+{
+  "caseId": "GC-11",
+  "title": "Sparse private company",
+  "category": "sparse_private_company",
+  "inputs": {
+    "submittedUrl": "https://gc-11.example/",
+    "asOf": "2026-07-17",
+    "entityHint": {"legalName": "Kite Works Private Limited", "jurisdiction": "IN"},
+    "focusTopics": ["entity_identity", "known_gaps", "transaction_scope"],
+    "sourceSignals": ["companyControlled"],
+    "knownLimitations": ["limited_public_disclosure"]
+  },
+  "expectations": {
+    "correctEntity": {"legalName": "Kite Works Private Limited", "entityType": "private_company", "jurisdiction": "IN", "identifiers": ["GC11-CIN"]},
+    "mustFindFacts": ["legal_name_or_gap", "public_business_description_or_gap", "jurisdiction_or_gap"],
+    "regulatoryTouchpoints": ["companies_act"],
+    "unacceptableClaims": ["growth_claim_without_source", "completeness_claim"],
+    "mustAskQuestions": ["legal_name_confirmation", "missing_business_facts"],
+    "sourceExpectations": ["available_public_source_only", "explicit_gap_when_absent"],
+    "qualityGates": ["no_padding", "gaps_are_explicit", "one_page_candidate"]
+  }
+}

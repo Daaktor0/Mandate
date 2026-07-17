@@ -1,0 +1,21 @@
+{
+  "caseId": "GC-02",
+  "title": "Manufacturer with factory footprint",
+  "category": "manufacturing",
+  "inputs": {
+    "submittedUrl": "https://gc-02.example/company",
+    "asOf": "2026-07-17",
+    "entityHint": {"legalName": "Banyan Precision Manufacturing Private Limited", "jurisdiction": "IN"},
+    "focusTopics": ["factory_footprint", "environment", "labour"],
+    "sourceSignals": ["companyControlled", "stateRegulator"]
+  },
+  "expectations": {
+    "correctEntity": {"legalName": "Banyan Precision Manufacturing Private Limited", "entityType": "private_company", "jurisdiction": "IN", "identifiers": ["GC02-CIN"]},
+    "mustFindFacts": ["factory_location", "manufacturing_activity", "environmental_authorisation"],
+    "regulatoryTouchpoints": ["factories_act", "environment_protection", "state_pollution_control"],
+    "unacceptableClaims": ["factory_ownership_without_source", "zero_environmental_risk"],
+    "mustAskQuestions": ["land_and_lease_rights", "current_factory_consent"],
+    "sourceExpectations": ["company_page_for_sites", "regulator_for_permissions"],
+    "qualityGates": ["jurisdiction_consistent", "unsupported_numbers_rejected"]
+  }
+}

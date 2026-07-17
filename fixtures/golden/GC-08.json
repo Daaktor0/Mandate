@@ -1,0 +1,21 @@
+{
+  "caseId": "GC-08",
+  "title": "Listed company",
+  "category": "listed_company",
+  "inputs": {
+    "submittedUrl": "https://gc-08.example/investors",
+    "asOf": "2026-07-17",
+    "entityHint": {"legalName": "Harbor Materials Limited", "jurisdiction": "IN"},
+    "focusTopics": ["listing", "financial_disclosures", "governance"],
+    "sourceSignals": ["companyControlled", "stockExchange"]
+  },
+  "expectations": {
+    "correctEntity": {"legalName": "Harbor Materials Limited", "entityType": "listed_company", "jurisdiction": "IN", "identifiers": ["GC08-CIN"]},
+    "mustFindFacts": ["exchange_listing", "latest_public_filing", "registered_activity"],
+    "regulatoryTouchpoints": ["securities_regulation", "listing_obligations", "companies_act"],
+    "unacceptableClaims": ["share_price_forecast", "financial_advice"],
+    "mustAskQuestions": ["deal_materiality", "latest_filing_cutoff"],
+    "sourceExpectations": ["exchange_for_listing", "regulator_for_disclosure"],
+    "qualityGates": ["financial_claims_cited", "no_investment_recommendation"]
+  }
+}

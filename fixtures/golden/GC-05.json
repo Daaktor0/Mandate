@@ -1,0 +1,21 @@
+{
+  "caseId": "GC-05",
+  "title": "Consumer/food company",
+  "category": "consumer_food",
+  "inputs": {
+    "submittedUrl": "https://gc-05.example/brands",
+    "asOf": "2026-07-17",
+    "entityHint": {"legalName": "Elm Basket Foods Private Limited", "jurisdiction": "IN"},
+    "focusTopics": ["consumer_products", "food_safety", "brands"],
+    "sourceSignals": ["companyControlled", "foodRegulator"]
+  },
+  "expectations": {
+    "correctEntity": {"legalName": "Elm Basket Foods Private Limited", "entityType": "private_company", "jurisdiction": "IN", "identifiers": ["GC05-CIN"]},
+    "mustFindFacts": ["food_product_scope", "brand_relationship", "operating_state"],
+    "regulatoryTouchpoints": ["food_safety", "consumer_protection", "packaging_rules"],
+    "unacceptableClaims": ["brand_is_legal_entity", "product_is_compliant"],
+    "mustAskQuestions": ["brand_ownership", "licence_and_recall_history"],
+    "sourceExpectations": ["company_page_for_brand", "food_regulator_for_registration"],
+    "qualityGates": ["brand_entity_distinguished", "source_tier_recorded"]
+  }
+}

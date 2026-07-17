@@ -1,0 +1,21 @@
+{
+  "caseId": "GC-06",
+  "title": "SaaS/data company",
+  "category": "saas_data",
+  "inputs": {
+    "submittedUrl": "https://gc-06.example/platform",
+    "asOf": "2026-07-17",
+    "entityHint": {"legalName": "Fern Data Systems Private Limited", "jurisdiction": "IN"},
+    "focusTopics": ["software_service", "data_processing", "security"],
+    "sourceSignals": ["companyControlled", "privacyRegulator"]
+  },
+  "expectations": {
+    "correctEntity": {"legalName": "Fern Data Systems Private Limited", "entityType": "private_company", "jurisdiction": "IN", "identifiers": ["GC06-CIN"]},
+    "mustFindFacts": ["service_model", "processing_role", "security_statement"],
+    "regulatoryTouchpoints": ["digital_personal_data_protection", "cross_border_data", "contractual_security"],
+    "unacceptableClaims": ["certification_without_evidence", "no_data_breach_claim"],
+    "mustAskQuestions": ["data_categories", "subprocessor_and_transfer_scope"],
+    "sourceExpectations": ["company_page_for_service", "policy_page_for_data_practice"],
+    "qualityGates": ["confidential_data_not_collected", "no_raw_page_text_persisted"]
+  }
+}

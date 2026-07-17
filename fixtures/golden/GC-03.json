@@ -1,0 +1,21 @@
+{
+  "caseId": "GC-03",
+  "title": "Regulated fintech",
+  "category": "regulated_fintech",
+  "inputs": {
+    "submittedUrl": "https://gc-03.example/overview",
+    "asOf": "2026-07-17",
+    "entityHint": {"legalName": "Cedar Pay Technologies Private Limited", "jurisdiction": "IN"},
+    "focusTopics": ["payments", "licensing", "outsourcing"],
+    "sourceSignals": ["companyControlled", "financialRegulator"]
+  },
+  "expectations": {
+    "correctEntity": {"legalName": "Cedar Pay Technologies Private Limited", "entityType": "private_company", "jurisdiction": "IN", "identifiers": ["GC03-CIN"]},
+    "mustFindFacts": ["payment_activity", "regulated_status", "technology_outsourcing"],
+    "regulatoryTouchpoints": ["reserve_bank_directions", "payment_systems", "data_protection"],
+    "unacceptableClaims": ["licensed_without_regulator_source", "customer_funds_safe"],
+    "mustAskQuestions": ["licence_scope", "regulated_partner_structure"],
+    "sourceExpectations": ["regulator_for_authorisation", "company_page_for_product_scope"],
+    "qualityGates": ["high_risk_claims_need_authoritative_source", "confidence_bounded"]
+  }
+}

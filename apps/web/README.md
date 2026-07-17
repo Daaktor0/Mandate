@@ -36,3 +36,7 @@ The worker also owns prompt bundle versions and the mvp-standard research
 budget ledger. The web application may show budget-aware progress or kickoff
 questions later, but it cannot set caps, inject source text, or mark a budget
 as exhausted on behalf of a client.
+
+Golden research cases are worker-owned evaluation fixtures. The browser does
+not author, upload, or override GC inputs, expectations, evidence IDs, source
+tiers, or verifier outcomes.

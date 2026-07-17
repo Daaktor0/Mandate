@@ -1,0 +1,21 @@
+{
+  "caseId": "GC-07",
+  "title": "Public unlisted group",
+  "category": "public_unlisted_group",
+  "inputs": {
+    "submittedUrl": "https://gc-07.example/group",
+    "asOf": "2026-07-17",
+    "entityHint": {"legalName": "Grove Industries Limited", "jurisdiction": "IN"},
+    "focusTopics": ["group_structure", "subsidiaries", "public_disclosures"],
+    "sourceSignals": ["companyControlled", "governmentRegistry"]
+  },
+  "expectations": {
+    "correctEntity": {"legalName": "Grove Industries Limited", "entityType": "public_company", "jurisdiction": "IN", "identifiers": ["GC07-CIN"]},
+    "mustFindFacts": ["public_company_status", "group_entities", "registered_activity"],
+    "regulatoryTouchpoints": ["companies_act", "beneficial_ownership", "competition"],
+    "unacceptableClaims": ["subsidiary_control_assumed", "public_listing_assumed"],
+    "mustAskQuestions": ["transaction_entity_scope", "related_entity_inclusion"],
+    "sourceExpectations": ["registry_for_legal_status", "company_page_for_group_claims"],
+    "qualityGates": ["entity_scope_confirmed", "related_entities_not_promoted"]
+  }
+}

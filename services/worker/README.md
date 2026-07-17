@@ -333,3 +333,13 @@ normalisation. The verifier prefers a stronger or later source when the ranking 
 unambiguous; otherwise it emits an explicit unresolved contradiction and a gap.
 It never averages incompatible values. The result contains claim statuses,
 contradiction groups and a topic coverage report for later analyst/composer stages.
+
+## Golden research corpus
+
+`mandate_worker.golden.load_golden_cases` validates the complete synthetic
+GC-01..15 corpus. Each case has bounded identifier-only inputs and explicit
+expectations for entity identity, must-find facts, regulatory touchpoints,
+unacceptable claims, questions, source tiers and quality gates. The loader
+rejects missing/extra cases, path/ID drift, non-reserved URLs, credentials,
+confidential fields and raw fetched content. It performs no provider or model
+call; live B3/B4 benchmark results remain human/vendor-dependent evidence.
