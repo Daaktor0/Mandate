@@ -1,3 +1,5 @@
+# ADR-005 routing policy. Live provider/model entries remain fail-closed until B3 is resolved.
+# Every route requires ZDR and an explicit provider allowlist.
 version: 2026-07-17.1
 defaults:
   maxOutputTokens: 2048
