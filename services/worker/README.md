@@ -320,3 +320,16 @@ completed `(job_id, stage, attempt)` rows are skipped and the first missing stag
 run. `JobLoop` renews the queue lease during work and archives only after every stage
 has checkpointed. A failed or cancelled stage is never checkpointed, so the next
 delivery retries that stage without replaying completed stages.
+
+## Contradiction and coverage verification
+
+`mandate_worker.verifier.ContradictionCoverageVerifier` is the stage-8 boundary.
+It accepts only job-scoped `Claim` and admitted `Evidence` metadata, never raw
+source bodies. Deterministic checks reject unknown evidence references, duplicate
+assertions, entity mismatches, stale claims, prompt-suspect-only support and
+material claims supported only by weak sources. Claims with the same subject,
+predicate and period are compared after bounded text, date and common numeric-unit
+normalisation. The verifier prefers a stronger or later source when the ranking is
+unambiguous; otherwise it emits an explicit unresolved contradiction and a gap.
+It never averages incompatible values. The result contains claim statuses,
+contradiction groups and a topic coverage report for later analyst/composer stages.

@@ -2,7 +2,7 @@
 
 **Status header (update after every tested phase):**
 
-> **Current phase:** 2 — Evidence pipeline (11/13 tasks complete) · **Phase 1 live benchmark:** blocked at 8/9 · **Last gate passed:** G0 · **Updated:** 2026-07-17
+> **Current phase:** 2 — Evidence pipeline (12/13 tasks complete) · **Phase 1 live benchmark:** blocked at 8/9 · **Last gate passed:** G0 · **Updated:** 2026-07-17
 
 **Sources:** product-specification doc 13 (authoritative phase order and gates); master prompt ("follow the build roadmap exactly; use vertical slices; update the checklist after every tested phase")
 **Related:** [REQUIREMENTS-TRACEABILITY.md](REQUIREMENTS-TRACEABILITY.md), [TEST-PLAN.md](TEST-PLAN.md), [ARCHITECTURE-DECISIONS.md](ARCHITECTURE-DECISIONS.md) (blockers B1–B14)
@@ -56,7 +56,7 @@ B5's architecture is resolved: Exa is search-only; company master data and MCA/R
 - [x] Prompt architecture: untrusted envelopes, injection rules, suspicion flags (SEC-04 foundations) ([review](security-reviews/phase-2-prompt-budgets.md))
 - [x] Budgets: per-job caps + per-stage slices + stopping rules (RUN-07) ([review](security-reviews/phase-2-prompt-budgets.md))
 - [x] Checkpointing + resume (kill-and-resume test) ([review](security-reviews/phase-2-checkpoint-resume.md))
-- [ ] Contradiction/coverage verifier (stage 8)
+- [x] Contradiction/coverage verifier (stage 8) ([review](security-reviews/phase-2-contradiction-verifier.md))
 - [ ] Golden fixtures GC-01..15 authored (inputs + expectations)
 
 **Gate G2:** an evidence bundle is reviewable without any prose; every claim carries metadata (type, evidence ids, confidence, freshness). *(Slice E2E-02: confirmed entity → evidence.)*
