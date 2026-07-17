@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import asyncio
 from collections.abc import Awaitable, Callable
+from contextlib import suppress
 from dataclasses import dataclass
 from typing import Protocol
 
 from mandate_schemas import JobMessage
 from pydantic import ValidationError
 
+from mandate_worker.checkpoints import CheckpointedPipeline
 from mandate_worker.observability import SYSTEM_TRACE_ID, get_logger, trace_context
 from mandate_worker.queue import QueueAdapter, QueueName
 
@@ -49,13 +51,17 @@ class JobLoop:
     def __init__(
         self,
         queue: QueueAdapter,
-        handler: JobHandler,
+        handler: JobHandler | None = None,
         *,
+        pipeline: CheckpointedPipeline | None = None,
         config: JobLoopConfig | None = None,
         logger: WorkerLogger | None = None,
     ) -> None:
+        if (handler is None) == (pipeline is None):
+            raise ValueError("provide exactly one of handler or pipeline")
         self._queue = queue
         self._handler = handler
+        self._pipeline = pipeline
         self._config = config or JobLoopConfig()
         self._logger = logger or get_logger()
 
@@ -109,9 +115,17 @@ class JobLoop:
                 return True
 
             self._logger.info("job_started", attempt=job.attempt)
+            heartbeat = asyncio.create_task(
+                self._lease_heartbeat(message.message_id),
+                name=f"mandate-lease-heartbeat-{message.message_id}",
+            )
             try:
                 async with asyncio.timeout(self._config.job_timeout_seconds):
-                    await self._handler(job)
+                    if self._pipeline is not None:
+                        await self._pipeline.run(job)
+                    else:
+                        assert self._handler is not None
+                        await self._handler(job)
             except TimeoutError:
                 self._logger.warning(
                     "job_attempt_failed",
@@ -127,10 +141,32 @@ class JobLoop:
                     error_class=type(error).__name__,
                 )
                 return True
+            finally:
+                heartbeat.cancel()
+                with suppress(asyncio.CancelledError):
+                    await heartbeat
 
             await self._queue.archive(self._config.queue_name, message.message_id)
             self._logger.info("job_archived", attempt=job.attempt)
             return True
+
+    async def _lease_heartbeat(self, message_id: int) -> None:
+        interval = min(60.0, self._config.visibility_timeout_seconds / 2)
+        while True:
+            await asyncio.sleep(interval)
+            try:
+                await self._queue.extend_lease(
+                    self._config.queue_name,
+                    message_id,
+                    visibility_timeout_seconds=self._config.visibility_timeout_seconds,
+                )
+            except asyncio.CancelledError:
+                raise
+            except Exception as error:
+                self._logger.warning(
+                    "job_lease_heartbeat_failed",
+                    error_class=type(error).__name__,
+                )
 
     async def run_forever(self, stop_event: asyncio.Event) -> None:
         """Poll until shutdown without an uninterruptible sleep."""

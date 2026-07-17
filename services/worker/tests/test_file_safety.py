@@ -5,6 +5,7 @@ import hashlib
 import json
 import stat
 import struct
+import sys
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from io import BytesIO
@@ -254,6 +255,7 @@ async def test_SEC_05_clamd_error_and_malformed_replies_fail_closed(reply: str, 
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(sys.platform == "win32", reason="Unix clamd sockets are unavailable on Windows")
 async def test_SEC_05_unavailable_clamd_socket_is_a_retryable_failure(tmp_path: Path) -> None:
     transport = UnixClamdTransport(tmp_path / "missing" / "clamd.sock", timeout_seconds=1.0)
 
@@ -263,6 +265,7 @@ async def test_SEC_05_unavailable_clamd_socket_is_a_retryable_failure(tmp_path: 
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(sys.platform == "win32", reason="Unix clamd sockets are unavailable on Windows")
 async def test_SEC_05_clamd_transport_speaks_instream_framing(tmp_path: Path) -> None:
     socket_path = tmp_path / "clamd.sock"
     received: list[bytes] = []

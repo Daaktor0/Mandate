@@ -16,6 +16,10 @@ request a research job after entity confirmation, but it must not accept a clien
 supplied source tier, evidence object, prompt-injection flag or raw excerpt as
 authoritative provenance.
 
+Checkpointed progress is worker-owned. The web application may project completed
+stage identifiers through a reviewed report-job API in a later queue slice, but it
+cannot mark a stage complete, submit checkpoint payloads, or alter a retry attempt.
+
 ## Research-stage boundary
 
 Research stages 2–7 are worker-owned. The web app may display typed progress

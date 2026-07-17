@@ -1,6 +1,6 @@
 # REQUIREMENTS-TRACEABILITY — Mandate MVP
 
-**Status:** Phase 2 in progress (10/13 tasks complete); Phase 1 live benchmark remains blocked at 8/9; `NFR-03` is `Verified`; `INTAKE-01`, `INTAKE-03`, `INTAKE-05`, `ENTITY-01`, `ENTITY-02`, `ENTITY-03`, `ENTITY-04`, `ENTITY-05` and `ENTITY-07` are `Implemented`; `NFR-01`, `NFR-02`, `NFR-04`, `NFR-05`, `NFR-09`, `INTAKE-02`, `INTAKE-04`, `INTAKE-06`, `RUN-03`, `RUN-04`, `RUN-06`, `RUN-07`, `REPORT-06`, `REPORT-08` and `REPORT-09` are `In progress`; all other requirements remain `Specified`
+**Status:** Phase 2 in progress (11/13 tasks complete); Phase 1 live benchmark remains blocked at 8/9; `NFR-03` is `Verified`; `INTAKE-01`, `INTAKE-03`, `INTAKE-05`, `ENTITY-01`, `ENTITY-02`, `ENTITY-03`, `ENTITY-04`, `ENTITY-05` and `ENTITY-07` are `Implemented`; `NFR-01`, `NFR-02`, `NFR-04`, `NFR-05`, `NFR-09`, `INTAKE-02`, `INTAKE-04`, `INTAKE-06`, `RUN-02`, `RUN-03`, `RUN-04`, `RUN-06`, `RUN-07`, `REPORT-06`, `REPORT-08` and `REPORT-09` are `In progress`; all other requirements remain `Specified`
 **Sources:** product-specification doc 02 (requirement IDs are normative and must be preserved in tickets, tests and PRs)
 **Related:** [TEST-PLAN.md](TEST-PLAN.md) (test IDs), [SYSTEM-SPEC.md](SYSTEM-SPEC.md) (component codes C1–C15), [BUILD-CHECKLIST.md](BUILD-CHECKLIST.md) (phases)
 
@@ -58,7 +58,7 @@ Columns: **Component** uses SYSTEM-SPEC §2 codes; **DB / API surface** cites ER
 | Req | Summary | Component | DB / API surface | Acceptance tests | Phase | Status |
 |---|---|---|---|---|---|---|
 | RUN-01 | Async, queue-driven generation | C5, C6 | outbox + pgmq (QUEUE §1/4) | AT-RUN-01, E2E-06 | 5 | Specified |
-| RUN-02 | Truthful stage progress | C1, C6 | checkpoints → `GET /api/report-jobs/{id}` (QUEUE §7) | AT-RUN-02, E2E-06 | 5 | Specified |
+| RUN-02 | Truthful stage progress | C1, C6 | ordered checkpoint completion in `mandate_worker.checkpoints`; API projection remains Phase 5 | `services/worker/tests/test_checkpoints.py`; AT-RUN-02, E2E-06 | 2/5 | In progress |
 | RUN-03 | Bounded business/industry/competitor/corporate/regulatory/public-risk/synthesis tasks | C6 | pipeline stages 2–10; typed stages 2–7 run search → PageFetcher → admission → ModelGateway and emit `AgentFinding` | AT-RUN-03; `services/worker/tests/test_research_stages.py`; GC suite | 2 | In progress |
 | RUN-04 | Evidence stored separately from prose | C4 | `evidence`, `claims` vs `report_versions`; bounded evidence excerpts and normalised claim triples are separate persistence surfaces; explicit `UntrustedEvidenceCandidate` → shared `Evidence` admission | AT-RUN-04, E2E-02; `services/worker/tests/test_evidence_capture.py`; migration/pgTAP foundation | 2 | In progress |
 | RUN-05 | Structured model outputs where feasible | C7 | shared-schemas validation at gateway | AT-RUN-05 (gateway unit) | 2 | Specified |
@@ -135,7 +135,7 @@ Columns: **Component** uses SYSTEM-SPEC §2 codes; **DB / API surface** cites ER
 
 | Req | Summary | Component | DB / API surface | Acceptance tests | Phase | Status |
 |---|---|---|---|---|---|---|
-| NFR-01 | Jobs retryable and idempotent | C5, C6 | request-scoped deterministic candidate ids; transactional outbox; idempotent completion/failure RPCs; private confirmation replay ledger; retryable refinement recovery; visibility retry/DLQ; `job_checkpoints` unique on `(job_id, stage, attempt)` | AT-NFR-01 (light-task + confirmation foundations), E2E-05; migration/pgTAP foundation | 2/5 | In progress |
+| NFR-01 | Jobs retryable and idempotent | C5, C6 | request-scoped deterministic candidate ids; transactional outbox; idempotent completion/failure RPCs; private confirmation replay ledger; retryable refinement recovery; visibility retry/DLQ; `job_checkpoints` unique on `(job_id, stage, attempt)`; canonical checkpoint hashes and skip-on-redelivery runner | `services/worker/tests/test_checkpoints.py`; AT-NFR-01 (light-task + confirmation foundations), E2E-05; migration/pgTAP foundation | 2/5 | In progress |
 | NFR-02 | Tenant isolation at database layer | C4 | forced RLS on every current table; owner-join candidate policy; service-only outbox/worker mutations; `auth.uid()`-derived confirmation RPC; private replay records; evidence-pipeline tables default-deny outside `service_role` | AT-NFR-02, SEC-01 (database matrix expands with each table); migration/pgTAP foundation | 0+ | In progress |
 | NFR-03 | Containerised, Hostinger-independent worker | C6, C8 | `services/worker/Dockerfile`; `infra/compose/local.yml`; `mandate_worker.runtime`; `fixtures/demo` including corporate filings; `.github/workflows/ci.yml`; `scripts/generate_traceability_report.py`; no host coupling | AT-NFR-03 (structural + live portability/sandbox + complete zero-spend catalog check in CI stage 5; passing JUnit evidence enforced in CI stage 7) | 0 | Verified |
 | NFR-04 | Trace ID across API/queue/model/search/payment/PDF | C15 | web-minted trace → validated outbox/light message → worker trace context; sink redaction (DEPLOYMENT §6); provider/model/payment/PDF propagation pending | AT-NFR-04; SEC-09 (route/message/logger coverage) | 0+ | In progress |

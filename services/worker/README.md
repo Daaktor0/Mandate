@@ -307,3 +307,16 @@ carry a caller-supplied SHA-256 digest, claims enforce same-job evidence referen
 and model/cost records retain identifiers, usage and redacted audit metadata only.
 The admission step, stage orchestration and durable worker sink remain later Phase 2
 slices; these migrations do not make fetched content evidence by themselves.
+
+## Checkpointing and restart recovery
+
+`mandate_worker.checkpoints.CheckpointedPipeline` executes the allowlisted pipeline
+stages in order and writes a validated result only after a stage returns successfully.
+The canonical JSON payload is bounded to 256 KiB, hashed with SHA-256, and rejects
+raw source bodies, prompts, credentials, letterhead and confidential matter fields.
+`MemoryCheckpointStore` is the zero-spend fixture implementation; its duplicate-key
+and hash-mismatch behavior mirrors the database uniqueness boundary. On redelivery,
+completed `(job_id, stage, attempt)` rows are skipped and the first missing stage is
+run. `JobLoop` renews the queue lease during work and archives only after every stage
+has checkpointed. A failed or cancelled stage is never checkpointed, so the next
+delivery retries that stage without replaying completed stages.
