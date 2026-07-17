@@ -1,15 +1,15 @@
 name: ModelGateway documentation sync
 
 on:
-  pull_request:
-    branches: [main]
+  push:
+    branches:
+      - agent/phase-2-model-gateway
 
 permissions:
   contents: write
 
 jobs:
   sync:
-    if: github.head_ref == 'agent/phase-2-model-gateway'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
