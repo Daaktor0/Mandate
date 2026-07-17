@@ -1,8 +1,8 @@
 .PHONY: bootstrap check lint format-check typecheck test test-scaffold
 
 bootstrap:
-	corepack enable
-	corepack prepare pnpm@11.13.1 --activate
+	npm install --global pnpm@11.13.1
+	pnpm --version
 	pnpm install --frozen-lockfile
 	uv sync --locked --all-groups
 
