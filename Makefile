@@ -2,7 +2,7 @@
 
 bootstrap:
 	corepack enable
-	corepack prepare pnpm@11.13.0 --activate
+	corepack prepare pnpm@11.13.1 --activate
 	pnpm install --frozen-lockfile
 	uv sync --locked --all-groups
 
