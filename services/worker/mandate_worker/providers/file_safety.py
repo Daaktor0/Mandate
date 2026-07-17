@@ -14,12 +14,12 @@ import hmac
 import os
 import stat
 import struct
-from collections.abc import Mapping
+from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass, field
 from enum import StrEnum
 from io import BytesIO
 from pathlib import Path
-from typing import Final, Literal, Protocol, Self
+from typing import Final, Literal, Protocol, Self, cast
 from zipfile import ZIP_DEFLATED, ZIP_STORED, BadZipFile, LargeZipFile, ZipFile, ZipInfo
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
@@ -113,7 +113,14 @@ class UnixClamdTransport:
         writer: asyncio.StreamWriter | None = None
         try:
             async with asyncio.timeout(self.timeout_seconds):
-                reader, writer = await asyncio.open_unix_connection(str(self.socket_path))
+                open_unix_connection = cast(
+                    Callable[
+                        [str],
+                        Awaitable[tuple[asyncio.StreamReader, asyncio.StreamWriter]],
+                    ],
+                    asyncio.__dict__["open_unix_connection"],
+                )
+                reader, writer = await open_unix_connection(str(self.socket_path))
                 writer.write(b"zINSTREAM\0")
                 for offset in range(0, len(body), self.chunk_size):
                     chunk = body[offset : offset + self.chunk_size]
