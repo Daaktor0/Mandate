@@ -61,8 +61,10 @@ slice uses only the primary route and never retries against a different provider
 
 ## Deliberately deferred
 
-- `agent_runs` database migration and durable sink.
-- Provider-cost event persistence and report-level cost dashboard.
+- Durable worker sink integration for the `agent_runs` table created by the evidence-
+  pipeline persistence slice.
+- Provider-cost event writes and the report-level cost dashboard; the
+  `provider_cost_events` table is now present but not yet wired to orchestration.
 - Live vendor-slug pinning, staging quality benchmark and OpenRouter data-policy evidence.
 - Prompt-bundle registry and full untrusted-envelope prompt architecture.
 - Multi-route fallback policy, if later approved, with explicit ZDR-only constraints.
