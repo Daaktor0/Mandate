@@ -1,9 +1,10 @@
 name: ModelGateway diagnostic
 
 on:
-  push:
+  pull_request:
     branches:
-      - agent/phase-2-model-gateway
+      - main
+  workflow_dispatch:
 
 permissions:
   contents: read
