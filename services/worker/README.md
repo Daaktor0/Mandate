@@ -182,6 +182,32 @@ contain document bytes, raw scanner output or source paths. This module has no r
 a model, the composer or the `evidence`/`claims` tables; evidence admission remains a
 later, separate step.
 
+## ModelGateway boundary
+
+`mandate_worker.providers.ModelGateway` is the sole model-call boundary. A versioned
+`ModelTaskRoute` fixes the model id, prompt-bundle version, task payload allowlist,
+provider allowlist, input/output token ceilings and per-call cost ceiling. The caller
+also supplies the remaining per-job model budget; responses that exceed any limit fail
+before structured output is returned.
+
+Provider payloads contain only task-allowlisted public identifiers and admitted content.
+Unknown top-level fields and recursively nested account identity, firm, billing, payment,
+letterhead, confidential-matter, credential and secret keys are rejected. Raw fetched
+pages, parsed-but-unadmitted text and quarantined binaries have no direct gateway path.
+
+Every provider request carries `zdr=true` plus an explicit provider allowlist. A response
+from a provider outside that allowlist raises `NoApprovedCapacity`; there is no silent
+fallback. Output is validated against the caller's Pydantic schema, with exactly one
+bounded repair retry. Audit output is a typed `AgentRunRecord` containing ids, task,
+model/provider, prompt version, token counts, cost, latency, ZDR status, repair status,
+success and a stable error code—never prompts, payloads or provider output.
+
+`DEMO_MODE=1` selects the SHA-256-pinned deterministic fixture router and records zero
+spend. Live `openrouter` selection requires an injected transport and reviewed route map;
+missing routes, missing transport, fixture selection outside demo mode and unknown
+bindings fail closed. Production route/provider selection and credentials remain blocked
+on B3. Persistence of `AgentRunRecord` moves to the next migration slice.
+
 ## Candidate-generation and scoring boundary
 
 `mandate_worker.entity_resolution.EntityCandidateGenerator` consumes the typed site
