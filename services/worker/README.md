@@ -109,6 +109,21 @@ requested/final URLs, redirects, content type, title, extracted text, SHA-256 di
 robots status and extraction version, but never returns raw bytes or the resolved IP.
 Every result is explicitly `evidence_admitted=false`.
 
+## Source tiers and evidence admission
+
+`mandate_worker.evidence` is the only current conversion boundary from a legal
+page inspection to the shared `Evidence` contract. `capture_page_candidate`
+copies only bounded metadata, excerpts, hashes and extracted legal identifiers
+into an `UntrustedEvidenceCandidate`; its literal `evidence_admitted=false`
+cannot be relaxed by input data. `admit_evidence` is an explicit service-side
+step that assigns the doc-06 source tier and returns the canonical object.
+
+Authoritative tiers use a narrow government/regulator/exchange host allowlist.
+Company-controlled pages are tier 2. Other tiers must be declared by the
+responsible adapter, and unknown sources fail closed. Prompt-injection
+suspicions are preserved rather than hidden, so later prompt and claim stages
+can exclude those sources from instructions or provenance as required.
+
 PDF responses fail with `page_binary_scan_required`. No binary text extraction is
 reachable until the reusable malware-scan and sandbox-parser boundary exists. This
 adapter has no route to a model, `evidence`/`claims` tables or the report composer.

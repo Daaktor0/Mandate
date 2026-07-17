@@ -10,3 +10,8 @@ or a narrowly scoped server-side operation; the migration currently leaves these
 tables service-role-only until those policies and routes are reviewed. No browser
 route may forward prompts, raw fetched bodies, letterhead, billing data or confidential
 matter narrative to the worker or a provider.
+
+Evidence admission remains a worker-side operation. The web application may later
+request a research job after entity confirmation, but it must not accept a client-
+supplied source tier, evidence object, prompt-injection flag or raw excerpt as
+authoritative provenance.
