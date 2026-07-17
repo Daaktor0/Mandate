@@ -1,0 +1,22 @@
+{
+  "caseId": "GC-10",
+  "title": "Cross-border investor context",
+  "category": "cross_border_investor",
+  "inputs": {
+    "submittedUrl": "https://gc-10.example/investors",
+    "asOf": "2026-07-17",
+    "entityHint": {"legalName": "Juniper Mobility Private Limited", "jurisdiction": "IN"},
+    "focusTopics": ["foreign_investment", "ownership", "sector_restrictions"],
+    "sourceSignals": ["companyControlled", "financialRegulator"],
+    "investorJurisdictions": ["US", "SG"]
+  },
+  "expectations": {
+    "correctEntity": {"legalName": "Juniper Mobility Private Limited", "entityType": "private_company", "jurisdiction": "IN", "identifiers": ["GC10-CIN"]},
+    "mustFindFacts": ["business_sector", "foreign_investor_context", "ownership_unknowns"],
+    "regulatoryTouchpoints": ["foreign_exchange", "foreign_investment_policy", "competition"],
+    "unacceptableClaims": ["investment_route_is_permitted", "investor_control_assumed"],
+    "mustAskQuestions": ["investor_nationality_and_beneficial_owner", "sector_cap_or_approval"],
+    "sourceExpectations": ["regulator_for_current_policy", "company_page_for_business_scope"],
+    "qualityGates": ["policy_freshness_present", "legal_advice_not_given"]
+  }
+}

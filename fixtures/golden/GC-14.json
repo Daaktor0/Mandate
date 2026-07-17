@@ -1,0 +1,22 @@
+{
+  "caseId": "GC-14",
+  "title": "Multi-entity operation",
+  "category": "multi_entity_operation",
+  "inputs": {
+    "submittedUrl": "https://gc-14.example/operations",
+    "asOf": "2026-07-17",
+    "entityHint": {"legalName": "Nimbus Logistics Private Limited", "jurisdiction": "IN"},
+    "focusTopics": ["operating_entities", "asset_ownership", "transaction_scope"],
+    "sourceSignals": ["companyControlled", "governmentRegistry"],
+    "relatedEntities": ["Nimbus Warehousing Private Limited", "Nimbus Fleet Services Private Limited"]
+  },
+  "expectations": {
+    "correctEntity": {"legalName": "Nimbus Logistics Private Limited", "entityType": "private_company", "jurisdiction": "IN", "identifiers": ["GC14-CIN"]},
+    "mustFindFacts": ["primary_entity", "related_entity_relationships", "operating_scope"],
+    "regulatoryTouchpoints": ["companies_act", "motor_transport", "competition"],
+    "unacceptableClaims": ["all_group_assets_owned_by_primary", "related_entities_are_parties"],
+    "mustAskQuestions": ["contracting_entity", "asset_and_employee_scope"],
+    "sourceExpectations": ["registry_for_each_entity", "company_page_for_relationship_hints"],
+    "qualityGates": ["maximum_two_related_entities", "entity_scoped_claims", "confirmation_required"]
+  }
+}

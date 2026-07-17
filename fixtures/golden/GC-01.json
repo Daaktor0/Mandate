@@ -1,0 +1,21 @@
+{
+  "caseId": "GC-01",
+  "title": "Simple software startup",
+  "category": "software_startup",
+  "inputs": {
+    "submittedUrl": "https://gc-01.example/about",
+    "asOf": "2026-07-17",
+    "entityHint": {"legalName": "Aster Code Labs Private Limited", "jurisdiction": "IN"},
+    "focusTopics": ["business_model", "incorporation", "data_protection"],
+    "sourceSignals": ["companyControlled", "governmentRegistry"]
+  },
+  "expectations": {
+    "correctEntity": {"legalName": "Aster Code Labs Private Limited", "entityType": "private_company", "jurisdiction": "IN", "identifiers": ["GC01-CIN"]},
+    "mustFindFacts": ["software_product", "registered_entity", "operating_jurisdiction"],
+    "regulatoryTouchpoints": ["companies_act", "digital_personal_data_protection"],
+    "unacceptableClaims": ["revenue_without_source", "legal_compliance_guarantee"],
+    "mustAskQuestions": ["transaction_purpose", "material_data_processing"],
+    "sourceExpectations": ["company_page_for_product", "government_registry_for_identity"],
+    "qualityGates": ["material_claim_evidence_linkage", "freshness_present"]
+  }
+}

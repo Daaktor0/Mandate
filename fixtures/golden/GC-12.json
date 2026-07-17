@@ -1,0 +1,22 @@
+{
+  "caseId": "GC-12",
+  "title": "Common-name adverse-media false positive",
+  "category": "adverse_media_entity_mismatch",
+  "inputs": {
+    "submittedUrl": "https://gc-12.example/company",
+    "asOf": "2026-07-17",
+    "entityHint": {"legalName": "Lotus Trading Private Limited", "jurisdiction": "IN"},
+    "focusTopics": ["entity_identity", "public_risk", "name_disambiguation"],
+    "sourceSignals": ["companyControlled", "adverseMediaNameMatch"],
+    "adverseMediaEntityMatch": "not_confirmed"
+  },
+  "expectations": {
+    "correctEntity": {"legalName": "Lotus Trading Private Limited", "entityType": "private_company", "jurisdiction": "IN", "identifiers": ["GC12-CIN"]},
+    "mustFindFacts": ["exact_entity_identity", "adverse_media_match_status", "identity_gap"],
+    "regulatoryTouchpoints": ["companies_act", "public_risk_review"],
+    "unacceptableClaims": ["adverse_media_from_common_name_must_not_be_attributed", "criminal_conduct_attributed"],
+    "mustAskQuestions": ["independent_identity_confirmation", "risk_review_scope"],
+    "sourceExpectations": ["identity_fields_before_risk_attribution", "adverse_media_requires_entity_match"],
+    "qualityGates": ["wrong_entity_adverse_media", "no_unmatched_risk_attribution", "gc12_release_blocker"]
+  }
+}

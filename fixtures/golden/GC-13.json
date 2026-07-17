@@ -1,0 +1,22 @@
+{
+  "caseId": "GC-13",
+  "title": "Renamed company",
+  "category": "renamed_company",
+  "inputs": {
+    "submittedUrl": "https://gc-13.example/history",
+    "asOf": "2026-07-17",
+    "entityHint": {"legalName": "Maple Renewables Limited", "jurisdiction": "IN"},
+    "focusTopics": ["name_history", "continuity", "public_filings"],
+    "sourceSignals": ["companyControlled", "governmentRegistry"],
+    "previousNames": ["Maple Energy Limited"]
+  },
+  "expectations": {
+    "correctEntity": {"legalName": "Maple Renewables Limited", "entityType": "public_company", "jurisdiction": "IN", "identifiers": ["GC13-CIN"]},
+    "mustFindFacts": ["current_legal_name", "previous_legal_name", "identity_continuity"],
+    "regulatoryTouchpoints": ["companies_act", "securities_regulation"],
+    "unacceptableClaims": ["former_name_is_separate_entity", "continuity_without_registry_source"],
+    "mustAskQuestions": ["name_change_effective_date", "contract_name_cutoff"],
+    "sourceExpectations": ["registry_for_name_history", "exchange_for_public_status"],
+    "qualityGates": ["identity_continuity_explicit", "freshness_present"]
+  }
+}

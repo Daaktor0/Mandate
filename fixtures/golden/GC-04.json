@@ -1,0 +1,21 @@
+{
+  "caseId": "GC-04",
+  "title": "Health/pharma company",
+  "category": "health_pharma",
+  "inputs": {
+    "submittedUrl": "https://gc-04.example/research",
+    "asOf": "2026-07-17",
+    "entityHint": {"legalName": "Dawnleaf Therapeutics Private Limited", "jurisdiction": "IN"},
+    "focusTopics": ["products", "clinical_activity", "quality_systems"],
+    "sourceSignals": ["companyControlled", "healthRegulator"]
+  },
+  "expectations": {
+    "correctEntity": {"legalName": "Dawnleaf Therapeutics Private Limited", "entityType": "private_company", "jurisdiction": "IN", "identifiers": ["GC04-CIN"]},
+    "mustFindFacts": ["therapy_area", "clinical_or_product_status", "manufacturing_status"],
+    "regulatoryTouchpoints": ["drugs_and_cosmetics", "clinical_trials", "data_protection"],
+    "unacceptableClaims": ["clinical_efficacy_claim", "regulatory_approval_assumed"],
+    "mustAskQuestions": ["product_authorisations", "clinical_trial_ownership"],
+    "sourceExpectations": ["health_regulator_for_authority", "company_page_for_pipeline"],
+    "qualityGates": ["no_medical_opinion", "material_claim_evidence_linkage"]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "caseId": "GC-09",
+  "title": "Brand/legal-entity mismatch",
+  "category": "brand_entity_mismatch",
+  "inputs": {
+    "submittedUrl": "https://gc-09.example/brand",
+    "asOf": "2026-07-17",
+    "entityHint": {"legalName": "Indigo Retail Holdings Private Limited", "jurisdiction": "IN"},
+    "focusTopics": ["brand_ownership", "subsidiary_scope", "entity_confirmation"],
+    "sourceSignals": ["companyControlled", "governmentRegistry"],
+    "relatedEntities": ["Indigo Retail Services Private Limited"]
+  },
+  "expectations": {
+    "correctEntity": {"legalName": "Indigo Retail Holdings Private Limited", "entityType": "private_company", "jurisdiction": "IN", "identifiers": ["GC09-CIN"]},
+    "mustFindFacts": ["brand_name", "brand_owner", "operating_subsidiary"],
+    "regulatoryTouchpoints": ["companies_act", "consumer_protection", "trademark"],
+    "unacceptableClaims": ["brand_is_legal_entity", "subsidiary_is_confirmed_entity"],
+    "mustAskQuestions": ["contracting_entity", "related_entity_scope"],
+    "sourceExpectations": ["registry_for_owner", "company_page_for_brand_relationship"],
+    "qualityGates": ["brand_entity_separated", "user_confirmation_required"]
+  }
+}
