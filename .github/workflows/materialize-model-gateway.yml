@@ -6,6 +6,10 @@ on:
       - agent/phase-2-model-gateway
   workflow_dispatch:
 
+concurrency:
+  group: materialize-model-gateway
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
