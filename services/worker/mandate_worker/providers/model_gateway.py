@@ -275,7 +275,7 @@ class ModelGateway:
                     if str(key).casefold() in FORBIDDEN_PAYLOAD_KEYS:
                         raise ModelPayloadRejected("nested_model_payload_forbidden")
                     walk(child)
-            elif isinstance(value, (list, tuple)):
+            elif isinstance(value, list | tuple):
                 for child in value:
                     walk(child)
 

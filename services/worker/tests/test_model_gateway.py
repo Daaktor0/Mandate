@@ -64,9 +64,7 @@ def route() -> ModelTaskRoute:
         task="phase2_smoke",
         model="approved/model",
         prompt_bundle_version="phase2-v1",
-        allowed_payload_fields=frozenset(
-            {"report_request_id", "evidence_ids", "admitted_content"}
-        ),
+        allowed_payload_fields=frozenset({"report_request_id", "evidence_ids", "admitted_content"}),
         provider_allowlist=("approved",),
         max_input_tokens=100,
         max_output_tokens=100,
@@ -86,21 +84,31 @@ async def test_RUN_05_01_demo_gateway_is_deterministic_and_zero_spend() -> None:
     plan = build_runtime_adapter_plan({"DEMO_MODE": "1"}, fixture_root=FIXTURE_ROOT)
     sink = MemoryAgentRunSink()
     gateway = build_model_gateway(plan, run_sink=sink)
-    kwargs = {
-        "report_request_id": uuid4(),
-        "job_id": uuid4(),
-        "task": "phase2_smoke",
-        "payload": {
+
+    first = await gateway.complete(
+        report_request_id=uuid4(),
+        job_id=uuid4(),
+        task="phase2_smoke",
+        payload={
             "report_request_id": "public-request-id",
             "evidence_ids": ["evidence-1"],
             "admitted_content": "synthetic public evidence",
         },
-        "output_type": SmokeOutput,
-        "budget": budget(),
-    }
-
-    first = await gateway.complete(**kwargs)
-    second = await gateway.complete(**kwargs)
+        output_type=SmokeOutput,
+        budget=budget(),
+    )
+    second = await gateway.complete(
+        report_request_id=uuid4(),
+        job_id=uuid4(),
+        task="phase2_smoke",
+        payload={
+            "report_request_id": "public-request-id",
+            "evidence_ids": ["evidence-1"],
+            "admitted_content": "synthetic public evidence",
+        },
+        output_type=SmokeOutput,
+        budget=budget(),
+    )
 
     assert first == second
     assert len(sink.records) == 2
