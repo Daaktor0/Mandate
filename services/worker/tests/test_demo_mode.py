@@ -114,7 +114,7 @@ def test_NFR_03_ADR_014_demo_mode_forces_zero_spend_bindings() -> None:
 
     assert plan.zero_spend is True
     assert plan.bindings == DEMO_BACKENDS
-    assert plan.fixture_revision == "2026-07-17.2"
+    assert plan.fixture_revision == "2026-07-17.3"
     assert plan.overridden_selectors == tuple(sorted(SELECTOR_ENV.values()))
     assert "must-not-appear" not in repr(plan)
 
