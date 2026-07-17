@@ -32,6 +32,7 @@ from pydantic import (
 
 from mandate_worker.fixtures import AdapterCapability, FixtureCatalog
 from mandate_worker.observability import get_logger
+from mandate_worker.prompting import PromptEvidence, build_prompt_bundle
 from mandate_worker.runtime import RuntimeAdapterPlan
 
 OPENROUTER_CHAT_COMPLETIONS_URL: Final = "https://openrouter.ai/api/v1/chat/completions"
@@ -718,23 +719,17 @@ class _ModelAttempt[TResponse: BaseModel]:
 
 
 def _base_messages(payload: ModelTaskPayload) -> list[dict[str, object]]:
-    allowed_payload = {
-        "task": payload.task,
-        "prompt_bundle_version": payload.prompt_bundle_version,
-        "identifiers": payload.identifiers,
-        "context_role": payload.context_role,
-        "excerpts": [excerpt.model_dump(mode="json") for excerpt in payload.excerpts],
-    }
-    return [
-        {
-            "role": "system",
-            "content": "Return one JSON object that satisfies the caller schema.",
-        },
-        {
-            "role": "user",
-            "content": json.dumps(allowed_payload, separators=(",", ":"), sort_keys=True),
-        },
-    ]
+    bundle = build_prompt_bundle(
+        task=payload.task,
+        version=payload.prompt_bundle_version,
+        identifiers=payload.identifiers,
+        context_role=payload.context_role,
+        excerpts=tuple(
+            PromptEvidence.model_validate(excerpt.model_dump(mode="python"))
+            for excerpt in payload.excerpts
+        ),
+    )
+    return bundle.messages()
 
 
 def _openrouter_payload(

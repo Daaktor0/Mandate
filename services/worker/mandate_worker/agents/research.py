@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from datetime import UTC, datetime
+from decimal import Decimal
 from enum import StrEnum
 from typing import Literal, Protocol
 from uuid import UUID, uuid4
@@ -24,6 +25,7 @@ from mandate_schemas.generated import (
 )
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from mandate_worker.budgets import BudgetLedger
 from mandate_worker.entity_resolution.models import PageInspection, PageKind
 from mandate_worker.evidence import SourceKind, admit_evidence, capture_page_candidate
 from mandate_worker.providers.model import (
@@ -204,14 +206,19 @@ class ResearchStageRunner:
         search: SearchProvider,
         page_fetcher: PageFetcher,
         model_gateway: ModelGateway,
+        budget_ledger: BudgetLedger | None = None,
         now: datetime | None = None,
     ) -> None:
         self._search = search
         self._page_fetcher = page_fetcher
         self._model_gateway = model_gateway
+        self._budget_ledger = budget_ledger
         self._now = now or datetime.now(UTC)
 
     async def run(self, context: ResearchContext, plan: ResearchPlanSlice) -> AgentFinding:
+        if self._budget_ledger is not None:
+            self._budget_ledger.start_stage(plan.stage.value)
+            self._budget_ledger.consume_search()
         search_response = await self._search.search(
             SearchRequest(
                 query=f"{context.legal_name} {plan.objective_code}",
@@ -221,6 +228,8 @@ class ResearchStageRunner:
         fetched = []
         for result in search_response.results[: plan.page_budget]:
             try:
+                if self._budget_ledger is not None:
+                    self._budget_ledger.consume_page()
                 fetched.append(await self._page_fetcher.fetch(PageFetchRequest(url=result.url)))
             except Exception as error:  # provider failures become a bounded gap
                 if not getattr(error, "retryable", False):
@@ -253,11 +262,19 @@ class ResearchStageRunner:
             excerpts=excerpts,
             context_role=context.role,
         )
+        if self._budget_ledger is not None:
+            self._budget_ledger.consume_model_call()
         completion = await self._model_gateway.complete(
             payload,
             plan.model_budget,
             ClaimDraftResponse,
         )
+        if self._budget_ledger is not None:
+            run = getattr(completion, "run", None)
+            self._budget_ledger.consume_tokens(
+                int(getattr(run, "input_tokens", 0)), int(getattr(run, "output_tokens", 0))
+            )
+            self._budget_ledger.consume_cost(Decimal(str(getattr(run, "cost_inr", 0))))
         draft_response = getattr(completion, "parsed", None)
         if not isinstance(draft_response, ClaimDraftResponse):
             raise ResearchStageError("research_model_response_invalid")
