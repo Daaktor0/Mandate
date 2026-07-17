@@ -2,7 +2,7 @@
 
 **Status header (update after every tested phase):**
 
-> **Current phase:** 2 — Evidence pipeline (10/13 tasks complete) · **Phase 1 live benchmark:** blocked at 8/9 · **Last gate passed:** G0 · **Updated:** 2026-07-17
+> **Current phase:** 2 — Evidence pipeline (11/13 tasks complete) · **Phase 1 live benchmark:** blocked at 8/9 · **Last gate passed:** G0 · **Updated:** 2026-07-17
 
 **Sources:** product-specification doc 13 (authoritative phase order and gates); master prompt ("follow the build roadmap exactly; use vertical slices; update the checklist after every tested phase")
 **Related:** [REQUIREMENTS-TRACEABILITY.md](REQUIREMENTS-TRACEABILITY.md), [TEST-PLAN.md](TEST-PLAN.md), [ARCHITECTURE-DECISIONS.md](ARCHITECTURE-DECISIONS.md) (blockers B1–B14)
@@ -55,7 +55,7 @@ B5's architecture is resolved: Exa is search-only; company master data and MCA/R
 - [x] Research stages 2–7 (business, industry, competitors, corporate, regulatory, public-risk) with typed `AgentFinding` outputs, claim drafting, freshness windows (REPORT-08/09) ([review](security-reviews/phase-2-research-stages.md))
 - [x] Prompt architecture: untrusted envelopes, injection rules, suspicion flags (SEC-04 foundations) ([review](security-reviews/phase-2-prompt-budgets.md))
 - [x] Budgets: per-job caps + per-stage slices + stopping rules (RUN-07) ([review](security-reviews/phase-2-prompt-budgets.md))
-- [ ] Checkpointing + resume (kill-and-resume test)
+- [x] Checkpointing + resume (kill-and-resume test) ([review](security-reviews/phase-2-checkpoint-resume.md))
 - [ ] Contradiction/coverage verifier (stage 8)
 - [ ] Golden fixtures GC-01..15 authored (inputs + expectations)
 
