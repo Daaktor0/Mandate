@@ -1,7 +1,7 @@
 # Phase 2 ModelGateway security review
 
-**Date:** 17 July 2026  
-**Scope:** typed `ModelGateway`, deterministic fixture implementation and OpenRouter live binding  
+**Date:** 17 July 2026
+**Scope:** typed `ModelGateway`, deterministic fixture implementation and OpenRouter live binding
 **Requirements/tests:** ADR-005, SEC-11, NFR-05, NFR-09
 
 ## Result
