@@ -1,0 +1,36 @@
+version: 2026-07-17.1
+defaults:
+  maxOutputTokens: 2048
+  maxCallCostUsd: 0.25
+  maxJobCostUsd: 2.00
+  timeoutSeconds: 45
+tiers:
+  low:
+    primary:
+      model: fixture/low-v1
+      zdr: required
+      providersAllow: [fixture]
+      maxPromptPricePerMillionUsd: 0
+      maxCompletionPricePerMillionUsd: 0
+  mid:
+    primary:
+      model: fixture/mid-v1
+      zdr: required
+      providersAllow: [fixture]
+      maxPromptPricePerMillionUsd: 0
+      maxCompletionPricePerMillionUsd: 0
+  frontier:
+    primary:
+      model: fixture/frontier-v1
+      zdr: required
+      providersAllow: [fixture]
+      maxPromptPricePerMillionUsd: 0
+      maxCompletionPricePerMillionUsd: 0
+tasks:
+  phase2_gateway_smoke:
+    tier: low
+    promptVersion: phase2-gateway-smoke-v1
+    instruction: Return the deterministic gateway smoke result using only the admitted payload.
+    outputSchemaName: GatewaySmokeOutput
+    maxOutputTokens: 256
+    maxCallCostUsd: 0.01
