@@ -40,3 +40,8 @@ as exhausted on behalf of a client.
 Golden research cases are worker-owned evaluation fixtures. The browser does
 not author, upload, or override GC inputs, expectations, evidence IDs, source
 tiers, or verifier outcomes.
+
+The web application cannot author preliminary evidence or clarification
+questions. It may display the worker-owned ClarificationSet after the request
+reaches awaiting_clarification; answer validation and confidential-content
+screening belong to the later clarification API slice.

@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import {
   ConfirmEntityRequestSchema,
   ConfirmEntityResponseSchema,
+  ClarificationSetSchema,
   CreateReportRequestResponseSchema,
   CreateReportRequestSchema,
   EvidenceSchema,
@@ -12,6 +13,42 @@ import {
 } from "../typescript";
 
 describe("RUN-05 shared-schema validation", () => {
+  it("RESEARCH-04/07 keeps the mandatory clarification contract explainable and safe", () => {
+    const clarificationSet = ClarificationSetSchema.parse({
+      schemaVersion: 1,
+      reportRequestId: randomUUID(),
+      entityId: randomUUID(),
+      questions: [
+        {
+          questionId: "client_role",
+          code: "client_role",
+          prompt: "Which role best describes you for this transaction?",
+          reason: "Role changes the research emphasis.",
+          mandatory: true,
+          answerKind: "single_select",
+          answerOptions: ["company_promoter", "investor_acquirer"],
+          confidentialitySafe: true,
+        },
+      ],
+      evidenceIds: [],
+      sparseData: true,
+      plannerVersion: "preliminary-clarification-v1",
+    });
+
+    expect(clarificationSet.questions[0].confidentialitySafe).toBe(true);
+    expect(() =>
+      ClarificationSetSchema.parse({
+        ...clarificationSet,
+        questions: [
+          {
+            ...clarificationSet.questions[0],
+            confidential: "matter narrative",
+          },
+        ],
+      }),
+    ).toThrow();
+  });
+
   it("accepts an identifier-only JobMessage", () => {
     const message = JobMessageSchema.parse({
       schemaVersion: 1,

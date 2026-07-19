@@ -25,6 +25,33 @@ export const ClaimSchema = z
   .strict();
 export type Claim = z.infer<typeof ClaimSchema>;
 
+export const ClarificationSetQuestionsItemSchema = z
+  .object({
+  questionId: z.string().regex(new RegExp("^[a-z0-9_:-]{3,100}$")),
+  code: z.enum(["client_role", "transaction_category", "cross_border", "known_public_issue"]),
+  prompt: z.string().min(1).max(600),
+  reason: z.string().min(1).max(600),
+  mandatory: z.boolean(),
+  answerKind: z.enum(["single_select", "optional_select", "short_text"]),
+  answerOptions: z.array(z.string().min(1).max(100)).max(6),
+  confidentialitySafe: z.literal(true),
+  })
+  .strict();
+export type ClarificationSetQuestionsItem = z.infer<typeof ClarificationSetQuestionsItemSchema>;
+
+export const ClarificationSetSchema = z
+  .object({
+  schemaVersion: z.literal(1),
+  reportRequestId: z.string().uuid(),
+  entityId: z.string().uuid(),
+  questions: z.array(ClarificationSetQuestionsItemSchema).min(1).max(8),
+  evidenceIds: z.array(z.string().uuid()).max(20),
+  sparseData: z.boolean(),
+  plannerVersion: z.string().regex(new RegExp("^[A-Za-z0-9.-]{1,64}$")),
+  })
+  .strict();
+export type ClarificationSet = z.infer<typeof ClarificationSetSchema>;
+
 export const ConfirmEntityRequestSchema = z
   .object({
   action: z.enum(["confirm", "none_of_these", "refine"]),

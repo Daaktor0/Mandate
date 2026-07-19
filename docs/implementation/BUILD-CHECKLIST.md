@@ -2,7 +2,7 @@
 
 **Status header (update after every tested phase):**
 
-> **Current phase:** 3 — Clarification and questions (0/5 tasks complete) · **Phase 1 live benchmark:** blocked at 8/9 · **Last gate passed:** G2 · **Updated:** 2026-07-17
+> **Current phase:** 3 — Clarification and questions (1/5 tasks complete) · **Phase 1 live benchmark:** blocked at 8/9 · **Last gate passed:** G2 · **Updated:** 2026-07-17
 
 **Sources:** product-specification doc 13 (authoritative phase order and gates); master prompt ("follow the build roadmap exactly; use vertical slices; update the checklist after every tested phase")
 **Related:** [REQUIREMENTS-TRACEABILITY.md](REQUIREMENTS-TRACEABILITY.md), [TEST-PLAN.md](TEST-PLAN.md), [ARCHITECTURE-DECISIONS.md](ARCHITECTURE-DECISIONS.md) (blockers B1–B14)
@@ -63,7 +63,7 @@ B5's architecture is resolved: Exa is search-only; company master data and MCA/R
 
 ## Phase 3 — Clarification and questions
 
-- [ ] Preliminary-research light task + clarification planner (mandatory client role with reason; optional overlay; foreign-investment question) (RESEARCH-01..07)
+- [x] Preliminary-research light task + clarification planner (mandatory client role with reason; optional overlay; foreign-investment question) (RESEARCH-01..07) ([review](security-reviews/phase-3-preliminary-research.md))
 - [ ] Clarification API + UI; mandatory-question enforcement; confidential-content screening of free text
 - [ ] Transaction-preparation analyst (stage 9): matters for attention, gaps, `KickoffQuestion` set with role adaptation
 - [ ] Question quality rubric harness (doc 12 dimensions) over golden cases
