@@ -1,8 +1,7 @@
-"""FastAPI control surface for the Mandate worker."""
-
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import AsyncIterator, Mapping
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, Request, Response
@@ -10,6 +9,11 @@ from pydantic import BaseModel, ConfigDict
 from starlette.middleware.base import RequestResponseEndpoint
 
 from mandate_worker import __version__
+from mandate_worker.composition import (
+    LightTaskDependenciesFactory,
+    LightTaskRuntime,
+    start_light_task_runtime,
+)
 from mandate_worker.fixtures import AdapterCapability
 from mandate_worker.observability import (
     configure_logging,
@@ -35,18 +39,48 @@ def create_app(
     *,
     environ: Mapping[str, str] | None = None,
     fixture_root: Path | None = None,
+    light_task_dependencies_factory: LightTaskDependenciesFactory | None = None,
 ) -> FastAPI:
     """Create an internal service API without starting external providers."""
 
     configure_logging()
+    logger = get_logger()
+
+    @asynccontextmanager
+    async def lifespan(application: FastAPI) -> AsyncIterator[None]:
+        light_task_runtime: LightTaskRuntime | None = None
+        application.state.light_task_runtime = None
+        application.state.light_task_loop_tasks = ()
+        if service_name == "mandate-worker":
+            light_task_runtime = start_light_task_runtime(
+                environ=environ,
+                dependencies_factory=light_task_dependencies_factory,
+            )
+            application.state.light_task_runtime = light_task_runtime
+            application.state.light_task_runtime_configuration = light_task_runtime.configuration
+            application.state.light_task_loop_tasks = light_task_runtime.tasks
+            logger.info(
+                "light_task_runtime_configured",
+                enabled=light_task_runtime.configuration.enabled,
+                queue_backend=light_task_runtime.configuration.queue_backend,
+                requested_queue_backend=light_task_runtime.configuration.requested_queue_backend,
+                task_count=len(light_task_runtime.tasks),
+            )
+        try:
+            yield
+        finally:
+            if light_task_runtime is not None:
+                await light_task_runtime.stop()
+                application.state.light_task_loop_tasks = light_task_runtime.tasks
+
     application = FastAPI(
         title=service_name,
         version=__version__,
         docs_url=None,
         redoc_url=None,
         openapi_url=None,
+        lifespan=lifespan,
     )
-    logger = get_logger()
 
     if service_name == "mandate-worker":
         runtime_plan = build_runtime_adapter_plan(environ=environ, fixture_root=fixture_root)

@@ -110,6 +110,7 @@ One user intent to create one Mandate Brief. Owns the pre-generation state machi
 | `transaction_category` | text null | optional overlay (RESEARCH-05) |
 | `cross_border` | enum (`yes`,`no`,`unknown`) null | RESEARCH-06 |
 | `clarifications` | jsonb | planner questions + reasons |
+| `preliminary_evidence` | jsonb array null | bounded admitted public-source metadata captured before a paid report job exists |
 | `clarification_answers` | jsonb | |
 | `sparse_data_disclosed_at` | timestamptz null | doc 03 errors: disclose before reservation |
 | `state` | enum `request_state` — see §3 | |

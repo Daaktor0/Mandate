@@ -1,6 +1,6 @@
 # REQUIREMENTS-TRACEABILITY — Mandate MVP
 
-**Status:** Phase 2 complete (13/13 tasks; Gate G2 passed); Phase 3 is in progress (0/5 tasks); Phase 1 live benchmark remains blocked at 8/9; `NFR-03` is `Verified`; `INTAKE-01`, `INTAKE-03`, `INTAKE-05`, `ENTITY-01`, `ENTITY-02`, `ENTITY-03`, `ENTITY-04`, `ENTITY-05` and `ENTITY-07` are `Implemented`; `NFR-01`, `NFR-02`, `NFR-04`, `NFR-05`, `NFR-09`, `INTAKE-02`, `INTAKE-04`, `INTAKE-06`, `RUN-02`, `RUN-03`, `RUN-04`, `RUN-06`, `RUN-07`, `REPORT-06`, `REPORT-08` and `REPORT-09` are `In progress`; all other requirements remain `Specified`
+**Status:** Phase 2 complete (13/13 tasks; Gate G2 passed); Phase 3 is in progress (1/5 tasks); Phase 1 live benchmark remains blocked at 8/9; `NFR-03` is `Verified`; `INTAKE-01`, `INTAKE-03`, `INTAKE-05`, `ENTITY-01`, `ENTITY-02`, `ENTITY-03`, `ENTITY-04`, `ENTITY-05` and `ENTITY-07` are `Implemented`; `NFR-01`, `NFR-02`, `NFR-04`, `NFR-05`, `NFR-09`, `INTAKE-02`, `INTAKE-04`, `INTAKE-06`, `RUN-02`, `RUN-03`, `RUN-04`, `RUN-06`, `RUN-07`, `REPORT-06`, `REPORT-08` and `REPORT-09` are `In progress`; all other requirements remain `Specified`
 **Sources:** product-specification doc 02 (requirement IDs are normative and must be preserved in tickets, tests and PRs)
 **Related:** [TEST-PLAN.md](TEST-PLAN.md) (test IDs), [SYSTEM-SPEC.md](SYSTEM-SPEC.md) (component codes C1–C15), [BUILD-CHECKLIST.md](BUILD-CHECKLIST.md) (phases)
 
@@ -45,13 +45,13 @@ Columns: **Component** uses SYSTEM-SPEC §2 codes; **DB / API surface** cites ER
 
 | Req | Summary | Component | DB / API surface | Acceptance tests | Phase | Status |
 |---|---|---|---|---|---|---|
-| RESEARCH-01 | Preliminary research before contextual questions | C6 (pre-B stage) | light queue task; `report_requests.state` | AT-RESEARCH-01, E2E-03 | 3 | Specified |
-| RESEARCH-02 | Only materially relevant questions | C6 (clarification planner) | `clarifications` payload | AT-RESEARCH-02 (planner eval) | 3 | Specified |
+| RESEARCH-01 | Preliminary research before contextual questions | C6 (pre-B stage) | light queue task; `report_requests.state`, `preliminary_evidence`; worker SearchProvider/PageFetcher/admission boundary | `test_preliminary_research.py`; AT-RESEARCH-01, E2E-03 | 3 | In progress |
+| RESEARCH-02 | Only materially relevant questions | C6 (clarification planner) | `clarifications` payload; deterministic material-signal policy | `test_preliminary_research.py`; AT-RESEARCH-02 (planner eval) | 3 | In progress |
 | RESEARCH-03 | Mandatory clarifications cannot be skipped | C1, C2 | `POST …/clarifications` validation | AT-RESEARCH-03, E2E-03 | 3 | Specified |
-| RESEARCH-04 | Client role mandatory (4 options) | C1, C2 | `report_requests.client_role` enum | AT-RESEARCH-04, E2E-03 | 3 | Specified |
-| RESEARCH-05 | Transaction type optional; overlay not limiter | C6 (planner/analyst) | `transaction_category`; AGENT-PROMPT §4/§6 | AT-RESEARCH-05, GC-10 | 3 | Specified |
-| RESEARCH-06 | May ask foreign-investment question w/o confidential terms | C6 (planner) | `cross_border`; question templates | AT-RESEARCH-06 | 3 | Specified |
-| RESEARCH-07 | Explain why each mandatory question matters | C1, C6 | `reason` field on questions | AT-RESEARCH-07, E2E-03 | 3 | Specified |
+| RESEARCH-04 | Client role mandatory (4 options) | C1, C2 | `report_requests.client_role` enum; generated `ClarificationSet` | `test_preliminary_research.py`; `schemas.test.ts`; AT-RESEARCH-04, E2E-03 | 3 | In progress |
+| RESEARCH-05 | Transaction type optional; overlay not limiter | C6 (planner/analyst) | `transaction_category`; AGENT-PROMPT §4/§6; optional material signal | `test_preliminary_research.py`; AT-RESEARCH-05, GC-10 | 3 | In progress |
+| RESEARCH-06 | May ask foreign-investment question w/o confidential terms | C6 (planner) | `cross_border`; question templates | `test_preliminary_research.py`; AT-RESEARCH-06 | 3 | In progress |
+| RESEARCH-07 | Explain why each mandatory question matters | C1, C6 | `reason` field on questions | `test_preliminary_research.py`; `schemas.test.ts`; AT-RESEARCH-07, E2E-03 | 3 | In progress |
 
 ## Research execution
 

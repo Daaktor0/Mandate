@@ -2,6 +2,8 @@
 
 from mandate_schemas.generated import (
     Claim,
+    ClarificationSet,
+    ClarificationSetQuestionsItem,
     EntityCandidate,
     Evidence,
     JobMessage,
@@ -11,6 +13,8 @@ from mandate_schemas.generated import (
 
 __all__ = [
     "Claim",
+    "ClarificationSet",
+    "ClarificationSetQuestionsItem",
     "EntityCandidate",
     "Evidence",
     "JobMessage",

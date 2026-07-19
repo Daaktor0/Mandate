@@ -33,6 +33,17 @@ class ClaimVerifierStatus(StrEnum):
     REJECTED = "rejected"
     CONFLICTED = "conflicted"
 
+class ClarificationSetQuestionsItemCode(StrEnum):
+    CLIENT_ROLE = "client_role"
+    TRANSACTION_CATEGORY = "transaction_category"
+    CROSS_BORDER = "cross_border"
+    KNOWN_PUBLIC_ISSUE = "known_public_issue"
+
+class ClarificationSetQuestionsItemAnswerKind(StrEnum):
+    SINGLE_SELECT = "single_select"
+    OPTIONAL_SELECT = "optional_select"
+    SHORT_TEXT = "short_text"
+
 class ConfirmEntityRequestAction(StrEnum):
     CONFIRM = "confirm"
     NONE_OF_THESE = "none_of_these"
@@ -104,6 +115,33 @@ class Claim(BaseModel):
     report_sections: list[str] = Field(..., alias="reportSections", max_length=20)
     model_prompt_version: str = Field(..., alias="modelPromptVersion", min_length=1, max_length=100)
     is_material: bool = Field(..., alias="isMaterial")
+
+class ClarificationSetQuestionsItem(BaseModel):
+    """Generated from the canonical Mandate JSON Schema."""
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    question_id: str = Field(..., alias="questionId", pattern="^[a-z0-9_:-]{3,100}$")
+    code: ClarificationSetQuestionsItemCode = Field(...)
+    prompt: str = Field(..., min_length=1, max_length=600)
+    reason: str = Field(..., min_length=1, max_length=600)
+    mandatory: bool = Field(...)
+    answer_kind: ClarificationSetQuestionsItemAnswerKind = Field(..., alias="answerKind")
+    answer_options: list[str] = Field(..., alias="answerOptions", max_length=6)
+    confidentiality_safe: Literal[True] = Field(..., alias="confidentialitySafe")
+
+class ClarificationSet(BaseModel):
+    """Generated from the canonical Mandate JSON Schema."""
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    schema_version: Literal[1] = Field(..., alias="schemaVersion")
+    report_request_id: UUID = Field(..., alias="reportRequestId")
+    entity_id: UUID = Field(..., alias="entityId")
+    questions: list[ClarificationSetQuestionsItem] = Field(..., min_length=1, max_length=8)
+    evidence_ids: list[UUID] = Field(..., alias="evidenceIds", max_length=20)
+    sparse_data: bool = Field(..., alias="sparseData")
+    planner_version: str = Field(..., alias="plannerVersion", pattern="^[A-Za-z0-9.-]{1,64}$")
 
 class ConfirmEntityRequest(BaseModel):
     """Generated from the canonical Mandate JSON Schema."""
@@ -270,6 +308,10 @@ __all__ = [
     "ClaimConfidence",
     "ClaimFreshness",
     "ClaimVerifierStatus",
+    "ClarificationSet",
+    "ClarificationSetQuestionsItem",
+    "ClarificationSetQuestionsItemAnswerKind",
+    "ClarificationSetQuestionsItemCode",
     "ConfirmEntityRequest",
     "ConfirmEntityRequestAction",
     "ConfirmEntityResponse",

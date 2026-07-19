@@ -343,3 +343,19 @@ unacceptable claims, questions, source tiers and quality gates. The loader
 rejects missing/extra cases, path/ID drift, non-reserved URLs, credentials,
 confidential fields and raw fetched content. It performs no provider or model
 call; live B3/B4 benchmark results remain human/vendor-dependent evidence.
+
+## Preliminary research and clarification planner
+
+The preliminary_research module owns the unpaid pre-B task after explicit
+entity confirmation. It performs one bounded SearchProvider operation, fetches
+at most three results through PageFetcher, and admits only bounded public
+metadata. The task never forwards user identity, firm, billing, letterhead or
+matter narrative to a provider.
+
+ClarificationPlanner always emits the four-option mandatory client-role
+question with a reason. Optional transaction, cross-border and known-public-
+issue questions are emitted only for explicit material signals. Every question
+is generated with confidentialitySafe=true; unsafe question text fails closed.
+The completion function stores the question set and bounded preliminary
+evidence, then transitions preliminary_research to awaiting_clarification
+without reserving entitlement.
